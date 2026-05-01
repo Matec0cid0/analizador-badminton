@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Analizador de Bádminton</title>
+  <style>
+    body { font-family: Arial, sans-serif; display: flex; gap: 20px; padding: 20px; flex-wrap: wrap; }
+    #player-container { flex: 2; min-width: 400px; }
+    #controls { flex: 1; background: #f5f5f5; padding: 15px; border-radius: 8px; min-width: 280px; }
+    select, button, input { margin: 5px 0; padding: 8px; font-size: 14px; width: 100%; box-sizing: border-box; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ccc; padding: 6px; text-align: left; font-size: 13px; }
+    th { background: #e0e0e0; }
+    h3 { margin-top: 0; }
+    .error-msg { color: red; margin-top: 10px; display: none; }
+    #loading { display: none; margin-top: 10px; color: #555; }
+    iframe { width: 100%; height: 390px; border: none; }
+  </style>
+</head>
+<body>
+
+<div id="player-container">
+  <h2>Vídeo</h2>
+  <div id="player-wrapper">
+    <iframe id="youtube-frame" src="" frameborder="0" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+  </div>
+  <p>
+    <label>Link del vídeo de YouTube:<br>
+      <input type="text" id="urlInput" placeholder="https://www.youtube.com/watch?v=..." size="40" value="https://www.youtube.com/watch?v=bTqG6zFnj3E">
+    </label>
+    <button onclick="cargarVideo()">▶️ Cargar vídeo</button>
+  </p>
+  <div id="loading">⏳ Cargando reproductor...</div>
+  <div id="errorMsg" class="error-msg"></div>
+  <p><small>Para registrar el tiempo exacto, pausá el video y luego presioná "Registrar evento".</small></p>
+</div>
+
+<div id="controls">
+  <h3>Panel de Etiquetado</h3>
+  <label>Jugador analizado:
+    <select id="jugadorActual"></select>
+  </label>
+  <button onclick="agregarJugador()">➕ Añadir jugador</button>
+  <hr>
+  <label>Tipo de evento:
+    <select id="tipoEvento">
+      <optgroup label="Golpes">
+        <option value="Smash">Smash</option>
+        <option value="Clear">Clear</option>
+        <option value="Drop">Drop</option>
+        <option value="Drive">Drive</option>
+        <option value="Net shot">Net shot</option>
+        <option value="Lob">Lob</option>
+        <option value="Saque corto">Saque corto</option>
+        <option value="Saque largo">Saque largo</option>
+        <option value="Otro golpe">Otro golpe</option>
+      </optgroup>
+      <optgroup label="Errores">
+        <option value="Error no forzado">Error no forzado</option>
+        <option value="Error forzado">Error forzado</option>
+        <option value="Error de red">Error de red</option>
+        <option value="Fuera">Fuera</option>
+        <option value="Saque fallado">Saque fallado</option>
+      </optgroup>
+    </select>
+  </label>
+  <button onclick="registrarEvento()">📌 Registrar evento</button>
+
+  <h3>Eventos registrados</h3>
+  <table id="tablaEventos">
+    <thead><tr><th>Jugador</th><th>Tiempo</th><th>Tipo</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script>
+  const jugadores = JSON.parse(localStorage.getItem('jugadoresBadminton') || '[]');
+  let jugadorSeleccionado = localStorage.getItem('jugadorActualBadminton') || '';
+  let iframe;
+
+  function extraerID(url) {
+    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  }
+
+  function cargarVideo() {
+    const url = document.getElementById('urlInput').value.trim();
+    document.getElementById('errorMsg').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    if (!url) {
+      mostrarError('Por favor pega un enlace de YouTube.');
+      return;
+    }
+    const videoId = extraerID(url);
+    if (!videoId) {
+      mostrarError('No se pudo extraer el ID del vídeo. Revisa el enlace.');
+      return;
+    }
+    iframe = document.getElementById('youtube-frame');
+    // El parámetro origin garantiza que funcione en cualquier dominio (incluido GitHub Pages)
+    iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
+    iframe.style.display = 'block';
+    document.getElementById('loading').style.display = 'none';
+  }
+
+  function mostrarError(mensaje) {
+    const err = document.getElementById('errorMsg');
+    err.textContent = mensaje;
+    err.style.display = 'block';
+    document.getElementById('loading').style.display = 'none';
+  }
+
+  // Obtener el tiempo actual del iframe mediante postMessage
+  window.addEventListener('message', (event) => {
+    if (event.origin !== 'https://www.youtube.com') return;
+    try {
+      const data = JSON.parse(event.data);
+      if (data.event === 'infoDelivery' && data.info && data.info.currentTime) {
+        window.iframeCurrentTime = data.info.currentTime;
+      }
+    } catch(e) {}
+  });
+
+  function solicitarTiempo() {
+    if (!iframe || !iframe.contentWindow) return;
+    iframe.contentWindow.postMessage('{"event":"listening","id":1}', 'https://www.youtube.com');
+  }
+
+  // Actualizar el tiempo cada medio segundo
+  setInterval(solicitarTiempo, 500);
+
+  function registrarEvento() {
+    if (!iframe || !iframe.src) {
+      alert('Carga un video primero.');
+      return;
+    }
+    if (!jugadorSeleccionado) {
+      alert('Selecciona o añade un jugador primero.');
+      return;
+    }
+    const tiempo = window.iframeCurrentTime;
+    if (tiempo === undefined || tiempo === null) {
+      alert('No se pudo obtener el tiempo. Espera unos segundos y vuelve a intentarlo.');
+      solicitarTiempo();
+      return;
+    }
+    const tipo = document.getElementById('tipoEvento').value;
+    const minutos = Math.floor(tiempo / 60);
+    const segundos = Math.floor(tiempo % 60);
+    const tiempoFormateado = `${minutos}:${segundos.toString().padStart(2, '0')}`;
+
+    const tabla = document.querySelector('#tablaEventos tbody');
+    const fila = tabla.insertRow();
+    fila.innerHTML = `<td>${jugadorSeleccionado}</td><td>${tiempoFormateado}</td><td>${tipo}</td>`;
+
+    if (!window.eventos) window.eventos = [];
+    window.eventos.push({ jugador: jugadorSeleccionado, tiempo, tipo });
+  }
+
+  function actualizarListaJugadores() {
+    const select = document.getElementById('jugadorActual');
+    select.innerHTML = jugadores.map(j => `<option value="${j}" ${j === jugadorSeleccionado ? 'selected' : ''}>${j}</option>`).join('');
+    if (jugadores.length === 0) {
+      select.innerHTML = '<option value="">-- Sin jugador --</option>';
+    }
+  }
+
+  function agregarJugador() {
+    const nombre = prompt('Nombre del jugador:');
+    if (nombre && !jugadores.includes(nombre)) {
+      jugadores.push(nombre);
+      localStorage.setItem('jugadoresBadminton', JSON.stringify(jugadores));
+      jugadorSeleccionado = nombre;
+      localStorage.setItem('jugadorActualBadminton', nombre);
+      actualizarListaJugadores();
+    }
+  }
+
+  document.getElementById('jugadorActual').addEventListener('change', (e) => {
+    jugadorSeleccionado = e.target.value;
+    localStorage.setItem('jugadorActualBadminton', jugadorSeleccionado);
+  });
+
+  // Inicializar
+  actualizarListaJugadores();
+  cargarVideo();
+</script>
+</body>
+</html>
