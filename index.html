@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analizador de Bádminton Pro</title>
+  <title>Analizador de Bádminton - Zonas</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <style>
     * { box-sizing: border-box; }
@@ -73,6 +73,29 @@
     .btn-winner-rival:hover { background: #ffc107; color: #212529; }
     .btn-out-rival { background: #e2e3e5; color: #383d41; border: 2px solid #6c757d; }
     .btn-out-rival:hover { background: #6c757d; color: white; }
+
+    /* Estilos de la cancha */
+    .court-container {
+      background: white; border-radius: 10px; padding: 15px; margin: 15px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .court-title { font-weight: bold; margin-bottom: 8px; }
+    .court {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 1fr 1fr; gap: 4px; background: #2e7d32;
+      padding: 4px; border-radius: 8px; max-width: 400px; margin: auto;
+      aspect-ratio: 2 / 1.5; /* proporción aproximada de media cancha */
+    }
+    .zone {
+      background: #c8e6c9; border: 2px solid #1b5e20; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-weight: bold; font-size: 0.8rem; color: #1b5e20;
+      transition: background 0.2s;
+    }
+    .zone:hover { background: #a5d6a7; }
+    .zone.red { grid-row: 1 / 2; }  /* zona de red */
+    .zone.fondo { grid-row: 2 / 3; } /* zona de fondo */
+    .zone-label { text-align: center; }
 
     .stats-panel {
       background: white; border-radius: 10px; padding: 15px; margin-top: 20px;
@@ -164,6 +187,20 @@
     <button class="btn-result btn-out-rival" onclick="marcarResultado('out-rival')">⚠️ Error rival</button>
   </div>
 
+  <!-- Mapa de zonas de caída -->
+  <div class="court-container">
+    <div class="court-title">📍 Zona de caída (clic después de registrar un golpe)</div>
+    <div class="court" id="courtMap">
+      <div class="zone red" onclick="asignarZona('Red Izquierda')">Red<br>Izquierda</div>
+      <div class="zone red" onclick="asignarZona('Red Centro')">Red<br>Centro</div>
+      <div class="zone red" onclick="asignarZona('Red Derecha')">Red<br>Derecha</div>
+      <div class="zone fondo" onclick="asignarZona('Fondo Izquierda')">Fondo<br>Izquierda</div>
+      <div class="zone fondo" onclick="asignarZona('Fondo Centro')">Fondo<br>Centro</div>
+      <div class="zone fondo" onclick="asignarZona('Fondo Derecha')">Fondo<br>Derecha</div>
+    </div>
+    <p style="font-size:0.8rem; margin-top:5px;">La zona se asigna al último golpe sin zona. También podés cambiarla después volviendo a hacer clic en otra zona sobre el mismo evento.</p>
+  </div>
+
   <!-- Botones de golpes -->
   <h2>Registro rápido de golpes</h2>
   <div id="golpesContainer" class="golpes-grid"></div>
@@ -179,7 +216,7 @@
     <h3>Eventos registrados</h3>
     <p><small>Hacé clic en el tiempo para revisar la jugada (retrocede 2 seg).</small></p>
     <table class="table-events">
-      <thead><tr><th>Ejecutor</th><th>Tiempo</th><th>Golpe</th><th>Resultado</th></tr></thead>
+      <thead><tr><th>Ejecutor</th><th>Tiempo</th><th>Golpe</th><th>Zona</th><th>Resultado</th></tr></thead>
       <tbody id="tablaEventos"></tbody>
     </table>
   </div>
@@ -192,7 +229,7 @@
       <canvas id="chartGolpes" width="400" height="250"></canvas>
     </div>
     <div class="chart-container">
-      <canvas id="chartResultados" width="400" height="250"></canvas>
+      <canvas id="chartZonas" width="400" height="250"></canvas>
     </div>
     <div class="export-btns">
       <button class="btn btn-sm btn-success" onclick="exportarCSV()">📥 Exportar CSV</button>
@@ -209,14 +246,15 @@
     'Bloqueo', 'Defensa', 'Defensa profunda', 'Lob', 'Lift', 'Dejada', 'Barrido'
   ];
   const direcciones = ['Paralelo', 'Cruzado'];
+  const zonasDisponibles = ['Red Izquierda', 'Red Centro', 'Red Derecha', 'Fondo Izquierda', 'Fondo Centro', 'Fondo Derecha'];
 
   let iframe;
   let jugadores = JSON.parse(localStorage.getItem('jugadoresBadminton') || '[]');
   let jugadorPropio = localStorage.getItem('jugadorPropioBadminton') || '';
   let jugadorRival = localStorage.getItem('jugadorRivalBadminton') || '';
-  let ejecutorActual = 'propio'; // 'propio' o 'rival'
-  let contadores = {};
-  let eventos = [];
+  let ejecutorActual = 'propio';
+  let contadores = {};  // { golpe: { propio, rival } }
+  let eventos = [];     // { jugador, tiempo, tipo, ejecutor, result, zona }
 
   function inicializarContadores() {
     golpesBase.forEach(golpe => {
@@ -304,10 +342,8 @@
   function actualizarSelectores() {
     const selPropio = document.getElementById('jugadorPropio');
     const selRival = document.getElementById('jugadorRival');
-    
     const opciones = jugadores.map(j => `<option value="${j}" ${j === jugadorPropio ? 'selected' : ''}>${j}</option>`).join('');
     selPropio.innerHTML = opciones || '<option value="">-- Sin jugador --</option>';
-    
     const opcionesRival = jugadores.map(j => `<option value="${j}" ${j === jugadorRival ? 'selected' : ''}>${j}</option>`).join('');
     selRival.innerHTML = opcionesRival || '<option value="">-- Sin jugador --</option>';
   }
@@ -344,7 +380,7 @@
     document.getElementById('toggleRival').className = `toggle-btn ${ejecutor === 'rival' ? 'toggle-activo' : 'toggle-inactivo'}`;
   }
 
-  // ---------- REGISTRO DE GOLPES ----------
+  // ---------- REGISTRO DE GOLPES (con zona nula) ----------
   function registrarGolpe(golpe, direccion) {
     if (!iframe?.src) { alert('Carga un video primero.'); return; }
     const jugador = ejecutorActual === 'propio' ? jugadorPropio : jugadorRival;
@@ -364,7 +400,7 @@
 
     const evento = {
       jugador, tiempo, tipo: clave, ejecutor: ejecutorActual,
-      result: null
+      result: null, zona: null
     };
     eventos.push(evento);
     agregarFilaTabla(eventos.length - 1, evento);
@@ -383,12 +419,19 @@
       <td>${evento.jugador} (${evento.ejecutor === 'propio' ? 'Nosotros' : 'Rival'})</td>
       <td class="tiempo-cell" data-tiempo="${evento.tiempo}">${tiempoFormateado}</td>
       <td>${evento.tipo}</td>
+      <td class="zona-cell">${evento.zona || ''}</td>
       <td class="result-cell">${evento.result ? `<span class="result-badge result-${evento.result}">${evento.result.replace('-', ' ')}</span>` : ''}</td>
     `;
 
     fila.querySelector('.tiempo-cell').addEventListener('click', function() {
       seekTo(Math.max(0, parseFloat(this.dataset.tiempo) - 2));
     });
+  }
+
+  function actualizarFilaZona(index, zona) {
+    const fila = document.getElementById(`row-${index}`);
+    if (!fila) return;
+    fila.querySelector('.zona-cell').textContent = zona || '';
   }
 
   function actualizarFilaResultado(index, result) {
@@ -398,6 +441,22 @@
     cell.innerHTML = result ? `<span class="result-badge result-${result}">${result.replace('-', ' ')}</span>` : '';
   }
 
+  // ---------- ASIGNACIÓN DE ZONA ----------
+  function asignarZona(zona) {
+    // Buscar el último evento sin zona
+    const sinZona = eventos.filter(e => e.zona === null);
+    if (sinZona.length === 0) {
+      alert('Todos los eventos ya tienen zona asignada.');
+      return;
+    }
+    const ultimo = sinZona[sinZona.length - 1];
+    const index = eventos.indexOf(ultimo);
+    eventos[index].zona = zona;
+    guardarTodo();
+    actualizarFilaZona(index, zona);
+  }
+
+  // ---------- RESULTADOS (se mantiene igual) ----------
   function marcarResultado(result) {
     const sinMarcar = eventos.filter(e => e.result === null);
     if (sinMarcar.length === 0) {
@@ -418,19 +477,16 @@
     golpesBase.forEach(golpe => {
       const card = document.createElement('div');
       card.className = 'golpe-card';
-      
       const nombre = document.createElement('div');
       nombre.className = 'golpe-nombre';
       nombre.textContent = golpe;
       card.appendChild(nombre);
-
       const botonesDiv = document.createElement('div');
       botonesDiv.className = 'botones-golpe';
 
       direcciones.forEach(dir => {
         const clave = `${golpe} ${dir}`;
         const total = (contadores[clave]?.propio || 0) + (contadores[clave]?.rival || 0);
-        
         const btn = document.createElement('button');
         btn.className = `btn-golpe ${dir === 'Paralelo' ? 'btn-paralelo' : 'btn-cruzado'}`;
         btn.innerHTML = `${dir} <span class="badge" id="cont-${clave.replace(/\s/g, '_')}">${total}</span>`;
@@ -482,8 +538,8 @@
     }
   }
 
-  // ---------- ESTADÍSTICAS ----------
-  let chartGolpes, chartResultados;
+  // ---------- ESTADÍSTICAS (ahora incluye gráfico de zonas) ----------
+  let chartGolpes, chartZonas;
 
   function generarEstadisticas() {
     const propias = eventos.filter(e => e.ejecutor === 'propio');
@@ -508,6 +564,7 @@
       </div>
     `;
 
+    // Gráfico de golpes (barras)
     if (chartGolpes) chartGolpes.destroy();
     const ctx1 = document.getElementById('chartGolpes').getContext('2d');
     const labels = golpesBase;
@@ -534,24 +591,37 @@
       options: { responsive: true, plugins: { title: { display: true, text: 'Golpes por tipo' } } }
     });
 
-    if (chartResultados) chartResultados.destroy();
-    const ctx2 = document.getElementById('chartResultados').getContext('2d');
-    chartResultados = new Chart(ctx2, {
-      type: 'pie',
+    // Gráfico de zonas (agrupado por resultado)
+    const conteoZonas = {};
+    zonasDisponibles.forEach(z => { conteoZonas[z] = { winnerPropio: 0, outPropio: 0, winnerRival: 0, outRival: 0 }; });
+    eventos.forEach(e => {
+      if (!e.zona) return;
+      if (e.result === 'winner-propio') conteoZonas[e.zona].winnerPropio++;
+      else if (e.result === 'out-propio') conteoZonas[e.zona].outPropio++;
+      else if (e.result === 'winner-rival') conteoZonas[e.zona].winnerRival++;
+      else if (e.result === 'out-rival') conteoZonas[e.zona].outRival++;
+    });
+
+    if (chartZonas) chartZonas.destroy();
+    const ctx2 = document.getElementById('chartZonas').getContext('2d');
+    chartZonas = new Chart(ctx2, {
+      type: 'bar',
       data: {
-        labels: ['Winners propios', 'Errores propios', 'Winners rival', 'Errores rival', 'Sin marcar'],
-        datasets: [{
-          data: [winnersPropios, outsPropios, winnersRival, outsRival, eventos.filter(e => !e.result).length],
-          backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#6c757d', '#e9ecef']
-        }]
+        labels: zonasDisponibles,
+        datasets: [
+          { label: 'Winner propio', data: zonasDisponibles.map(z => conteoZonas[z].winnerPropio), backgroundColor: '#28a745' },
+          { label: 'Error propio', data: zonasDisponibles.map(z => conteoZonas[z].outPropio), backgroundColor: '#dc3545' },
+          { label: 'Winner rival', data: zonasDisponibles.map(z => conteoZonas[z].winnerRival), backgroundColor: '#ffc107' },
+          { label: 'Error rival', data: zonasDisponibles.map(z => conteoZonas[z].outRival), backgroundColor: '#6c757d' }
+        ]
       },
-      options: { responsive: true, plugins: { title: { display: true, text: 'Resultados' } } }
+      options: { responsive: true, plugins: { title: { display: true, text: 'Efectividad por zona' } } }
     });
   }
 
   function exportarCSV() {
-    let csv = 'Ejecutor,Jugador,Tiempo,Golpe,Resultado\n';
-    eventos.forEach(e => csv += `${e.ejecutor},${e.jugador},${e.tiempo.toFixed(1)},${e.tipo},${e.result || ''}\n`);
+    let csv = 'Ejecutor,Jugador,Tiempo,Golpe,Zona,Resultado\n';
+    eventos.forEach(e => csv += `${e.ejecutor},${e.jugador},${e.tiempo.toFixed(1)},${e.tipo},${e.zona || ''},${e.result || ''}\n`);
     descargarArchivo(csv, 'eventos.csv', 'text/csv');
   }
 
