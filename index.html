@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analizador de Bádminton - Diseño Compacto</title>
+  <title>Analizador de Bádminton</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <style>
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 10px; background: #f0f2f5; }
-    .container { max-width: 1400px; margin: auto; }
+    .container { max-width: 1300px; margin: auto; }
 
-    /* Reproductor */
     .player-section { margin-bottom: 10px; }
     #player-wrapper {
       position: relative; width: 100%; padding-bottom: 56.25%; background: #000;
@@ -36,13 +35,39 @@
     .btn-info { background: #17a2b8; } .btn-info:hover { background: #117a8b; }
     .btn-dark { background: #343a40; } .btn-dark:hover { background: #1d2124; }
 
-    /* Layout de dos columnas */
-    .two-columns { display: flex; gap: 15px; align-items: flex-start; }
-    .left-column { flex: 2; }  /* Botones de golpes */
-    .right-column { flex: 1; display: flex; flex-direction: column; gap: 10px; } /* Cancha y resultados */
+    .jugador-selector { display: flex; align-items: center; gap: 8px; }
+    .jugador-selector select { padding: 6px; border-radius: 5px; border: 1px solid #ccc; }
+
+    .toggle-ejecutor { display: flex; gap: 8px; align-items: center; }
+    .toggle-btn { padding: 6px 12px; border-radius: 16px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+    .toggle-activo { background: #007bff; color: white; }
+    .toggle-inactivo { background: #e9ecef; color: #333; }
+
+    .result-row {
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      background: white; padding: 10px; border-radius: 8px; margin: 10px 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .btn-result {
+      padding: 8px 12px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer;
+      font-size: 0.85rem; transition: 0.2s; display: flex; align-items: center; gap: 6px;
+    }
+    .btn-winner-propio { background: #d4edda; color: #155724; border: 2px solid #28a745; }
+    .btn-winner-propio:hover { background: #28a745; color: white; }
+    .btn-out-propio { background: #f8d7da; color: #721c24; border: 2px solid #dc3545; }
+    .btn-out-propio:hover { background: #dc3545; color: white; }
+    .btn-winner-rival { background: #fff3cd; color: #856404; border: 2px solid #ffc107; }
+    .btn-winner-rival:hover { background: #ffc107; color: #212529; }
+    .btn-out-rival { background: #e2e3e5; color: #383d41; border: 2px solid #6c757d; }
+    .btn-out-rival:hover { background: #6c757d; color: white; }
+    .result-counter {
+      background: rgba(0,0,0,0.1); border-radius: 10px; padding: 2px 8px;
+      font-size: 0.8rem; margin-left: 4px;
+    }
 
     .golpes-grid {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;
+      margin: 15px 0;
     }
     .golpe-card {
       background: white; border-radius: 8px; padding: 8px;
@@ -65,40 +90,6 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 0.7rem; font-weight: bold;
     }
-
-    .jugador-selector { display: flex; align-items: center; gap: 8px; }
-    .jugador-selector select { padding: 6px; border-radius: 5px; border: 1px solid #ccc; }
-
-    .result-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
-    .btn-result {
-      padding: 6px 10px; border: none; border-radius: 16px; font-weight: bold; cursor: pointer;
-      font-size: 0.8rem; transition: 0.2s;
-    }
-    .btn-winner-propio { background: #d4edda; color: #155724; border: 2px solid #28a745; }
-    .btn-winner-propio:hover { background: #28a745; color: white; }
-    .btn-out-propio { background: #f8d7da; color: #721c24; border: 2px solid #dc3545; }
-    .btn-out-propio:hover { background: #dc3545; color: white; }
-    .btn-winner-rival { background: #fff3cd; color: #856404; border: 2px solid #ffc107; }
-    .btn-winner-rival:hover { background: #ffc107; color: #212529; }
-    .btn-out-rival { background: #e2e3e5; color: #383d41; border: 2px solid #6c757d; }
-    .btn-out-rival:hover { background: #6c757d; color: white; }
-
-    /* Cancha rediseñada */
-    .court-container {
-      background: white; border-radius: 10px; padding: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;
-    }
-    .court-title { font-weight: bold; margin-bottom: 6px; font-size: 0.85rem; }
-    .court-svg { width: 100%; max-width: 320px; height: auto; border-radius: 8px; }
-    .zone { cursor: pointer; transition: opacity 0.2s; }
-    .zone:hover { opacity: 0.6; }
-    .clicked-feedback { animation: flash 0.3s; }
-    @keyframes flash { from { fill: rgba(255,255,0,0.5); } to { fill: transparent; } }
-
-    .toggle-ejecutor { display: flex; gap: 8px; align-items: center; }
-    .toggle-btn { padding: 6px 12px; border-radius: 16px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
-    .toggle-activo { background: #007bff; color: white; }
-    .toggle-inactivo { background: #e9ecef; color: #333; }
 
     .stats-panel {
       background: white; border-radius: 10px; padding: 15px; margin-top: 10px;
@@ -139,10 +130,6 @@
     }
     .summary-card h4 { margin: 0 0 6px 0; font-size: 0.8rem; }
     .summary-card .number { font-size: 1.8rem; font-weight: bold; }
-
-    @media (max-width: 900px) {
-      .two-columns { flex-direction: column; }
-    }
   </style>
 </head>
 <body>
@@ -161,7 +148,7 @@
     </div>
   </div>
 
-  <!-- Selector de jugadores y toggle ejecutor en una barra -->
+  <!-- Selector de jugadores y toggle -->
   <div class="controls-bar">
     <div class="jugador-selector">
       <label><strong>Propio:</strong></label>
@@ -180,97 +167,27 @@
     <button class="btn btn-sm btn-warning" onclick="reiniciarContadores()">🔄 Reiniciar</button>
   </div>
 
-  <!-- Dos columnas: golpes a la izquierda, cancha y resultados a la derecha -->
-  <div class="two-columns">
-    <div class="left-column">
-      <div id="golpesContainer" class="golpes-grid"></div>
-    </div>
-    <div class="right-column">
-      <div class="result-buttons">
-        <button class="btn-result btn-winner-propio" onclick="marcarResultado('winner-propio')">🚀 Winner propio</button>
-        <button class="btn-result btn-out-propio" onclick="marcarResultado('out-propio')">❌ Out propio</button>
-        <button class="btn-result btn-winner-rival" onclick="marcarResultado('winner-rival')">🏆 Punto rival</button>
-        <button class="btn-result btn-out-rival" onclick="marcarResultado('out-rival')">⚠️ Error rival</button>
-      </div>
-
-      <div class="court-container">
-        <div class="court-title">📍 Toca la zona de caída</div>
-        <svg class="court-svg" viewBox="0 0 400 450" xmlns="http://www.w3.org/2000/svg">
-          <!-- Fondo de parqué -->
-          <defs>
-            <pattern id="wood" patternUnits="userSpaceOnUse" width="20" height="20">
-              <rect width="20" height="20" fill="#c19a6b"/>
-              <line x1="0" y1="5" x2="20" y2="5" stroke="#b08968" stroke-width="0.5"/>
-              <line x1="0" y1="15" x2="20" y2="15" stroke="#b08968" stroke-width="0.5"/>
-            </pattern>
-          </defs>
-          <rect width="400" height="450" fill="url(#wood)" rx="10" />
-
-          <!-- Líneas blancas de la cancha -->
-          <g stroke="white" stroke-width="2" fill="none">
-            <!-- Línea de fondo superior -->
-            <line x1="30" y1="40" x2="370" y2="40" />
-            <!-- Línea de fondo inferior -->
-            <line x1="30" y1="410" x2="370" y2="410" />
-            <!-- Líneas laterales -->
-            <line x1="30" y1="40" x2="30" y2="410" />
-            <line x1="370" y1="40" x2="370" y2="410" />
-            <!-- Línea de saque largo (trasera) -->
-            <line x1="30" y1="160" x2="370" y2="160" />
-            <line x1="30" y1="290" x2="370" y2="290" />
-            <!-- Línea de servicio corto (delantera) -->
-            <line x1="30" y1="190" x2="370" y2="190" />
-            <line x1="30" y1="260" x2="370" y2="260" />
-            <!-- Línea central vertical -->
-            <line x1="200" y1="40" x2="200" y2="410" stroke-dasharray="6,4" stroke-width="1.5" />
-            <!-- Red (horizontal central) -->
-            <line x1="30" y1="225" x2="370" y2="225" stroke="black" stroke-width="3" />
-            <!-- Postes de la red -->
-            <line x1="20" y1="210" x2="20" y2="240" stroke="black" stroke-width="6" />
-            <line x1="380" y1="210" x2="380" y2="240" stroke="black" stroke-width="6" />
-          </g>
-
-          <!-- Zonas clickeables (9 rectángulos transparentes) -->
-          <!-- Red Izquierda -->
-          <rect class="zone" x="30" y="40" width="113" height="150" fill="transparent" onclick="asignarZona('Red Izquierda')" />
-          <!-- Red Centro -->
-          <rect class="zone" x="144" y="40" width="112" height="150" fill="transparent" onclick="asignarZona('Red Centro')" />
-          <!-- Red Derecha -->
-          <rect class="zone" x="257" y="40" width="113" height="150" fill="transparent" onclick="asignarZona('Red Derecha')" />
-
-          <!-- Media Izquierda -->
-          <rect class="zone" x="30" y="190" width="113" height="70" fill="transparent" onclick="asignarZona('Media Izquierda')" />
-          <!-- Media Centro -->
-          <rect class="zone" x="144" y="190" width="112" height="70" fill="transparent" onclick="asignarZona('Media Centro')" />
-          <!-- Media Derecha -->
-          <rect class="zone" x="257" y="190" width="113" height="70" fill="transparent" onclick="asignarZona('Media Derecha')" />
-
-          <!-- Fondo Izquierda -->
-          <rect class="zone" x="30" y="260" width="113" height="150" fill="transparent" onclick="asignarZona('Fondo Izquierda')" />
-          <!-- Fondo Centro -->
-          <rect class="zone" x="144" y="260" width="112" height="150" fill="transparent" onclick="asignarZona('Fondo Centro')" />
-          <!-- Fondo Derecha -->
-          <rect class="zone" x="257" y="260" width="113" height="150" fill="transparent" onclick="asignarZona('Fondo Derecha')" />
-
-          <!-- Etiquetas de zona (texto sobre cada zona) -->
-          <g fill="white" font-size="12" font-weight="bold" text-anchor="middle" opacity="0.8">
-            <text x="86" y="115">Red I</text>
-            <text x="200" y="115">Red C</text>
-            <text x="314" y="115">Red D</text>
-            <text x="86" y="225">Med I</text>
-            <text x="200" y="225">Med C</text>
-            <text x="314" y="225">Med D</text>
-            <text x="86" y="335">Fdo I</text>
-            <text x="200" y="335">Fdo C</text>
-            <text x="314" y="335">Fdo D</text>
-          </g>
-        </svg>
-        <p style="font-size:0.7rem; margin-top:4px; color:#555;">La zona se asigna al último golpe sin zona. Podés cambiarla haciendo otro clic.</p>
-      </div>
-    </div>
+  <!-- Resultados con contadores en tiempo real -->
+  <div class="result-row">
+    <span style="font-weight:bold;">Resultado del último golpe:</span>
+    <button class="btn-result btn-winner-propio" onclick="marcarResultado('winner-propio')">
+      🚀 Winner propio <span class="result-counter" id="counter-winner-propio">0</span>
+    </button>
+    <button class="btn-result btn-out-propio" onclick="marcarResultado('out-propio')">
+      ❌ Out propio <span class="result-counter" id="counter-out-propio">0</span>
+    </button>
+    <button class="btn-result btn-winner-rival" onclick="marcarResultado('winner-rival')">
+      🏆 Punto rival <span class="result-counter" id="counter-winner-rival">0</span>
+    </button>
+    <button class="btn-result btn-out-rival" onclick="marcarResultado('out-rival')">
+      ⚠️ Error rival <span class="result-counter" id="counter-out-rival">0</span>
+    </button>
   </div>
 
-  <!-- Pestañas de eventos / estadísticas -->
+  <!-- Botones de golpes -->
+  <div id="golpesContainer" class="golpes-grid"></div>
+
+  <!-- Pestañas -->
   <div class="tabs">
     <button id="btnTabEventos" class="tab-btn active" onclick="cambiarTab('eventos')">📋 Eventos</button>
     <button id="btnTabEstadisticas" class="tab-btn" onclick="cambiarTab('estadisticas')">📊 Estadísticas</button>
@@ -278,9 +195,9 @@
 
   <div id="tab-eventos" class="tab-content active stats-panel">
     <h3>Eventos registrados</h3>
-    <p style="font-size:0.8rem;">Hacé clic en el tiempo para revisar la jugada (retrocede 2 seg).</p>
+    <p style="font-size:0.8rem;">Clic en el tiempo → retrocede 2 segundos.</p>
     <table class="table-events">
-      <thead><tr><th>Ejecutor</th><th>Tiempo</th><th>Golpe</th><th>Zona</th><th>Resultado</th></tr></thead>
+      <thead><tr><th>Ejecutor</th><th>Tiempo</th><th>Golpe</th><th>Resultado</th></tr></thead>
       <tbody id="tablaEventos"></tbody>
     </table>
   </div>
@@ -289,7 +206,6 @@
     <h3>Estadísticas del Partido</h3>
     <div id="summaryCards" class="summary-cards"></div>
     <div class="chart-container"><canvas id="chartGolpes"></canvas></div>
-    <div class="chart-container"><canvas id="chartZonas"></canvas></div>
     <div class="export-btns">
       <button class="btn btn-sm btn-success" onclick="exportarCSV()">📥 Exportar CSV</button>
       <button class="btn btn-sm btn-info" onclick="exportarJSON()">📥 Exportar JSON</button>
@@ -299,16 +215,13 @@
 </div>
 
 <script>
+  // ---------- CONFIGURACIÓN ----------
   const golpesBase = [
-    'Clear', 'Drop', 'Drop Slice', 'Smash', 'Stick Smash',
-    'Bloqueo', 'Defensa', 'Defensa profunda', 'Lob', 'Lift', 'Dejada', 'Barrido'
+    'Clear', 'Clear Revés', 'Drop', 'Drop Slice', 'Smash', 'Stick Smash',
+    'Bloqueo', 'Defensa', 'Defensa profunda', 'Lob', 'Lift', 'Dejada',
+    'Barrido', 'Barrido Revés'
   ];
   const direcciones = ['Paralelo', 'Cruzado'];
-  const zonasDisponibles = [
-    'Red Izquierda', 'Red Centro', 'Red Derecha',
-    'Media Izquierda', 'Media Centro', 'Media Derecha',
-    'Fondo Izquierda', 'Fondo Centro', 'Fondo Derecha'
-  ];
 
   let iframe;
   let jugadores = JSON.parse(localStorage.getItem('jugadoresBadminton') || '[]');
@@ -317,6 +230,14 @@
   let ejecutorActual = 'propio';
   let contadores = {};
   let eventos = [];
+
+  // Contadores de resultados en tiempo real
+  let resultadosContador = {
+    'winner-propio': 0,
+    'out-propio': 0,
+    'winner-rival': 0,
+    'out-rival': 0
+  };
 
   function inicializarContadores() {
     golpesBase.forEach(golpe => {
@@ -341,6 +262,10 @@
       eventos = evts;
       document.getElementById('tablaEventos').innerHTML = '';
       eventos.forEach((e, i) => agregarFilaTabla(i, e));
+      // Recalcular contadores de resultados
+      resultadosContador = { 'winner-propio': 0, 'out-propio': 0, 'winner-rival': 0, 'out-rival': 0 };
+      eventos.forEach(e => { if (e.result) resultadosContador[e.result]++; });
+      actualizarContadoresResultados();
     }
   }
   cargarTodo();
@@ -458,7 +383,10 @@
     guardarTodo();
     actualizarBotonesContadores();
 
-    const evento = { jugador, tiempo, tipo: clave, ejecutor: ejecutorActual, result: null, zona: null };
+    const evento = {
+      jugador, tiempo, tipo: clave, ejecutor: ejecutorActual,
+      result: null
+    };
     eventos.push(evento);
     agregarFilaTabla(eventos.length - 1, evento);
     guardarTodo();
@@ -474,42 +402,43 @@
       <td>${evento.jugador} (${evento.ejecutor === 'propio' ? 'Nos.' : 'Riv.'})</td>
       <td class="tiempo-cell" data-tiempo="${evento.tiempo}">${mins}:${secs.toString().padStart(2, '0')}</td>
       <td>${evento.tipo}</td>
-      <td class="zona-cell">${evento.zona || ''}</td>
       <td class="result-cell">${evento.result ? `<span class="result-badge result-${evento.result}">${evento.result.replace('-', ' ')}</span>` : ''}</td>
     `;
     fila.querySelector('.tiempo-cell').addEventListener('click', () => seekTo(Math.max(0, evento.tiempo - 2)));
   }
 
-  function actualizarFilaZona(index, zona) {
-    const fila = document.getElementById(`row-${index}`);
-    if (fila) fila.querySelector('.zona-cell').textContent = zona || '';
-  }
-
   function actualizarFilaResultado(index, result) {
     const fila = document.getElementById(`row-${index}`);
-    if (fila) fila.querySelector('.result-cell').innerHTML = result ? `<span class="result-badge result-${result}">${result.replace('-', ' ')}</span>` : '';
+    if (!fila) return;
+    fila.querySelector('.result-cell').innerHTML = result ? `<span class="result-badge result-${result}">${result.replace('-', ' ')}</span>` : '';
   }
 
-  function asignarZona(zona) {
-    const sinZona = eventos.filter(e => e.zona === null);
-    if (sinZona.length === 0) { alert('Todos los golpes ya tienen zona.'); return; }
-    const ultimo = sinZona[sinZona.length - 1];
-    const index = eventos.indexOf(ultimo);
-    eventos[index].zona = zona;
-    guardarTodo();
-    actualizarFilaZona(index, zona);
-  }
-
+  // ---------- RESULTADOS (con contadores visibles) ----------
   function marcarResultado(result) {
     const sinMarcar = eventos.filter(e => e.result === null);
-    if (sinMarcar.length === 0) { alert('Todos los eventos ya tienen resultado.'); return; }
+    if (sinMarcar.length === 0) {
+      alert('No hay golpes sin resultado.');
+      return;
+    }
     const ultimo = sinMarcar[sinMarcar.length - 1];
     const index = eventos.indexOf(ultimo);
     eventos[index].result = result;
     guardarTodo();
     actualizarFilaResultado(index, result);
+
+    // Incrementar contador visual
+    resultadosContador[result] = (resultadosContador[result] || 0) + 1;
+    actualizarContadoresResultados();
   }
 
+  function actualizarContadoresResultados() {
+    document.getElementById('counter-winner-propio').textContent = resultadosContador['winner-propio'];
+    document.getElementById('counter-out-propio').textContent = resultadosContador['out-propio'];
+    document.getElementById('counter-winner-rival').textContent = resultadosContador['winner-rival'];
+    document.getElementById('counter-out-rival').textContent = resultadosContador['out-rival'];
+  }
+
+  // ---------- BOTONES DE GOLPES ----------
   function crearBotones() {
     const container = document.getElementById('golpesContainer');
     container.innerHTML = '';
@@ -544,11 +473,18 @@
 
   function reiniciarContadores() {
     if (confirm('¿Reiniciar todo?')) {
-      contadores = {}; inicializarContadores(); eventos = []; guardarTodo();
-      document.getElementById('tablaEventos').innerHTML = ''; actualizarBotonesContadores();
+      contadores = {};
+      inicializarContadores();
+      eventos = [];
+      resultadosContador = { 'winner-propio': 0, 'out-propio': 0, 'winner-rival': 0, 'out-rival': 0 };
+      actualizarContadoresResultados();
+      guardarTodo();
+      document.getElementById('tablaEventos').innerHTML = '';
+      actualizarBotonesContadores();
     }
   }
 
+  // ---------- PESTAÑAS ----------
   function cambiarTab(tabId) {
     document.getElementById('btnTabEventos').classList.remove('active');
     document.getElementById('btnTabEstadisticas').classList.remove('active');
@@ -564,7 +500,8 @@
     }
   }
 
-  let chartGolpes, chartZonas;
+  // ---------- ESTADÍSTICAS ----------
+  let chartGolpes;
   function generarEstadisticas() {
     const propias = eventos.filter(e => e.ejecutor === 'propio');
     const rival = eventos.filter(e => e.ejecutor === 'rival');
@@ -574,23 +511,28 @@
       <div class="summary-card" style="border-left:4px solid #ffc107"><h4>Puntos rival</h4><div class="number">${rival.filter(e=>e.result==='winner-rival').length}</div></div>
       <div class="summary-card" style="border-left:4px solid #6c757d"><h4>Errores rival</h4><div class="number">${rival.filter(e=>e.result==='out-rival').length}</div></div>
     `;
+
     if (chartGolpes) chartGolpes.destroy();
     const ctx1 = document.getElementById('chartGolpes').getContext('2d');
     const labels = golpesBase;
     const dataPropio = labels.map(g => { let t=0; direcciones.forEach(d=> t+= contadores[`${g} ${d}`]?.propio || 0); return t; });
     const dataRival = labels.map(g => { let t=0; direcciones.forEach(d=> t+= contadores[`${g} ${d}`]?.rival || 0); return t; });
-    chartGolpes = new Chart(ctx1, { type:'bar', data:{ labels, datasets:[ {label:'Propios',data:dataPropio,backgroundColor:'rgba(54,162,235,0.7)'}, {label:'Rival',data:dataRival,backgroundColor:'rgba(255,99,132,0.7)'} ] }, options:{responsive:true,plugins:{title:{display:true,text:'Golpes por tipo'}}} });
-
-    const conteoZonas = {}; zonasDisponibles.forEach(z=>conteoZonas[z]={wp:0,op:0,wr:0,or:0});
-    eventos.forEach(e=>{ if(!e.zona)return; if(e.result==='winner-propio')conteoZonas[e.zona].wp++; else if(e.result==='out-propio')conteoZonas[e.zona].op++; else if(e.result==='winner-rival')conteoZonas[e.zona].wr++; else if(e.result==='out-rival')conteoZonas[e.zona].or++; });
-    if (chartZonas) chartZonas.destroy();
-    const ctx2 = document.getElementById('chartZonas').getContext('2d');
-    chartZonas = new Chart(ctx2, { type:'bar', data:{ labels:zonasDisponibles, datasets:[ {label:'Winner propio',data:zonasDisponibles.map(z=>conteoZonas[z].wp),backgroundColor:'#28a745'}, {label:'Error propio',data:zonasDisponibles.map(z=>conteoZonas[z].op),backgroundColor:'#dc3545'}, {label:'Winner rival',data:zonasDisponibles.map(z=>conteoZonas[z].wr),backgroundColor:'#ffc107'}, {label:'Error rival',data:zonasDisponibles.map(z=>conteoZonas[z].or),backgroundColor:'#6c757d'} ] }, options:{responsive:true,plugins:{title:{display:true,text:'Efectividad por zona'}}} });
+    chartGolpes = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Propios', data: dataPropio, backgroundColor: 'rgba(54,162,235,0.7)' },
+          { label: 'Rival', data: dataRival, backgroundColor: 'rgba(255,99,132,0.7)' }
+        ]
+      },
+      options: { responsive: true, plugins: { title: { display: true, text: 'Golpes por tipo' } } }
+    });
   }
 
   function exportarCSV() {
-    let csv = 'Ejecutor,Jugador,Tiempo,Golpe,Zona,Resultado\n';
-    eventos.forEach(e=> csv+= `${e.ejecutor},${e.jugador},${e.tiempo.toFixed(1)},${e.tipo},${e.zona||''},${e.result||''}\n`);
+    let csv = 'Ejecutor,Jugador,Tiempo,Golpe,Resultado\n';
+    eventos.forEach(e => csv += `${e.ejecutor},${e.jugador},${e.tiempo.toFixed(1)},${e.tipo},${e.result||''}\n`);
     descargarArchivo(csv, 'eventos.csv', 'text/csv');
   }
   function exportarJSON() {
@@ -598,12 +540,18 @@
   }
   function descargarArchivo(contenido, nombre, tipo) {
     const blob = new Blob([contenido], { type: tipo });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nombre; a.click();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nombre;
+    a.click();
+    URL.revokeObjectURL(a.href);
   }
 
+  // ---------- INICIO ----------
   actualizarSelectores();
   crearBotones();
   cargarVideo();
+  actualizarContadoresResultados();
 </script>
 </body>
 </html>
