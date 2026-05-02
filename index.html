@@ -93,7 +93,7 @@
 
     .stats-panel {
       background: white; border-radius: 10px; padding: 15px; margin-top: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     .table-events { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.85rem; }
     .table-events th, .table-events td { border: 1px solid #dee2e6; padding: 6px; text-align: left; }
@@ -170,16 +170,16 @@
   <!-- Resultados con contadores en tiempo real -->
   <div class="result-row">
     <span style="font-weight:bold;">Resultado del último golpe:</span>
-    <button class="btn-result btn-winner-propio" onclick="marcarResultado('winner-propio')">
+    <button class="btn-result btn-winner-propio" onclick="marcarResultado('winner-propio', 'propio')">
       🚀 Winner propio <span class="result-counter" id="counter-winner-propio">0</span>
     </button>
-    <button class="btn-result btn-out-propio" onclick="marcarResultado('out-propio')">
+    <button class="btn-result btn-out-propio" onclick="marcarResultado('out-propio', 'propio')">
       ❌ Out propio <span class="result-counter" id="counter-out-propio">0</span>
     </button>
-    <button class="btn-result btn-winner-rival" onclick="marcarResultado('winner-rival')">
+    <button class="btn-result btn-winner-rival" onclick="marcarResultado('winner-rival', 'rival')">
       🏆 Punto rival <span class="result-counter" id="counter-winner-rival">0</span>
     </button>
-    <button class="btn-result btn-out-rival" onclick="marcarResultado('out-rival')">
+    <button class="btn-result btn-out-rival" onclick="marcarResultado('out-rival', 'rival')">
       ⚠️ Error rival <span class="result-counter" id="counter-out-rival">0</span>
     </button>
   </div>
@@ -231,7 +231,6 @@
   let contadores = {};
   let eventos = [];
 
-  // Contadores de resultados en tiempo real
   let resultadosContador = {
     'winner-propio': 0,
     'out-propio': 0,
@@ -262,7 +261,6 @@
       eventos = evts;
       document.getElementById('tablaEventos').innerHTML = '';
       eventos.forEach((e, i) => agregarFilaTabla(i, e));
-      // Recalcular contadores de resultados
       resultadosContador = { 'winner-propio': 0, 'out-propio': 0, 'winner-rival': 0, 'out-rival': 0 };
       eventos.forEach(e => { if (e.result) resultadosContador[e.result]++; });
       actualizarContadoresResultados();
@@ -326,8 +324,6 @@
     const opciones = jugadores.map(j => `<option value="${j}" ${j === jugadorPropio ? 'selected' : ''}>${j}</option>`).join('');
     selPropio.innerHTML = opciones || '<option value="">-- Sin jugador --</option>';
     selRival.innerHTML = jugadores.map(j => `<option value="${j}" ${j === jugadorRival ? 'selected' : ''}>${j}</option>`).join('') || '<option value="">-- Sin jugador --</option>';
-    if (!jugadorPropio && selPropio.value) jugadorPropio = selPropio.value;
-    if (!jugadorRival && selRival.value) jugadorRival = selRival.value;
   }
 
   function agregarJugador(tipo) {
@@ -413,21 +409,21 @@
     fila.querySelector('.result-cell').innerHTML = result ? `<span class="result-badge result-${result}">${result.replace('-', ' ')}</span>` : '';
   }
 
-  // ---------- RESULTADOS (con contadores visibles) ----------
-  function marcarResultado(result) {
-    const sinMarcar = eventos.filter(e => e.result === null);
-    if (sinMarcar.length === 0) {
-      alert('No hay golpes sin resultado.');
+  // ---------- RESULTADOS (MEJORA: asignación por ejecutor) ----------
+  function marcarResultado(result, ejecutorRequerido) {
+    // Buscar el último evento sin resultado que coincida con el ejecutor esperado
+    const eventosSinResultado = eventos.filter(e => e.result === null && e.ejecutor === ejecutorRequerido);
+    if (eventosSinResultado.length === 0) {
+      alert(`No hay golpes de ${ejecutorRequerido === 'propio' ? 'tu equipo' : 'del rival'} sin resultado. Registra un golpe primero.`);
       return;
     }
-    const ultimo = sinMarcar[sinMarcar.length - 1];
+    const ultimo = eventosSinResultado[eventosSinResultado.length - 1];
     const index = eventos.indexOf(ultimo);
     eventos[index].result = result;
     guardarTodo();
     actualizarFilaResultado(index, result);
 
-    // Incrementar contador visual
-    resultadosContador[result] = (resultadosContador[result] || 0) + 1;
+    resultadosContador[result]++;
     actualizarContadoresResultados();
   }
 
@@ -506,10 +502,10 @@
     const propias = eventos.filter(e => e.ejecutor === 'propio');
     const rival = eventos.filter(e => e.ejecutor === 'rival');
     document.getElementById('summaryCards').innerHTML = `
-      <div class="summary-card" style="border-left:4px solid #28a745"><h4>Winners propios</h4><div class="number">${propias.filter(e=>e.result==='winner-propio').length}</div></div>
-      <div class="summary-card" style="border-left:4px solid #dc3545"><h4>Errores propios</h4><div class="number">${propias.filter(e=>e.result==='out-propio').length}</div></div>
-      <div class="summary-card" style="border-left:4px solid #ffc107"><h4>Puntos rival</h4><div class="number">${rival.filter(e=>e.result==='winner-rival').length}</div></div>
-      <div class="summary-card" style="border-left:4px solid #6c757d"><h4>Errores rival</h4><div class="number">${rival.filter(e=>e.result==='out-rival').length}</div></div>
+      <div class="summary-card" style="border-left:4px solid #28a745"><h4>Winners propios</h4><div class="number">${resultadosContador['winner-propio']}</div></div>
+      <div class="summary-card" style="border-left:4px solid #dc3545"><h4>Errores propios</h4><div class="number">${resultadosContador['out-propio']}</div></div>
+      <div class="summary-card" style="border-left:4px solid #ffc107"><h4>Puntos rival</h4><div class="number">${resultadosContador['winner-rival']}</div></div>
+      <div class="summary-card" style="border-left:4px solid #6c757d"><h4>Errores rival</h4><div class="number">${resultadosContador['out-rival']}</div></div>
     `;
 
     if (chartGolpes) chartGolpes.destroy();
@@ -540,11 +536,12 @@
   }
   function descargarArchivo(contenido, nombre, tipo) {
     const blob = new Blob([contenido], { type: tipo });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
+    a.href = url;
     a.download = nombre;
     a.click();
-    URL.revokeObjectURL(a.href);
+    URL.revokeObjectURL(url);
   }
 
   // ---------- INICIO ----------
