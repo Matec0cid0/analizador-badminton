@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analizador de Bádminton - Partidos</title>
+  <title>Analizador de Bádminton - Mapa de Calor</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <style>
     * { box-sizing: border-box; }
@@ -130,6 +130,33 @@
     }
     .summary-card h4 { margin: 0 0 6px 0; font-size: 0.8rem; }
     .summary-card .number { font-size: 1.8rem; font-weight: bold; }
+
+    /* Estilos del mapa de calor */
+    .heatmap-container {
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .heatmap-selector {
+      margin-bottom: 15px;
+    }
+    .heatmap-svg {
+      width: 100%; max-width: 400px; height: auto; border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .zone-rect {
+      transition: fill 0.3s; cursor: pointer;
+    }
+    .zone-rect:hover {
+      stroke: black; stroke-width: 2;
+    }
+    .legend {
+      display: flex; gap: 10px; justify-content: center; margin-top: 10px;
+    }
+    .legend-item {
+      display: flex; align-items: center; gap: 4px; font-size: 0.8rem;
+    }
+    .legend-color {
+      width: 20px; height: 20px; border-radius: 4px;
+    }
   </style>
 </head>
 <body>
@@ -150,12 +177,12 @@
 
   <!-- Gestión de partidos -->
   <div class="controls-bar">
-    <button class="btn btn-sm btn-info" onclick="guardarPartido()">💾 Guardar partido actual</button>
+    <button class="btn btn-sm btn-info" onclick="guardarPartido()">💾 Guardar partido</button>
     <select id="listaPartidos" style="flex:1; min-width:200px;">
       <option value="">-- Cargar partido guardado --</option>
     </select>
     <button class="btn btn-sm btn-success" onclick="cargarPartido()">📂 Cargar</button>
-    <button class="btn btn-sm btn-danger" onclick="nuevoPartido()">📝 Nuevo partido</button>
+    <button class="btn btn-sm btn-danger" onclick="nuevoPartido()">📝 Nuevo</button>
   </div>
 
   <!-- Selector de jugadores y toggle -->
@@ -177,9 +204,9 @@
     <button class="btn btn-sm btn-warning" onclick="reiniciarContadores()">🔄 Reiniciar</button>
   </div>
 
-  <!-- Resultados con contadores en tiempo real -->
+  <!-- Resultados con contadores -->
   <div class="result-row">
-    <span style="font-weight:bold;">Resultado del último golpe:</span>
+    <span style="font-weight:bold;">Resultado:</span>
     <button class="btn-result btn-winner-propio" onclick="marcarResultado('winner-propio', 'propio')">
       🚀 Winner propio <span class="result-counter" id="counter-winner-propio">0</span>
     </button>
@@ -201,17 +228,20 @@
   <div class="tabs">
     <button id="btnTabEventos" class="tab-btn active" onclick="cambiarTab('eventos')">📋 Eventos</button>
     <button id="btnTabEstadisticas" class="tab-btn" onclick="cambiarTab('estadisticas')">📊 Estadísticas</button>
+    <button id="btnTabHeatmap" class="tab-btn" onclick="cambiarTab('heatmap')">🗺️ Mapa de Calor</button>
   </div>
 
+  <!-- Panel de Eventos -->
   <div id="tab-eventos" class="tab-content active stats-panel">
     <h3>Eventos registrados</h3>
-    <p style="font-size:0.8rem;">Clic en el tiempo → retrocede 2 segundos.</p>
+    <p style="font-size:0.8rem;">Clic en el tiempo → retrocede 2 seg. Asigná zona de caída en la última columna.</p>
     <table class="table-events">
-      <thead><tr><th>Ejecutor</th><th>Tiempo</th><th>Golpe</th><th>Resultado</th></tr></thead>
+      <thead><tr><th>Ejecutor</th><th>Tiempo</th><th>Golpe</th><th>Resultado</th><th>Zona</th></tr></thead>
       <tbody id="tablaEventos"></tbody>
     </table>
   </div>
 
+  <!-- Panel de Estadísticas -->
   <div id="tab-estadisticas" class="tab-content stats-panel">
     <h3>Estadísticas del Partido</h3>
     <div id="summaryCards" class="summary-cards"></div>
@@ -219,6 +249,42 @@
     <div class="export-btns">
       <button class="btn btn-sm btn-success" onclick="exportarCSV()">📥 Exportar CSV</button>
       <button class="btn btn-sm btn-info" onclick="exportarJSON()">📥 Exportar JSON</button>
+    </div>
+  </div>
+
+  <!-- Panel de Mapa de Calor -->
+  <div id="tab-heatmap" class="tab-content stats-panel">
+    <h3>Mapa de Calor por Golpe</h3>
+    <div class="heatmap-selector">
+      <label>Filtrar por golpe: </label>
+      <select id="heatmapGolpeSelect">
+        <option value="Todos">Todos los golpes</option>
+      </select>
+    </div>
+    <div class="heatmap-container">
+      <svg class="heatmap-svg" viewBox="0 0 400 450" id="heatmapSvg">
+        <!-- Fondo de cancha -->
+        <rect width="400" height="450" fill="#e8f5e9" rx="10" />
+        <!-- Líneas -->
+        <g stroke="white" stroke-width="2" fill="none">
+          <line x1="30" y1="40" x2="370" y2="40" />
+          <line x1="30" y1="410" x2="370" y2="410" />
+          <line x1="30" y1="40" x2="30" y2="410" />
+          <line x1="370" y1="40" x2="370" y2="410" />
+          <line x1="30" y1="160" x2="370" y2="160" />
+          <line x1="30" y1="290" x2="370" y2="290" />
+          <line x1="30" y1="190" x2="370" y2="190" />
+          <line x1="30" y1="260" x2="370" y2="260" />
+          <line x1="200" y1="40" x2="200" y2="410" stroke-dasharray="6,4" stroke-width="1.5" />
+          <line x1="30" y1="225" x2="370" y2="225" stroke="black" stroke-width="3" />
+        </g>
+        <!-- Zonas (se generan con JS) -->
+      </svg>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-color" style="background:#bbdefb;"></div> Baja</div>
+        <div class="legend-item"><div class="legend-color" style="background:#42a5f5;"></div> Media</div>
+        <div class="legend-item"><div class="legend-color" style="background:#ef5350;"></div> Alta</div>
+      </div>
     </div>
   </div>
 
@@ -232,6 +298,13 @@
     'Barrido', 'Barrido Revés'
   ];
   const direcciones = ['Paralelo', 'Cruzado'];
+
+  // Lista de zonas de caída
+  const zonasDisponibles = [
+    'Red Izquierda', 'Red Centro', 'Red Derecha',
+    'Media Izquierda', 'Media Centro', 'Media Derecha',
+    'Fondo Izquierda', 'Fondo Centro', 'Fondo Derecha'
+  ];
 
   let iframe;
   let jugadores = JSON.parse(localStorage.getItem('jugadoresBadminton') || '[]');
@@ -248,83 +321,7 @@
     'out-rival': 0
   };
 
-  // ---------- GESTIÓN DE PARTIDOS ----------
-  function cargarListaPartidos() {
-    const partidos = JSON.parse(localStorage.getItem('partidosBadminton') || '[]');
-    const select = document.getElementById('listaPartidos');
-    select.innerHTML = '<option value="">-- Cargar partido guardado --</option>';
-    partidos.forEach((p, index) => {
-      const option = document.createElement('option');
-      option.value = index;
-      option.textContent = `${p.nombre} (${p.fecha}) - ${p.videoUrl || 'sin video'}`;
-      select.appendChild(option);
-    });
-  }
-
-  function guardarPartido() {
-    const nombre = prompt('Nombre para este partido (ej. "Final contra Juan"):');
-    if (!nombre) return;
-    const partidos = JSON.parse(localStorage.getItem('partidosBadminton') || '[]');
-    const nuevoPartido = {
-      nombre,
-      fecha: new Date().toLocaleString(),
-      videoUrl: document.getElementById('urlInput').value,
-      jugadores: jugadores,
-      jugadorPropio,
-      jugadorRival,
-      contadores: JSON.parse(JSON.stringify(contadores)),
-      eventos: JSON.parse(JSON.stringify(eventos)),
-      resultadosContador: { ...resultadosContador }
-    };
-    partidos.push(nuevoPartido);
-    localStorage.setItem('partidosBadminton', JSON.stringify(partidos));
-    cargarListaPartidos();
-    alert('Partido guardado correctamente en el navegador.');
-  }
-
-  function cargarPartido() {
-    const select = document.getElementById('listaPartidos');
-    const index = select.value;
-    if (index === '') { alert('Selecciona un partido de la lista.'); return; }
-    const partidos = JSON.parse(localStorage.getItem('partidosBadminton') || '[]');
-    const partido = partidos[parseInt(index)];
-    if (!partido) return;
-
-    // Restaurar datos del partido
-    jugadores = partido.jugadores || [];
-    jugadorPropio = partido.jugadorPropio || '';
-    jugadorRival = partido.jugadorRival || '';
-    contadores = partido.contadores;
-    eventos = partido.eventos || [];
-    resultadosContador = partido.resultadosContador || { 'winner-propio': 0, 'out-propio': 0, 'winner-rival': 0, 'out-rival': 0 };
-    
-    document.getElementById('urlInput').value = partido.videoUrl || '';
-    actualizarSelectores();
-    document.getElementById('jugadorPropio').value = jugadorPropio;
-    document.getElementById('jugadorRival').value = jugadorRival;
-    guardarTodo(); // Actualiza localStorage
-    actualizarBotonesContadores();
-    actualizarContadoresResultados();
-    document.getElementById('tablaEventos').innerHTML = '';
-    eventos.forEach((e, i) => agregarFilaTabla(i, e));
-    cargarVideo(); // Carga video desde URL restaurada
-    alert('Partido cargado. Continúa tu análisis.');
-  }
-
-  function nuevoPartido() {
-    if (confirm('¿Empezar un análisis nuevo? Se reiniciarán los contadores y eventos actuales. Recordá que podés guardar el partido antes de empezar uno nuevo.')) {
-      contadores = {};
-      inicializarContadores();
-      eventos = [];
-      resultadosContador = { 'winner-propio': 0, 'out-propio': 0, 'winner-rival': 0, 'out-rival': 0 };
-      actualizarContadoresResultados();
-      guardarTodo();
-      document.getElementById('tablaEventos').innerHTML = '';
-      actualizarBotonesContadores();
-    }
-  }
-
-  // ---------- INICIALIZACIÓN DE CONTADORES ----------
+  // ---------- INICIALIZACIÓN ----------
   function inicializarContadores() {
     golpesBase.forEach(golpe => {
       direcciones.forEach(dir => {
@@ -358,6 +355,79 @@
     cargarListaPartidos();
   }
   cargarTodo();
+
+  // ---------- GESTIÓN DE PARTIDOS ----------
+  function cargarListaPartidos() {
+    const partidos = JSON.parse(localStorage.getItem('partidosBadminton') || '[]');
+    const select = document.getElementById('listaPartidos');
+    select.innerHTML = '<option value="">-- Cargar partido guardado --</option>';
+    partidos.forEach((p, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = `${p.nombre} (${p.fecha}) - ${p.videoUrl || 'sin video'}`;
+      select.appendChild(option);
+    });
+  }
+
+  function guardarPartido() {
+    const nombre = prompt('Nombre para este partido:');
+    if (!nombre) return;
+    const partidos = JSON.parse(localStorage.getItem('partidosBadminton') || '[]');
+    const nuevoPartido = {
+      nombre,
+      fecha: new Date().toLocaleString(),
+      videoUrl: document.getElementById('urlInput').value,
+      jugadores: jugadores,
+      jugadorPropio,
+      jugadorRival,
+      contadores: JSON.parse(JSON.stringify(contadores)),
+      eventos: JSON.parse(JSON.stringify(eventos)),
+      resultadosContador: { ...resultadosContador }
+    };
+    partidos.push(nuevoPartido);
+    localStorage.setItem('partidosBadminton', JSON.stringify(partidos));
+    cargarListaPartidos();
+    alert('Partido guardado.');
+  }
+
+  function cargarPartido() {
+    const select = document.getElementById('listaPartidos');
+    const index = select.value;
+    if (index === '') { alert('Selecciona un partido.'); return; }
+    const partidos = JSON.parse(localStorage.getItem('partidosBadminton') || '[]');
+    const partido = partidos[parseInt(index)];
+    if (!partido) return;
+    jugadores = partido.jugadores || [];
+    jugadorPropio = partido.jugadorPropio || '';
+    jugadorRival = partido.jugadorRival || '';
+    contadores = partido.contadores;
+    eventos = partido.eventos || [];
+    resultadosContador = partido.resultadosContador || { 'winner-propio': 0, 'out-propio': 0, 'winner-rival': 0, 'out-rival': 0 };
+    document.getElementById('urlInput').value = partido.videoUrl || '';
+    actualizarSelectores();
+    document.getElementById('jugadorPropio').value = jugadorPropio;
+    document.getElementById('jugadorRival').value = jugadorRival;
+    guardarTodo();
+    actualizarBotonesContadores();
+    actualizarContadoresResultados();
+    document.getElementById('tablaEventos').innerHTML = '';
+    eventos.forEach((e, i) => agregarFilaTabla(i, e));
+    cargarVideo();
+    alert('Partido cargado.');
+  }
+
+  function nuevoPartido() {
+    if (confirm('¿Empezar nuevo análisis? Se limpiarán los datos actuales.')) {
+      contadores = {};
+      inicializarContadores();
+      eventos = [];
+      resultadosContador = { 'winner-propio': 0, 'out-propio': 0, 'winner-rival': 0, 'out-rival': 0 };
+      actualizarContadoresResultados();
+      guardarTodo();
+      document.getElementById('tablaEventos').innerHTML = '';
+      actualizarBotonesContadores();
+    }
+  }
 
   // ---------- VIDEO ----------
   function extraerID(url) {
@@ -454,7 +524,7 @@
     if (!iframe?.src) { alert('Carga un video primero.'); return; }
     const jugador = ejecutorActual === 'propio' ? jugadorPropio : jugadorRival;
     if (!jugador) {
-      alert(`Debes seleccionar un jugador ${ejecutorActual === 'propio' ? 'propio' : 'rival'}. Usa el botón +.`);
+      alert(`Debes seleccionar un jugador ${ejecutorActual === 'propio' ? 'propio' : 'rival'}.`);
       return;
     }
     const tiempo = window.iframeCurrentTime;
@@ -472,7 +542,8 @@
 
     const evento = {
       jugador, tiempo, tipo: clave, ejecutor: ejecutorActual,
-      result: null
+      result: null,
+      zona: null  // inicialmente sin zona
     };
     eventos.push(evento);
     agregarFilaTabla(eventos.length - 1, evento);
@@ -485,13 +556,29 @@
     fila.id = `row-${index}`;
     const mins = Math.floor(evento.tiempo / 60);
     const secs = Math.floor(evento.tiempo % 60);
+
+    // Columna de zona con select
+    let zonaOptions = zonasDisponibles.map(z => `<option value="${z}" ${evento.zona === z ? 'selected' : ''}>${z}</option>`).join('');
+    zonaOptions = `<option value="">--</option>` + zonaOptions;
+
     fila.innerHTML = `
       <td>${evento.jugador} (${evento.ejecutor === 'propio' ? 'Nos.' : 'Riv.'})</td>
       <td class="tiempo-cell" data-tiempo="${evento.tiempo}">${mins}:${secs.toString().padStart(2, '0')}</td>
       <td>${evento.tipo}</td>
       <td class="result-cell">${evento.result ? `<span class="result-badge result-${evento.result}">${evento.result.replace('-', ' ')}</span>` : ''}</td>
+      <td>
+        <select class="zona-select" data-index="${index}">
+          ${zonaOptions}
+        </select>
+      </td>
     `;
+
     fila.querySelector('.tiempo-cell').addEventListener('click', () => seekTo(Math.max(0, evento.tiempo - 2)));
+    fila.querySelector('.zona-select').addEventListener('change', function(e) {
+      const idx = parseInt(this.dataset.index);
+      eventos[idx].zona = e.target.value || null;
+      guardarTodo();
+    });
   }
 
   function actualizarFilaResultado(index, result) {
@@ -504,7 +591,7 @@
   function marcarResultado(result, ejecutorRequerido) {
     const eventosSinResultado = eventos.filter(e => e.result === null && e.ejecutor === ejecutorRequerido);
     if (eventosSinResultado.length === 0) {
-      alert(`No hay golpes de ${ejecutorRequerido === 'propio' ? 'tu equipo' : 'del rival'} sin resultado. Registra un golpe primero.`);
+      alert(`No hay golpes de ${ejecutorRequerido === 'propio' ? 'tu equipo' : 'del rival'} sin resultado.`);
       return;
     }
     const ultimo = eventosSinResultado[eventosSinResultado.length - 1];
@@ -512,7 +599,6 @@
     eventos[index].result = result;
     guardarTodo();
     actualizarFilaResultado(index, result);
-
     resultadosContador[result]++;
     actualizarContadoresResultados();
   }
@@ -574,16 +660,112 @@
   function cambiarTab(tabId) {
     document.getElementById('btnTabEventos').classList.remove('active');
     document.getElementById('btnTabEstadisticas').classList.remove('active');
+    document.getElementById('btnTabHeatmap').classList.remove('active');
     document.getElementById('tab-eventos').classList.remove('active');
     document.getElementById('tab-estadisticas').classList.remove('active');
+    document.getElementById('tab-heatmap').classList.remove('active');
+
     if (tabId === 'eventos') {
       document.getElementById('btnTabEventos').classList.add('active');
       document.getElementById('tab-eventos').classList.add('active');
-    } else {
+    } else if (tabId === 'estadisticas') {
       document.getElementById('btnTabEstadisticas').classList.add('active');
       document.getElementById('tab-estadisticas').classList.add('active');
       generarEstadisticas();
+    } else if (tabId === 'heatmap') {
+      document.getElementById('btnTabHeatmap').classList.add('active');
+      document.getElementById('tab-heatmap').classList.add('active');
+      inicializarMapaCalor();
     }
+  }
+
+  // ---------- MAPA DE CALOR ----------
+  function inicializarMapaCalor() {
+    // Llenar el selector de golpes
+    const select = document.getElementById('heatmapGolpeSelect');
+    select.innerHTML = '<option value="Todos">Todos los golpes</option>';
+    const golpesUnicos = [...new Set(eventos.map(e => e.tipo))].sort();
+    golpesUnicos.forEach(golpe => {
+      const option = document.createElement('option');
+      option.value = golpe;
+      option.textContent = golpe;
+      select.appendChild(option);
+    });
+    select.onchange = () => dibujarHeatmap(select.value);
+    dibujarHeatmap('Todos');
+  }
+
+  function dibujarHeatmap(filtroGolpe) {
+    const svg = document.getElementById('heatmapSvg');
+    // Limpiar zonas anteriores
+    svg.querySelectorAll('.zone-rect').forEach(el => el.remove());
+
+    // Filtrar eventos
+    let eventosFiltrados = eventos.filter(e => e.zona !== null && e.zona !== undefined && e.zona !== '');
+    if (filtroGolpe !== 'Todos') {
+      eventosFiltrados = eventosFiltrados.filter(e => e.tipo === filtroGolpe);
+    }
+
+    // Contar frecuencia por zona
+    const conteo = {};
+    zonasDisponibles.forEach(z => conteo[z] = 0);
+    eventosFiltrados.forEach(e => conteo[e.zona]++);
+
+    // Normalizar para colores
+    const max = Math.max(...Object.values(conteo), 1);
+    const min = Math.min(...Object.values(conteo));
+
+    // Función para color entre azul claro #bbdefb y rojo #ef5350 según valor
+    function getColor(valor) {
+      if (max === min) return '#95a5a6'; // gris si no hay variación
+      const ratio = (valor - min) / (max - min); // 0 a 1
+      // Interpolar entre azul (bajo) y rojo (alto)
+      const r = Math.round(59 + ratio * (239 - 59));   // 59 -> 239
+      const g = Math.round(130 + ratio * (83 - 130));   // 130 -> 83
+      const b = Math.round(246 + ratio * (80 - 246));  // 246 -> 80
+      return `rgb(${r},${g},${b})`;
+    }
+
+    // Definir las coordenadas de las 9 zonas (x, y, ancho, alto)
+    const zonasCoords = [
+      { zona: 'Red Izquierda', x: 30, y: 40, w: 113, h: 150 },
+      { zona: 'Red Centro', x: 144, y: 40, w: 112, h: 150 },
+      { zona: 'Red Derecha', x: 257, y: 40, w: 113, h: 150 },
+      { zona: 'Media Izquierda', x: 30, y: 190, w: 113, h: 70 },
+      { zona: 'Media Centro', x: 144, y: 190, w: 112, h: 70 },
+      { zona: 'Media Derecha', x: 257, y: 190, w: 113, h: 70 },
+      { zona: 'Fondo Izquierda', x: 30, y: 260, w: 113, h: 150 },
+      { zona: 'Fondo Centro', x: 144, y: 260, w: 112, h: 150 },
+      { zona: 'Fondo Derecha', x: 257, y: 260, w: 113, h: 150 }
+    ];
+
+    zonasCoords.forEach(zc => {
+      const freq = conteo[zc.zona];
+      const fillColor = getColor(freq);
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute('x', zc.x);
+      rect.setAttribute('y', zc.y);
+      rect.setAttribute('width', zc.w);
+      rect.setAttribute('height', zc.h);
+      rect.setAttribute('fill', fillColor);
+      rect.setAttribute('rx', '4');
+      rect.setAttribute('class', 'zone-rect');
+      rect.setAttribute('data-zona', zc.zona);
+      rect.setAttribute('data-freq', freq);
+
+      // Etiqueta con frecuencia
+      const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      text.setAttribute('x', zc.x + zc.w/2);
+      text.setAttribute('y', zc.y + zc.h/2);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('fill', freq > max/2 ? 'white' : 'black');
+      text.setAttribute('font-size', '12');
+      text.setAttribute('font-weight', 'bold');
+      text.textContent = `${zc.zona.split(' ')[0].substring(0,3)} ${freq}`;
+
+      svg.appendChild(rect);
+      svg.appendChild(text);
+    });
   }
 
   // ---------- ESTADÍSTICAS ----------
@@ -615,8 +797,8 @@
   }
 
   function exportarCSV() {
-    let csv = 'Ejecutor,Jugador,Tiempo,Golpe,Resultado\n';
-    eventos.forEach(e => csv += `${e.ejecutor},${e.jugador},${e.tiempo.toFixed(1)},${e.tipo},${e.result||''}\n`);
+    let csv = 'Ejecutor,Jugador,Tiempo,Golpe,Resultado,Zona\n';
+    eventos.forEach(e => csv += `${e.ejecutor},${e.jugador},${e.tiempo.toFixed(1)},${e.tipo},${e.result||''},${e.zona||''}\n`);
     descargarArchivo(csv, 'eventos.csv', 'text/csv');
   }
   function exportarJSON() {
