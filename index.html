@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analizador de Bádminton</title>
+  <title>Analizador de Bádminton - Partidos</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <style>
     * { box-sizing: border-box; }
@@ -148,6 +148,16 @@
     </div>
   </div>
 
+  <!-- Gestión de partidos -->
+  <div class="controls-bar">
+    <button class="btn btn-sm btn-info" onclick="guardarPartido()">💾 Guardar partido actual</button>
+    <select id="listaPartidos" style="flex:1; min-width:200px;">
+      <option value="">-- Cargar partido guardado --</option>
+    </select>
+    <button class="btn btn-sm btn-success" onclick="cargarPartido()">📂 Cargar</button>
+    <button class="btn btn-sm btn-danger" onclick="nuevoPartido()">📝 Nuevo partido</button>
+  </div>
+
   <!-- Selector de jugadores y toggle -->
   <div class="controls-bar">
     <div class="jugador-selector">
@@ -238,6 +248,83 @@
     'out-rival': 0
   };
 
+  // ---------- GESTIÓN DE PARTIDOS ----------
+  function cargarListaPartidos() {
+    const partidos = JSON.parse(localStorage.getItem('partidosBadminton') || '[]');
+    const select = document.getElementById('listaPartidos');
+    select.innerHTML = '<option value="">-- Cargar partido guardado --</option>';
+    partidos.forEach((p, index) => {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = `${p.nombre} (${p.fecha}) - ${p.videoUrl || 'sin video'}`;
+      select.appendChild(option);
+    });
+  }
+
+  function guardarPartido() {
+    const nombre = prompt('Nombre para este partido (ej. "Final contra Juan"):');
+    if (!nombre) return;
+    const partidos = JSON.parse(localStorage.getItem('partidosBadminton') || '[]');
+    const nuevoPartido = {
+      nombre,
+      fecha: new Date().toLocaleString(),
+      videoUrl: document.getElementById('urlInput').value,
+      jugadores: jugadores,
+      jugadorPropio,
+      jugadorRival,
+      contadores: JSON.parse(JSON.stringify(contadores)),
+      eventos: JSON.parse(JSON.stringify(eventos)),
+      resultadosContador: { ...resultadosContador }
+    };
+    partidos.push(nuevoPartido);
+    localStorage.setItem('partidosBadminton', JSON.stringify(partidos));
+    cargarListaPartidos();
+    alert('Partido guardado correctamente en el navegador.');
+  }
+
+  function cargarPartido() {
+    const select = document.getElementById('listaPartidos');
+    const index = select.value;
+    if (index === '') { alert('Selecciona un partido de la lista.'); return; }
+    const partidos = JSON.parse(localStorage.getItem('partidosBadminton') || '[]');
+    const partido = partidos[parseInt(index)];
+    if (!partido) return;
+
+    // Restaurar datos del partido
+    jugadores = partido.jugadores || [];
+    jugadorPropio = partido.jugadorPropio || '';
+    jugadorRival = partido.jugadorRival || '';
+    contadores = partido.contadores;
+    eventos = partido.eventos || [];
+    resultadosContador = partido.resultadosContador || { 'winner-propio': 0, 'out-propio': 0, 'winner-rival': 0, 'out-rival': 0 };
+    
+    document.getElementById('urlInput').value = partido.videoUrl || '';
+    actualizarSelectores();
+    document.getElementById('jugadorPropio').value = jugadorPropio;
+    document.getElementById('jugadorRival').value = jugadorRival;
+    guardarTodo(); // Actualiza localStorage
+    actualizarBotonesContadores();
+    actualizarContadoresResultados();
+    document.getElementById('tablaEventos').innerHTML = '';
+    eventos.forEach((e, i) => agregarFilaTabla(i, e));
+    cargarVideo(); // Carga video desde URL restaurada
+    alert('Partido cargado. Continúa tu análisis.');
+  }
+
+  function nuevoPartido() {
+    if (confirm('¿Empezar un análisis nuevo? Se reiniciarán los contadores y eventos actuales. Recordá que podés guardar el partido antes de empezar uno nuevo.')) {
+      contadores = {};
+      inicializarContadores();
+      eventos = [];
+      resultadosContador = { 'winner-propio': 0, 'out-propio': 0, 'winner-rival': 0, 'out-rival': 0 };
+      actualizarContadoresResultados();
+      guardarTodo();
+      document.getElementById('tablaEventos').innerHTML = '';
+      actualizarBotonesContadores();
+    }
+  }
+
+  // ---------- INICIALIZACIÓN DE CONTADORES ----------
   function inicializarContadores() {
     golpesBase.forEach(golpe => {
       direcciones.forEach(dir => {
@@ -251,6 +338,9 @@
   function guardarTodo() {
     localStorage.setItem('contadoresBadminton', JSON.stringify(contadores));
     localStorage.setItem('eventosBadminton', JSON.stringify(eventos));
+    localStorage.setItem('jugadoresBadminton', JSON.stringify(jugadores));
+    localStorage.setItem('jugadorPropioBadminton', jugadorPropio);
+    localStorage.setItem('jugadorRivalBadminton', jugadorRival);
   }
 
   function cargarTodo() {
@@ -265,6 +355,7 @@
       eventos.forEach(e => { if (e.result) resultadosContador[e.result]++; });
       actualizarContadoresResultados();
     }
+    cargarListaPartidos();
   }
   cargarTodo();
 
@@ -409,9 +500,8 @@
     fila.querySelector('.result-cell').innerHTML = result ? `<span class="result-badge result-${result}">${result.replace('-', ' ')}</span>` : '';
   }
 
-  // ---------- RESULTADOS (MEJORA: asignación por ejecutor) ----------
+  // ---------- RESULTADOS ----------
   function marcarResultado(result, ejecutorRequerido) {
-    // Buscar el último evento sin resultado que coincida con el ejecutor esperado
     const eventosSinResultado = eventos.filter(e => e.result === null && e.ejecutor === ejecutorRequerido);
     if (eventosSinResultado.length === 0) {
       alert(`No hay golpes de ${ejecutorRequerido === 'propio' ? 'tu equipo' : 'del rival'} sin resultado. Registra un golpe primero.`);
@@ -499,8 +589,6 @@
   // ---------- ESTADÍSTICAS ----------
   let chartGolpes;
   function generarEstadisticas() {
-    const propias = eventos.filter(e => e.ejecutor === 'propio');
-    const rival = eventos.filter(e => e.ejecutor === 'rival');
     document.getElementById('summaryCards').innerHTML = `
       <div class="summary-card" style="border-left:4px solid #28a745"><h4>Winners propios</h4><div class="number">${resultadosContador['winner-propio']}</div></div>
       <div class="summary-card" style="border-left:4px solid #dc3545"><h4>Errores propios</h4><div class="number">${resultadosContador['out-propio']}</div></div>
@@ -547,6 +635,7 @@
   // ---------- INICIO ----------
   actualizarSelectores();
   crearBotones();
+  cargarListaPartidos();
   cargarVideo();
   actualizarContadoresResultados();
 </script>
