@@ -9,12 +9,11 @@
     body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 15px; background: #f8f9fa; }
     .container { max-width: 1300px; margin: auto; }
 
-    /* Reproductor responsivo 16:9 sin franjas negras */
     .player-section { margin-bottom: 20px; }
     #player-wrapper {
       position: relative;
       width: 100%;
-      padding-bottom: 56.25%; /* 16:9 */
+      padding-bottom: 56.25%;
       background: #000;
       border-radius: 8px;
       overflow: hidden;
@@ -22,122 +21,78 @@
     }
     #player-wrapper iframe {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       border: none;
     }
 
     .controls-bar {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin: 15px 0;
-      background: white;
-      padding: 12px;
-      border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      display: flex; gap: 15px; align-items: center; flex-wrap: wrap;
+      margin: 15px 0; background: white; padding: 12px;
+      border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
     .controls-bar input {
-      flex: 1;
-      min-width: 250px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      flex: 1; min-width: 250px; padding: 10px;
+      border: 1px solid #ccc; border-radius: 5px;
     }
     .btn {
-      padding: 10px 18px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.2s;
-      white-space: nowrap;
+      padding: 10px 18px; background: #007bff; color: white;
+      border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; white-space: nowrap;
     }
     .btn:hover { background: #0056b3; }
     .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
-    .btn-success { background: #28a745; }
-    .btn-success:hover { background: #1e7e34; }
-    .btn-danger { background: #dc3545; }
-    .btn-danger:hover { background: #a71d2a; }
-    .btn-warning { background: #ffc107; color: #212529; }
-    .btn-warning:hover { background: #d39e00; }
+    .btn-success { background: #28a745; } .btn-success:hover { background: #1e7e34; }
+    .btn-danger { background: #dc3545; } .btn-danger:hover { background: #a71d2a; }
+    .btn-warning { background: #ffc107; color: #212529; } .btn-warning:hover { background: #d39e00; }
+    .btn-info { background: #17a2b8; } .btn-info:hover { background: #117a8b; }
 
     .golpes-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 15px;
-      margin: 20px 0;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px; margin: 20px 0;
     }
     .golpe-card {
-      background: white;
-      border-radius: 10px;
-      padding: 12px;
+      background: white; border-radius: 10px; padding: 12px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
     }
-    .golpe-nombre {
-      font-weight: bold;
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-      text-align: center;
-      color: #333;
-    }
+    .golpe-nombre { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; text-align: center; color: #333; }
     .botones-golpe { display: flex; gap: 8px; }
     .btn-golpe {
-      flex: 1;
-      padding: 12px 5px;
-      border: 2px solid;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
+      flex: 1; padding: 12px 5px; border: 2px solid; border-radius: 8px;
+      font-weight: bold; cursor: pointer; transition: all 0.2s; position: relative;
     }
     .btn-paralelo { background: #e3f2fd; border-color: #2196F3; color: #0d47a1; }
     .btn-paralelo:hover { background: #bbdefb; }
     .btn-cruzado { background: #fce4ec; border-color: #e91e63; color: #880e4f; }
     .btn-cruzado:hover { background: #f8bbd0; }
     .badge {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: #333;
-      color: white;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: bold;
+      position: absolute; top: -8px; right: -8px; background: #333; color: white;
+      border-radius: 50%; width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: bold;
     }
 
     .jugador-selector { display: flex; align-items: center; gap: 8px; }
     .jugador-selector select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
 
     .stats-panel {
-      background: white;
-      border-radius: 10px;
-      padding: 15px;
-      margin-top: 20px;
+      background: white; border-radius: 10px; padding: 15px; margin-top: 20px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
     .stats-panel h3 { margin-top: 0; }
     .table-events { width: 100%; border-collapse: collapse; margin-top: 10px; }
     .table-events th, .table-events td {
-      border: 1px solid #dee2e6;
-      padding: 8px;
-      text-align: left;
+      border: 1px solid #dee2e6; padding: 8px; text-align: left;
     }
     .table-events th { background: #e9ecef; }
+    .table-events td.tiempo-cell { cursor: pointer; color: #007bff; text-decoration: underline; }
+    .table-events td.tiempo-cell:hover { color: #0056b3; }
 
     .hidden { display: none; }
     .loading-msg { color: #6c757d; margin-left: 10px; }
+
+    .result-badge { padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
+    .result-winner { background: #d4edda; color: #155724; }
+    .result-out { background: #f8d7da; color: #721c24; }
   </style>
 </head>
 <body>
@@ -156,16 +111,18 @@
     </div>
   </div>
 
-  <!-- Selector de jugador -->
+  <!-- Selector de jugador y herramientas -->
   <div class="controls-bar">
     <div class="jugador-selector">
       <label><strong>Jugador actual:</strong></label>
       <select id="jugadorActual"></select>
       <button class="btn btn-sm btn-success" onclick="agregarJugador()">➕ Añadir</button>
     </div>
-    <div>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <button class="btn btn-sm btn-info" onclick="marcarResultado('winner')">🚀 Winner</button>
+      <button class="btn btn-sm btn-danger" onclick="marcarResultado('out')">❌ Out</button>
       <button class="btn btn-sm btn-warning" onclick="reiniciarContadores()">🔄 Reiniciar contadores</button>
-      <button class="btn btn-sm btn-danger" onclick="alternarEventos()">📋 Ver/Ocultar eventos</button>
+      <button class="btn btn-sm btn-primary" onclick="alternarEventos()">📋 Ver/Ocultar eventos</button>
     </div>
   </div>
 
@@ -176,8 +133,9 @@
   <!-- Panel de eventos registrados (oculto por defecto) -->
   <div id="panelEventos" class="stats-panel hidden">
     <h3>Eventos registrados</h3>
+    <p><small>Hacé clic en el tiempo para revisar la jugada (retrocede 2 seg).</small></p>
     <table class="table-events">
-      <thead><tr><th>Jugador</th><th>Tiempo</th><th>Golpe</th></tr></thead>
+      <thead><tr><th>Jugador</th><th>Tiempo</th><th>Golpe</th><th>Resultado</th></tr></thead>
       <tbody id="tablaEventos"></tbody>
     </table>
   </div>
@@ -192,14 +150,12 @@
   ];
   const direcciones = ['Paralelo', 'Cruzado'];
 
-  // Estado
   let iframe;
   let jugadores = JSON.parse(localStorage.getItem('jugadoresBadminton') || '[]');
   let jugadorSeleccionado = localStorage.getItem('jugadorActualBadminton') || '';
-  let contadores = {};
-  let eventos = [];
+  let contadores = {};   // { "Clear Paralelo": total }
+  let eventos = [];      // { jugador, tiempo, tipo, result: null/'winner'/'out' }
 
-  // Inicializar contadores
   function inicializarContadores() {
     golpesBase.forEach(golpe => {
       direcciones.forEach(dir => {
@@ -268,6 +224,17 @@
   }
   setInterval(solicitarTiempo, 500);
 
+  // Función para enviar seek al iframe
+  function seekTo(seconds) {
+    if (!iframe || !iframe.contentWindow) return;
+    const comando = {
+      event: 'command',
+      func: 'seekTo',
+      args: [seconds, true]  // seek ahead
+    };
+    iframe.contentWindow.postMessage(JSON.stringify(comando), 'https://www.youtube.com');
+  }
+
   // ---------- JUGADORES ----------
   function actualizarListaJugadores() {
     const select = document.getElementById('jugadorActual');
@@ -313,17 +280,68 @@
     guardarContadores();
     actualizarBotonesContadores();
 
-    const minutos = Math.floor(tiempo / 60);
-    const segundos = Math.floor(tiempo % 60);
-    const tiempoFormateado = `${minutos}:${segundos.toString().padStart(2, '0')}`;
-    eventos.push({ jugador: jugadorSeleccionado, tiempo, tipo: clave });
-    agregarFilaTabla(jugadorSeleccionado, tiempoFormateado, clave);
+    // Crear evento (resultado nulo por ahora)
+    const nuevoEvento = { jugador: jugadorSeleccionado, tiempo, tipo: clave, result: null };
+    eventos.push(nuevoEvento);
+    agregarFilaTabla(eventos.length - 1, jugadorSeleccionado, tiempo, clave, null);
   }
 
-  function agregarFilaTabla(jugador, tiempoFormateado, tipo) {
+  function agregarFilaTabla(index, jugador, tiempoSegundos, tipo, result) {
     const tbody = document.getElementById('tablaEventos');
     const fila = tbody.insertRow();
-    fila.innerHTML = `<td>${jugador}</td><td>${tiempoFormateado}</td><td>${tipo}</td>`;
+    fila.id = `row-${index}`;
+    const minutos = Math.floor(tiempoSegundos / 60);
+    const segundos = Math.floor(tiempoSegundos % 60);
+    const tiempoFormateado = `${minutos}:${segundos.toString().padStart(2, '0')}`;
+
+    fila.innerHTML = `
+      <td>${jugador}</td>
+      <td class="tiempo-cell" data-index="${index}" data-tiempo="${tiempoSegundos}">${tiempoFormateado}</td>
+      <td>${tipo}</td>
+      <td class="result-cell">${result ? `<span class="result-badge result-${result}">${result === 'winner' ? 'Winner' : 'Out'}</span>` : ''}</td>
+    `;
+
+    // Agregar evento clic al tiempo
+    const tiempoCell = fila.querySelector('.tiempo-cell');
+    tiempoCell.addEventListener('click', function() {
+      const t = parseFloat(this.dataset.tiempo);
+      const irA = Math.max(0, t - 2);
+      seekTo(irA);
+    });
+  }
+
+  // Actualizar resultado de la tabla cuando se marca
+  function actualizarFilaResultado(index, result) {
+    const fila = document.getElementById(`row-${index}`);
+    if (!fila) return;
+    const resultCell = fila.querySelector('.result-cell');
+    resultCell.innerHTML = result ? `<span class="result-badge result-${result}">${result === 'winner' ? 'Winner' : 'Out'}</span>` : '';
+  }
+
+  // ---------- MARCADO DE RESULTADOS (WINNER / OUT) ----------
+  function marcarResultado(result) {
+    if (eventos.length === 0) {
+      alert('No hay eventos registrados.');
+      return;
+    }
+    // Buscar el último evento sin resultado
+    let lastIndex = -1;
+    for (let i = eventos.length - 1; i >= 0; i--) {
+      if (eventos[i].result === null) {
+        lastIndex = i;
+        break;
+      }
+    }
+    if (lastIndex === -1) {
+      alert('Todos los eventos ya tienen resultado asignado.');
+      return;
+    }
+
+    eventos[lastIndex].result = result;
+    actualizarFilaResultado(lastIndex, result);
+
+    // (Opcional) podrías guardar resultados en contadores especiales
+    // Por ejemplo: contadores[eventos[lastIndex].tipo + ` ${result}`] ?? pero no lo pide ahora.
   }
 
   // ---------- INTERFAZ DE BOTONES ----------
