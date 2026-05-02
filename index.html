@@ -2,16 +2,62 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Analizador de Bádminton</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 15px; background: #f8f9fa; }
     .container { max-width: 1300px; margin: auto; }
+
+    /* Reproductor responsivo 16:9 sin franjas negras */
     .player-section { margin-bottom: 20px; }
-    iframe { width: 100%; height: 400px; border: none; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .controls-bar { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin: 15px 0; background: white; padding: 12px; border-radius: 8px; }
-    .controls-bar input { flex: 1; min-width: 250px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-    .btn { padding: 10px 18px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+    #player-wrapper {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* 16:9 */
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    #player-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .controls-bar {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 15px 0;
+      background: white;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .controls-bar input {
+      flex: 1;
+      min-width: 250px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .btn {
+      padding: 10px 18px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
     .btn:hover { background: #0056b3; }
     .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
     .btn-success { background: #28a745; }
@@ -21,23 +67,73 @@
     .btn-warning { background: #ffc107; color: #212529; }
     .btn-warning:hover { background: #d39e00; }
 
-    .golpes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0; }
-    .golpe-card { background: white; border-radius: 10px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-    .golpe-nombre { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; text-align: center; color: #333; }
+    .golpes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+    .golpe-card {
+      background: white;
+      border-radius: 10px;
+      padding: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .golpe-nombre {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      text-align: center;
+      color: #333;
+    }
     .botones-golpe { display: flex; gap: 8px; }
-    .btn-golpe { flex: 1; padding: 12px 5px; border: 2px solid; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.2s; position: relative; }
+    .btn-golpe {
+      flex: 1;
+      padding: 12px 5px;
+      border: 2px solid;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
     .btn-paralelo { background: #e3f2fd; border-color: #2196F3; color: #0d47a1; }
     .btn-paralelo:hover { background: #bbdefb; }
     .btn-cruzado { background: #fce4ec; border-color: #e91e63; color: #880e4f; }
     .btn-cruzado:hover { background: #f8bbd0; }
-    .badge { position: absolute; top: -8px; right: -8px; background: #333; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; }
+    .badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #333;
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
 
     .jugador-selector { display: flex; align-items: center; gap: 8px; }
     .jugador-selector select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
-    .stats-panel { background: white; border-radius: 10px; padding: 15px; margin-top: 20px; }
+
+    .stats-panel {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
     .stats-panel h3 { margin-top: 0; }
     .table-events { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    .table-events th, .table-events td { border: 1px solid #dee2e6; padding: 8px; text-align: left; }
+    .table-events th, .table-events td {
+      border: 1px solid #dee2e6;
+      padding: 8px;
+      text-align: left;
+    }
     .table-events th { background: #e9ecef; }
 
     .hidden { display: none; }
@@ -69,7 +165,7 @@
     </div>
     <div>
       <button class="btn btn-sm btn-warning" onclick="reiniciarContadores()">🔄 Reiniciar contadores</button>
-      <button class="btn btn-sm btn-danger" onclick="alternarEventos()">📋 Ver/Ocultar eventos registrados</button>
+      <button class="btn btn-sm btn-danger" onclick="alternarEventos()">📋 Ver/Ocultar eventos</button>
     </div>
   </div>
 
@@ -100,8 +196,8 @@
   let iframe;
   let jugadores = JSON.parse(localStorage.getItem('jugadoresBadminton') || '[]');
   let jugadorSeleccionado = localStorage.getItem('jugadorActualBadminton') || '';
-  let contadores = {};   // { "Clear Paralelo": número }
-  let eventos = [];      // Para la tabla detallada
+  let contadores = {};
+  let eventos = [];
 
   // Inicializar contadores
   function inicializarContadores() {
@@ -110,21 +206,16 @@
         const clave = `${golpe} ${dir}`;
         if (!(clave in contadores)) contadores[clave] = 0;
       });
-      // Total por golpe (opcional)
-      if (!(`_total_${golpe}` in contadores)) contadores[`_total_${golpe}`] = 0;
     });
   }
   inicializarContadores();
 
-  // Guardar contadores en localStorage (opcional)
   function guardarContadores() {
     localStorage.setItem('contadoresBadminton', JSON.stringify(contadores));
   }
   function cargarContadores() {
     const guardados = JSON.parse(localStorage.getItem('contadoresBadminton') || '{}');
-    if (Object.keys(guardados).length > 0) {
-      contadores = guardados;
-    }
+    if (Object.keys(guardados).length > 0) contadores = guardados;
   }
   cargarContadores();
 
@@ -150,7 +241,6 @@
     }
     iframe = document.getElementById('youtube-frame');
     iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
-    iframe.style.display = 'block';
     document.getElementById('loading').classList.add('hidden');
   }
 
@@ -182,9 +272,7 @@
   function actualizarListaJugadores() {
     const select = document.getElementById('jugadorActual');
     select.innerHTML = jugadores.map(j => `<option value="${j}" ${j === jugadorSeleccionado ? 'selected' : ''}>${j}</option>`).join('');
-    if (jugadores.length === 0) {
-      select.innerHTML = '<option value="">-- Sin jugador --</option>';
-    }
+    if (jugadores.length === 0) select.innerHTML = '<option value="">-- Sin jugador --</option>';
   }
 
   function agregarJugador() {
@@ -221,18 +309,13 @@
     }
 
     const clave = `${golpe} ${direccion}`;
-    // Actualizar contadores
     contadores[clave] = (contadores[clave] || 0) + 1;
-    contadores[`_total_${golpe}`] = (contadores[`_total_${golpe}`] || 0) + 1;
-
     guardarContadores();
     actualizarBotonesContadores();
 
-    // Registrar evento en tabla
     const minutos = Math.floor(tiempo / 60);
     const segundos = Math.floor(tiempo % 60);
     const tiempoFormateado = `${minutos}:${segundos.toString().padStart(2, '0')}`;
-
     eventos.push({ jugador: jugadorSeleccionado, tiempo, tipo: clave });
     agregarFilaTabla(jugadorSeleccionado, tiempoFormateado, clave);
   }
@@ -247,7 +330,6 @@
   function crearBotones() {
     const container = document.getElementById('golpesContainer');
     container.innerHTML = '';
-
     golpesBase.forEach(golpe => {
       const card = document.createElement('div');
       card.className = 'golpe-card';
@@ -279,9 +361,7 @@
       direcciones.forEach(dir => {
         const clave = `${golpe} ${dir}`;
         const badge = document.getElementById(`cont-${clave.replace(/\s/g, '_')}`);
-        if (badge) {
-          badge.textContent = contadores[clave] || 0;
-        }
+        if (badge) badge.textContent = contadores[clave] || 0;
       });
     });
   }
@@ -297,7 +377,6 @@
     }
   }
 
-  // Mostrar/ocultar tabla de eventos
   function alternarEventos() {
     document.getElementById('panelEventos').classList.toggle('hidden');
   }
@@ -305,7 +384,7 @@
   // ---------- INICIALIZACIÓN ----------
   actualizarListaJugadores();
   crearBotones();
-  cargarVideo(); // Carga el video por defecto (puedes eliminar esta línea si prefieres empezar sin video)
+  cargarVideo(); // Carga el video de ejemplo por defecto
 </script>
 </body>
 </html>
