@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analizador de Bádminton</title>
+  <title>Analizador de Bádminton Pro</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <style>
     * { box-sizing: border-box; }
@@ -33,8 +33,9 @@
     .btn-danger { background: #dc3545; } .btn-danger:hover { background: #a71d2a; }
     .btn-warning { background: #ffc107; color: #212529; } .btn-warning:hover { background: #d39e00; }
     .btn-info { background: #17a2b8; } .btn-info:hover { background: #117a8b; }
+    .btn-dark { background: #343a40; } .btn-dark:hover { background: #1d2124; }
 
-    .golpes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0; }
+    .golpes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px; margin: 20px 0; }
     .golpe-card {
       background: white; border-radius: 10px; padding: 12px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.08);
@@ -59,6 +60,20 @@
     .jugador-selector { display: flex; align-items: center; gap: 8px; }
     .jugador-selector select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
 
+    .result-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+    .btn-result {
+      padding: 10px 16px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer;
+      transition: 0.2s; font-size: 0.9rem;
+    }
+    .btn-winner-propio { background: #d4edda; color: #155724; border: 2px solid #28a745; }
+    .btn-winner-propio:hover { background: #28a745; color: white; }
+    .btn-out-propio { background: #f8d7da; color: #721c24; border: 2px solid #dc3545; }
+    .btn-out-propio:hover { background: #dc3545; color: white; }
+    .btn-winner-rival { background: #fff3cd; color: #856404; border: 2px solid #ffc107; }
+    .btn-winner-rival:hover { background: #ffc107; color: #212529; }
+    .btn-out-rival { background: #e2e3e5; color: #383d41; border: 2px solid #6c757d; }
+    .btn-out-rival:hover { background: #6c757d; color: white; }
+
     .stats-panel {
       background: white; border-radius: 10px; padding: 15px; margin-top: 20px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
@@ -73,10 +88,11 @@
     .loading-msg { color: #6c757d; margin-left: 10px; }
 
     .result-badge { padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
-    .result-winner { background: #d4edda; color: #155724; }
-    .result-out { background: #f8d7da; color: #721c24; }
+    .result-winner-propio { background: #d4edda; color: #155724; }
+    .result-out-propio { background: #f8d7da; color: #721c24; }
+    .result-winner-rival { background: #fff3cd; color: #856404; }
+    .result-out-rival { background: #e2e3e5; color: #383d41; }
 
-    /* Nuevo estilo para las pestañas */
     .tabs { display: flex; gap: 5px; margin: 15px 0 0 0; }
     .tab-btn {
       padding: 10px 20px; background: #e9ecef; border: none; border-radius: 8px 8px 0 0;
@@ -89,6 +105,19 @@
     .chart-container { width: 100%; max-width: 600px; margin: 20px auto; }
     canvas { width: 100%; height: auto; }
     .export-btns { display: flex; gap: 10px; margin-top: 10px; }
+
+    .summary-cards { display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap; }
+    .summary-card {
+      flex: 1; min-width: 150px; background: white; border-radius: 10px;
+      padding: 15px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .summary-card h4 { margin: 0 0 10px 0; font-size: 0.9rem; }
+    .summary-card .number { font-size: 2rem; font-weight: bold; }
+
+    .toggle-ejecutor { display: flex; gap: 10px; align-items: center; margin: 10px 0; }
+    .toggle-btn { padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+    .toggle-activo { background: #007bff; color: white; }
+    .toggle-inactivo { background: #e9ecef; color: #333; }
   </style>
 </head>
 <body>
@@ -107,18 +136,32 @@
     </div>
   </div>
 
-  <!-- Selector de jugador y herramientas -->
+  <!-- Selector de jugadores + toggle ejecutor -->
   <div class="controls-bar">
     <div class="jugador-selector">
-      <label><strong>Jugador actual:</strong></label>
-      <select id="jugadorActual"></select>
-      <button class="btn btn-sm btn-success" onclick="agregarJugador()">➕ Añadir</button>
+      <label><strong>Jugador propio:</strong></label>
+      <select id="jugadorPropio"></select>
+      <button class="btn btn-sm btn-success" onclick="agregarJugador('propio')">➕</button>
     </div>
-    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-      <button class="btn btn-sm btn-info" onclick="marcarResultado('winner')">🚀 Winner</button>
-      <button class="btn btn-sm btn-danger" onclick="marcarResultado('out')">❌ Out</button>
-      <button class="btn btn-sm btn-warning" onclick="reiniciarContadores()">🔄 Reiniciar</button>
+    <div class="jugador-selector">
+      <label><strong>Rival:</strong></label>
+      <select id="jugadorRival"></select>
+      <button class="btn btn-sm btn-dark" onclick="agregarJugador('rival')">➕</button>
     </div>
+    <div class="toggle-ejecutor">
+      <span>Registrar como:</span>
+      <button id="togglePropio" class="toggle-btn toggle-activo" onclick="cambiarEjecutor('propio')">Nosotros</button>
+      <button id="toggleRival" class="toggle-btn toggle-inactivo" onclick="cambiarEjecutor('rival')">Rival</button>
+    </div>
+    <button class="btn btn-sm btn-warning" onclick="reiniciarContadores()">🔄 Reiniciar</button>
+  </div>
+
+  <!-- Resultados rápidos -->
+  <div class="result-buttons">
+    <button class="btn-result btn-winner-propio" onclick="marcarResultado('winner-propio')">🚀 Winner propio</button>
+    <button class="btn-result btn-out-propio" onclick="marcarResultado('out-propio')">❌ Out propio</button>
+    <button class="btn-result btn-winner-rival" onclick="marcarResultado('winner-rival')">🏆 Punto rival</button>
+    <button class="btn-result btn-out-rival" onclick="marcarResultado('out-rival')">⚠️ Error rival</button>
   </div>
 
   <!-- Botones de golpes -->
@@ -136,7 +179,7 @@
     <h3>Eventos registrados</h3>
     <p><small>Hacé clic en el tiempo para revisar la jugada (retrocede 2 seg).</small></p>
     <table class="table-events">
-      <thead><tr><th>Jugador</th><th>Tiempo</th><th>Golpe</th><th>Resultado</th></tr></thead>
+      <thead><tr><th>Ejecutor</th><th>Tiempo</th><th>Golpe</th><th>Resultado</th></tr></thead>
       <tbody id="tablaEventos"></tbody>
     </table>
   </div>
@@ -144,11 +187,12 @@
   <!-- Panel de Estadísticas -->
   <div id="tab-estadisticas" class="tab-content stats-panel">
     <h3>Estadísticas del Partido</h3>
+    <div id="summaryCards" class="summary-cards"></div>
     <div class="chart-container">
       <canvas id="chartGolpes" width="400" height="250"></canvas>
     </div>
     <div class="chart-container">
-      <canvas id="chartErrores" width="400" height="250"></canvas>
+      <canvas id="chartResultados" width="400" height="250"></canvas>
     </div>
     <div class="export-btns">
       <button class="btn btn-sm btn-success" onclick="exportarCSV()">📥 Exportar CSV</button>
@@ -162,13 +206,15 @@
   // ---------- CONFIGURACIÓN ----------
   const golpesBase = [
     'Clear', 'Drop', 'Drop Slice', 'Smash', 'Stick Smash',
-    'Bloqueo', 'Defensa', 'Defensa profunda', 'Lob', 'Lift', 'Dejada'
+    'Bloqueo', 'Defensa', 'Defensa profunda', 'Lob', 'Lift', 'Dejada', 'Barrido'
   ];
   const direcciones = ['Paralelo', 'Cruzado'];
 
   let iframe;
   let jugadores = JSON.parse(localStorage.getItem('jugadoresBadminton') || '[]');
-  let jugadorSeleccionado = localStorage.getItem('jugadorActualBadminton') || '';
+  let jugadorPropio = localStorage.getItem('jugadorPropioBadminton') || '';
+  let jugadorRival = localStorage.getItem('jugadorRivalBadminton') || '';
+  let ejecutorActual = 'propio'; // 'propio' o 'rival'
   let contadores = {};
   let eventos = [];
 
@@ -176,33 +222,28 @@
     golpesBase.forEach(golpe => {
       direcciones.forEach(dir => {
         const clave = `${golpe} ${dir}`;
-        if (!(clave in contadores)) contadores[clave] = 0;
+        if (!(clave in contadores)) contadores[clave] = { propio: 0, rival: 0 };
       });
     });
   }
   inicializarContadores();
 
-  function guardarContadores() {
+  function guardarTodo() {
     localStorage.setItem('contadoresBadminton', JSON.stringify(contadores));
-  }
-  function cargarContadores() {
-    const guardados = JSON.parse(localStorage.getItem('contadoresBadminton') || '{}');
-    if (Object.keys(guardados).length > 0) contadores = guardados;
-  }
-  cargarContadores();
-
-  function guardarEventos() {
     localStorage.setItem('eventosBadminton', JSON.stringify(eventos));
   }
-  function cargarEventos() {
-    const guardados = JSON.parse(localStorage.getItem('eventosBadminton') || '[]');
-    if (guardados.length > 0) eventos = guardados;
-    document.getElementById('tablaEventos').innerHTML = '';
-    eventos.forEach((evento, index) => {
-      agregarFilaTabla(index, evento.jugador, evento.tiempo, evento.tipo, evento.result);
-    });
+
+  function cargarTodo() {
+    const cont = JSON.parse(localStorage.getItem('contadoresBadminton') || '{}');
+    if (Object.keys(cont).length > 0) contadores = cont;
+    const evts = JSON.parse(localStorage.getItem('eventosBadminton') || '[]');
+    if (evts.length > 0) {
+      eventos = evts;
+      document.getElementById('tablaEventos').innerHTML = '';
+      eventos.forEach((e, i) => agregarFilaTabla(i, e));
+    }
   }
-  cargarEventos();
+  cargarTodo();
 
   // ---------- VIDEO ----------
   function extraerID(url) {
@@ -221,7 +262,7 @@
     }
     const videoId = extraerID(url);
     if (!videoId) {
-      mostrarError('No se pudo extraer el ID del vídeo. Revisa el enlace.');
+      mostrarError('No se pudo extraer el ID del vídeo.');
       return;
     }
     iframe = document.getElementById('youtube-frame');
@@ -239,20 +280,20 @@
     if (event.origin !== 'https://www.youtube.com') return;
     try {
       const data = JSON.parse(event.data);
-      if (data.event === 'infoDelivery' && data.info && data.info.currentTime) {
+      if (data.event === 'infoDelivery' && data.info?.currentTime) {
         window.iframeCurrentTime = data.info.currentTime;
       }
     } catch(e) {}
   });
 
   function solicitarTiempo() {
-    if (!iframe || !iframe.contentWindow) return;
+    if (!iframe?.contentWindow) return;
     iframe.contentWindow.postMessage('{"event":"listening","id":1}', 'https://www.youtube.com');
   }
   setInterval(solicitarTiempo, 500);
 
   function seekTo(seconds) {
-    if (!iframe || !iframe.contentWindow) return;
+    if (!iframe?.contentWindow) return;
     iframe.contentWindow.postMessage(
       JSON.stringify({event: 'command', func: 'seekTo', args: [seconds, true]}),
       'https://www.youtube.com'
@@ -260,63 +301,89 @@
   }
 
   // ---------- JUGADORES ----------
-  function actualizarListaJugadores() {
-    const select = document.getElementById('jugadorActual');
-    select.innerHTML = jugadores.map(j => `<option value="${j}" ${j === jugadorSeleccionado ? 'selected' : ''}>${j}</option>`).join('');
-    if (jugadores.length === 0) select.innerHTML = '<option value="">-- Sin jugador --</option>';
+  function actualizarSelectores() {
+    const selPropio = document.getElementById('jugadorPropio');
+    const selRival = document.getElementById('jugadorRival');
+    
+    const opciones = jugadores.map(j => `<option value="${j}" ${j === jugadorPropio ? 'selected' : ''}>${j}</option>`).join('');
+    selPropio.innerHTML = opciones || '<option value="">-- Sin jugador --</option>';
+    
+    const opcionesRival = jugadores.map(j => `<option value="${j}" ${j === jugadorRival ? 'selected' : ''}>${j}</option>`).join('');
+    selRival.innerHTML = opcionesRival || '<option value="">-- Sin jugador --</option>';
   }
 
-  function agregarJugador() {
+  function agregarJugador(tipo) {
     const nombre = prompt('Nombre del jugador:');
     if (nombre && !jugadores.includes(nombre)) {
       jugadores.push(nombre);
       localStorage.setItem('jugadoresBadminton', JSON.stringify(jugadores));
-      jugadorSeleccionado = nombre;
-      localStorage.setItem('jugadorActualBadminton', nombre);
-      actualizarListaJugadores();
+      if (tipo === 'propio') {
+        jugadorPropio = nombre;
+        localStorage.setItem('jugadorPropioBadminton', nombre);
+      } else {
+        jugadorRival = nombre;
+        localStorage.setItem('jugadorRivalBadminton', nombre);
+      }
+      actualizarSelectores();
     }
   }
 
-  document.getElementById('jugadorActual').addEventListener('change', (e) => {
-    jugadorSeleccionado = e.target.value;
-    localStorage.setItem('jugadorActualBadminton', jugadorSeleccionado);
+  document.getElementById('jugadorPropio').addEventListener('change', (e) => {
+    jugadorPropio = e.target.value;
+    localStorage.setItem('jugadorPropioBadminton', jugadorPropio);
   });
+
+  document.getElementById('jugadorRival').addEventListener('change', (e) => {
+    jugadorRival = e.target.value;
+    localStorage.setItem('jugadorRivalBadminton', jugadorRival);
+  });
+
+  function cambiarEjecutor(ejecutor) {
+    ejecutorActual = ejecutor;
+    document.getElementById('togglePropio').className = `toggle-btn ${ejecutor === 'propio' ? 'toggle-activo' : 'toggle-inactivo'}`;
+    document.getElementById('toggleRival').className = `toggle-btn ${ejecutor === 'rival' ? 'toggle-activo' : 'toggle-inactivo'}`;
+  }
 
   // ---------- REGISTRO DE GOLPES ----------
   function registrarGolpe(golpe, direccion) {
-    if (!iframe || !iframe.src) { alert('Carga un video primero.'); return; }
-    if (!jugadorSeleccionado) { alert('Selecciona o añade un jugador primero.'); return; }
+    if (!iframe?.src) { alert('Carga un video primero.'); return; }
+    const jugador = ejecutorActual === 'propio' ? jugadorPropio : jugadorRival;
+    if (!jugador) { alert(`Selecciona el jugador ${ejecutorActual}.`); return; }
     const tiempo = window.iframeCurrentTime;
     if (tiempo === undefined || tiempo === null) {
-      alert('No se pudo obtener el tiempo del video. Espera unos segundos.');
+      alert('No se pudo obtener el tiempo. Espera unos segundos.');
       solicitarTiempo();
       return;
     }
 
     const clave = `${golpe} ${direccion}`;
-    contadores[clave] = (contadores[clave] || 0) + 1;
-    guardarContadores();
+    if (!contadores[clave]) contadores[clave] = { propio: 0, rival: 0 };
+    contadores[clave][ejecutorActual]++;
+    guardarTodo();
     actualizarBotonesContadores();
 
-    const nuevoEvento = { jugador: jugadorSeleccionado, tiempo, tipo: clave, result: null };
-    eventos.push(nuevoEvento);
-    guardarEventos();
-    agregarFilaTabla(eventos.length - 1, jugadorSeleccionado, tiempo, clave, null);
+    const evento = {
+      jugador, tiempo, tipo: clave, ejecutor: ejecutorActual,
+      result: null
+    };
+    eventos.push(evento);
+    agregarFilaTabla(eventos.length - 1, evento);
+    guardarTodo();
   }
 
-  function agregarFilaTabla(index, jugador, tiempoSegundos, tipo, result) {
+  function agregarFilaTabla(index, evento) {
     const tbody = document.getElementById('tablaEventos');
     const fila = tbody.insertRow();
     fila.id = `row-${index}`;
-    const minutos = Math.floor(tiempoSegundos / 60);
-    const segundos = Math.floor(tiempoSegundos % 60);
-    const tiempoFormateado = `${minutos}:${segundos.toString().padStart(2, '0')}`;
+    const mins = Math.floor(evento.tiempo / 60);
+    const secs = Math.floor(evento.tiempo % 60);
+    const tiempoFormateado = `${mins}:${secs.toString().padStart(2, '0')}`;
 
     fila.innerHTML = `
-      <td>${jugador}</td>
-      <td class="tiempo-cell" data-index="${index}" data-tiempo="${tiempoSegundos}">${tiempoFormateado}</td>
-      <td>${tipo}</td>
-      <td class="result-cell">${result ? `<span class="result-badge result-${result}">${result === 'winner' ? 'Winner' : 'Out'}</span>` : ''}</td>
+      <td>${evento.jugador} (${evento.ejecutor === 'propio' ? 'Nosotros' : 'Rival'})</td>
+      <td class="tiempo-cell" data-tiempo="${evento.tiempo}">${tiempoFormateado}</td>
+      <td>${evento.tipo}</td>
+      <td class="result-cell">${evento.result ? `<span class="result-badge result-${evento.result}">${evento.result.replace('-', ' ')}</span>` : ''}</td>
     `;
 
     fila.querySelector('.tiempo-cell').addEventListener('click', function() {
@@ -328,19 +395,20 @@
     const fila = document.getElementById(`row-${index}`);
     if (!fila) return;
     const cell = fila.querySelector('.result-cell');
-    cell.innerHTML = result ? `<span class="result-badge result-${result}">${result === 'winner' ? 'Winner' : 'Out'}</span>` : '';
+    cell.innerHTML = result ? `<span class="result-badge result-${result}">${result.replace('-', ' ')}</span>` : '';
   }
 
   function marcarResultado(result) {
-    if (eventos.length === 0) { alert('No hay eventos registrados.'); return; }
-    let lastIndex = -1;
-    for (let i = eventos.length - 1; i >= 0; i--) {
-      if (eventos[i].result === null) { lastIndex = i; break; }
+    const sinMarcar = eventos.filter(e => e.result === null);
+    if (sinMarcar.length === 0) {
+      alert('Todos los eventos tienen resultado.');
+      return;
     }
-    if (lastIndex === -1) { alert('Todos los eventos ya tienen resultado asignado.'); return; }
-    eventos[lastIndex].result = result;
-    guardarEventos();
-    actualizarFilaResultado(lastIndex, result);
+    const ultimo = sinMarcar[sinMarcar.length - 1];
+    const index = eventos.indexOf(ultimo);
+    eventos[index].result = result;
+    guardarTodo();
+    actualizarFilaResultado(index, result);
   }
 
   // ---------- BOTONES ----------
@@ -350,21 +418,26 @@
     golpesBase.forEach(golpe => {
       const card = document.createElement('div');
       card.className = 'golpe-card';
+      
       const nombre = document.createElement('div');
       nombre.className = 'golpe-nombre';
       nombre.textContent = golpe;
       card.appendChild(nombre);
+
       const botonesDiv = document.createElement('div');
       botonesDiv.className = 'botones-golpe';
 
       direcciones.forEach(dir => {
         const clave = `${golpe} ${dir}`;
+        const total = (contadores[clave]?.propio || 0) + (contadores[clave]?.rival || 0);
+        
         const btn = document.createElement('button');
         btn.className = `btn-golpe ${dir === 'Paralelo' ? 'btn-paralelo' : 'btn-cruzado'}`;
-        btn.innerHTML = `${dir} <span class="badge" id="cont-${clave.replace(/\s/g, '_')}">${contadores[clave] || 0}</span>`;
+        btn.innerHTML = `${dir} <span class="badge" id="cont-${clave.replace(/\s/g, '_')}">${total}</span>`;
         btn.addEventListener('click', () => registrarGolpe(golpe, dir));
         botonesDiv.appendChild(btn);
       });
+
       card.appendChild(botonesDiv);
       container.appendChild(card);
     });
@@ -374,27 +447,26 @@
     golpesBase.forEach(golpe => {
       direcciones.forEach(dir => {
         const clave = `${golpe} ${dir}`;
+        const total = (contadores[clave]?.propio || 0) + (contadores[clave]?.rival || 0);
         const badge = document.getElementById(`cont-${clave.replace(/\s/g, '_')}`);
-        if (badge) badge.textContent = contadores[clave] || 0;
+        if (badge) badge.textContent = total;
       });
     });
   }
 
   function reiniciarContadores() {
-    if (confirm('¿Estás seguro de reiniciar todos los contadores y eventos?')) {
+    if (confirm('¿Reiniciar TODO?')) {
       contadores = {};
       inicializarContadores();
-      guardarContadores();
       eventos = [];
-      guardarEventos();
+      guardarTodo();
       document.getElementById('tablaEventos').innerHTML = '';
       actualizarBotonesContadores();
     }
   }
 
-  // ---------- PESTAÑAS (CORREGIDO) ----------
+  // ---------- PESTAÑAS ----------
   function cambiarTab(tabId) {
-    // Quitar activo de todos los botones y contenidos
     document.getElementById('btnTabEventos').classList.remove('active');
     document.getElementById('btnTabEstadisticas').classList.remove('active');
     document.getElementById('tab-eventos').classList.remove('active');
@@ -406,55 +478,71 @@
     } else {
       document.getElementById('btnTabEstadisticas').classList.add('active');
       document.getElementById('tab-estadisticas').classList.add('active');
-      generarGraficos(); // solo cuando se muestra la pestaña
+      generarEstadisticas();
     }
   }
 
-  // ---------- GRÁFICOS ----------
-  let chartGolpes, chartErrores;
+  // ---------- ESTADÍSTICAS ----------
+  let chartGolpes, chartResultados;
 
-  function generarGraficos() {
-    const frecuencias = {};
-    golpesBase.forEach(golpe => frecuencias[golpe] = 0);
-    eventos.forEach(e => {
-      const base = e.tipo.split(' ')[0];
-      if (frecuencias[base] !== undefined) frecuencias[base]++;
-    });
-    const labels = Object.keys(frecuencias);
-    const data = Object.values(frecuencias);
+  function generarEstadisticas() {
+    const propias = eventos.filter(e => e.ejecutor === 'propio');
+    const rival = eventos.filter(e => e.ejecutor === 'rival');
+    const winnersPropios = propias.filter(e => e.result === 'winner-propio').length;
+    const outsPropios = propias.filter(e => e.result === 'out-propio').length;
+    const winnersRival = rival.filter(e => e.result === 'winner-rival').length;
+    const outsRival = rival.filter(e => e.result === 'out-rival').length;
+
+    document.getElementById('summaryCards').innerHTML = `
+      <div class="summary-card" style="border-left: 4px solid #28a745">
+        <h4>Winners propios</h4><div class="number">${winnersPropios}</div>
+      </div>
+      <div class="summary-card" style="border-left: 4px solid #dc3545">
+        <h4>Errores propios</h4><div class="number">${outsPropios}</div>
+      </div>
+      <div class="summary-card" style="border-left: 4px solid #ffc107">
+        <h4>Puntos rival</h4><div class="number">${winnersRival}</div>
+      </div>
+      <div class="summary-card" style="border-left: 4px solid #6c757d">
+        <h4>Errores rival</h4><div class="number">${outsRival}</div>
+      </div>
+    `;
 
     if (chartGolpes) chartGolpes.destroy();
-    if (chartErrores) chartErrores.destroy();
-
     const ctx1 = document.getElementById('chartGolpes').getContext('2d');
+    const labels = golpesBase;
+    const dataPropio = labels.map(g => {
+      let total = 0;
+      direcciones.forEach(d => total += contadores[`${g} ${d}`]?.propio || 0);
+      return total;
+    });
+    const dataRival = labels.map(g => {
+      let total = 0;
+      direcciones.forEach(d => total += contadores[`${g} ${d}`]?.rival || 0);
+      return total;
+    });
+
     chartGolpes = new Chart(ctx1, {
       type: 'bar',
       data: {
         labels: labels,
-        datasets: [{
-          label: 'Cantidad de golpes',
-          data: data,
-          backgroundColor: 'rgba(54, 162, 235, 0.7)'
-        }]
+        datasets: [
+          { label: 'Propios', data: dataPropio, backgroundColor: 'rgba(54, 162, 235, 0.7)' },
+          { label: 'Rival', data: dataRival, backgroundColor: 'rgba(255, 99, 132, 0.7)' }
+        ]
       },
-      options: { responsive: true, plugins: { title: { display: true, text: 'Frecuencia de Golpes' } } }
+      options: { responsive: true, plugins: { title: { display: true, text: 'Golpes por tipo' } } }
     });
 
-    const conteo = { winner: 0, out: 0, sinMarcar: 0 };
-    eventos.forEach(e => {
-      if (e.result === 'winner') conteo.winner++;
-      else if (e.result === 'out') conteo.out++;
-      else conteo.sinMarcar++;
-    });
-
-    const ctx2 = document.getElementById('chartErrores').getContext('2d');
-    chartErrores = new Chart(ctx2, {
+    if (chartResultados) chartResultados.destroy();
+    const ctx2 = document.getElementById('chartResultados').getContext('2d');
+    chartResultados = new Chart(ctx2, {
       type: 'pie',
       data: {
-        labels: ['Winners', 'Errores (Out)', 'Sin marcar'],
+        labels: ['Winners propios', 'Errores propios', 'Winners rival', 'Errores rival', 'Sin marcar'],
         datasets: [{
-          data: [conteo.winner, conteo.out, conteo.sinMarcar],
-          backgroundColor: ['#28a745', '#dc3545', '#ffc107']
+          data: [winnersPropios, outsPropios, winnersRival, outsRival, eventos.filter(e => !e.result).length],
+          backgroundColor: ['#28a745', '#dc3545', '#ffc107', '#6c757d', '#e9ecef']
         }]
       },
       options: { responsive: true, plugins: { title: { display: true, text: 'Resultados' } } }
@@ -462,13 +550,13 @@
   }
 
   function exportarCSV() {
-    let csv = 'Jugador,Tiempo (s),Golpe,Resultado\n';
-    eventos.forEach(e => csv += `${e.jugador},${e.tiempo.toFixed(1)},${e.tipo},${e.result || ''}\n`);
-    descargarArchivo(csv, 'eventos_badminton.csv', 'text/csv');
+    let csv = 'Ejecutor,Jugador,Tiempo,Golpe,Resultado\n';
+    eventos.forEach(e => csv += `${e.ejecutor},${e.jugador},${e.tiempo.toFixed(1)},${e.tipo},${e.result || ''}\n`);
+    descargarArchivo(csv, 'eventos.csv', 'text/csv');
   }
 
   function exportarJSON() {
-    descargarArchivo(JSON.stringify(eventos, null, 2), 'eventos_badminton.json', 'application/json');
+    descargarArchivo(JSON.stringify(eventos, null, 2), 'eventos.json', 'application/json');
   }
 
   function descargarArchivo(contenido, nombre, tipo) {
@@ -480,10 +568,9 @@
   }
 
   // ---------- INICIO ----------
-  actualizarListaJugadores();
+  actualizarSelectores();
   crearBotones();
   cargarVideo();
-  cargarEventos();
 </script>
 </body>
 </html>
