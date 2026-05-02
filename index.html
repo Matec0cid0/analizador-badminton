@@ -3,67 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analizador de Bádminton Pro - Zonas 9</title>
+  <title>Analizador de Bádminton - Diseño Compacto</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 15px; background: #f8f9fa; }
-    .container { max-width: 1300px; margin: auto; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 10px; background: #f0f2f5; }
+    .container { max-width: 1400px; margin: auto; }
 
-    .player-section { margin-bottom: 20px; }
+    /* Reproductor */
+    .player-section { margin-bottom: 10px; }
     #player-wrapper {
       position: relative; width: 100%; padding-bottom: 56.25%; background: #000;
-      border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     #player-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
     .controls-bar {
-      display: flex; gap: 15px; align-items: center; flex-wrap: wrap;
-      margin: 15px 0; background: white; padding: 12px; border-radius: 8px;
+      display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+      margin: 10px 0; background: white; padding: 10px; border-radius: 8px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
-    .controls-bar input { flex: 1; min-width: 250px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    .controls-bar input { flex: 1; min-width: 200px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; }
     .btn {
-      padding: 10px 18px; background: #007bff; color: white; border: none; border-radius: 5px;
-      cursor: pointer; font-weight: bold; transition: 0.2s; white-space: nowrap;
+      padding: 8px 14px; background: #007bff; color: white; border: none; border-radius: 5px;
+      cursor: pointer; font-weight: bold; transition: 0.2s; white-space: nowrap; font-size: 0.9rem;
     }
     .btn:hover { background: #0056b3; }
-    .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+    .btn-sm { padding: 5px 10px; font-size: 0.8rem; }
     .btn-success { background: #28a745; } .btn-success:hover { background: #1e7e34; }
     .btn-danger { background: #dc3545; } .btn-danger:hover { background: #a71d2a; }
     .btn-warning { background: #ffc107; color: #212529; } .btn-warning:hover { background: #d39e00; }
     .btn-info { background: #17a2b8; } .btn-info:hover { background: #117a8b; }
     .btn-dark { background: #343a40; } .btn-dark:hover { background: #1d2124; }
 
-    .golpes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px; margin: 20px 0; }
-    .golpe-card {
-      background: white; border-radius: 10px; padding: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    /* Layout de dos columnas */
+    .two-columns { display: flex; gap: 15px; align-items: flex-start; }
+    .left-column { flex: 2; }  /* Botones de golpes */
+    .right-column { flex: 1; display: flex; flex-direction: column; gap: 10px; } /* Cancha y resultados */
+
+    .golpes-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;
     }
-    .golpe-nombre { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; text-align: center; color: #333; }
-    .botones-golpe { display: flex; gap: 8px; }
+    .golpe-card {
+      background: white; border-radius: 8px; padding: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .golpe-nombre { font-weight: bold; font-size: 0.9rem; margin-bottom: 6px; text-align: center; color: #333; }
+    .botones-golpe { display: flex; gap: 6px; }
     .btn-golpe {
-      flex: 1; padding: 12px 5px; border: 2px solid; border-radius: 8px;
-      font-weight: bold; cursor: pointer; transition: all 0.2s; position: relative;
+      flex: 1; padding: 8px 4px; border: 2px solid; border-radius: 6px;
+      font-weight: bold; cursor: pointer; font-size: 0.8rem; position: relative;
+      text-align: center;
     }
     .btn-paralelo { background: #e3f2fd; border-color: #2196F3; color: #0d47a1; }
     .btn-paralelo:hover { background: #bbdefb; }
     .btn-cruzado { background: #fce4ec; border-color: #e91e63; color: #880e4f; }
     .btn-cruzado:hover { background: #f8bbd0; }
     .badge {
-      position: absolute; top: -8px; right: -8px; background: #333; color: white;
-      border-radius: 50%; width: 24px; height: 24px;
+      position: absolute; top: -6px; right: -6px; background: #333; color: white;
+      border-radius: 50%; width: 20px; height: 20px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.8rem; font-weight: bold;
+      font-size: 0.7rem; font-weight: bold;
     }
 
     .jugador-selector { display: flex; align-items: center; gap: 8px; }
-    .jugador-selector select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+    .jugador-selector select { padding: 6px; border-radius: 5px; border: 1px solid #ccc; }
 
-    .result-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+    .result-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
     .btn-result {
-      padding: 10px 16px; border: none; border-radius: 20px; font-weight: bold; cursor: pointer;
-      transition: 0.2s; font-size: 0.9rem;
+      padding: 6px 10px; border: none; border-radius: 16px; font-weight: bold; cursor: pointer;
+      font-size: 0.8rem; transition: 0.2s;
     }
     .btn-winner-propio { background: #d4edda; color: #155724; border: 2px solid #28a745; }
     .btn-winner-propio:hover { background: #28a745; color: white; }
@@ -74,61 +83,66 @@
     .btn-out-rival { background: #e2e3e5; color: #383d41; border: 2px solid #6c757d; }
     .btn-out-rival:hover { background: #6c757d; color: white; }
 
-    /* Mapa de cancha con 9 zonas */
+    /* Cancha rediseñada */
     .court-container {
-      background: white; border-radius: 10px; padding: 15px; margin: 15px 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      text-align: center;
+      background: white; border-radius: 10px; padding: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;
     }
-    .court-title { font-weight: bold; margin-bottom: 10px; }
-    .court-svg { max-width: 400px; width: 100%; height: auto; border: 1px solid #ccc; border-radius: 8px; }
+    .court-title { font-weight: bold; margin-bottom: 6px; font-size: 0.85rem; }
+    .court-svg { width: 100%; max-width: 320px; height: auto; border-radius: 8px; }
     .zone { cursor: pointer; transition: opacity 0.2s; }
-    .zone:hover { opacity: 0.7; }
+    .zone:hover { opacity: 0.6; }
+    .clicked-feedback { animation: flash 0.3s; }
+    @keyframes flash { from { fill: rgba(255,255,0,0.5); } to { fill: transparent; } }
+
+    .toggle-ejecutor { display: flex; gap: 8px; align-items: center; }
+    .toggle-btn { padding: 6px 12px; border-radius: 16px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+    .toggle-activo { background: #007bff; color: white; }
+    .toggle-inactivo { background: #e9ecef; color: #333; }
 
     .stats-panel {
-      background: white; border-radius: 10px; padding: 15px; margin-top: 20px;
+      background: white; border-radius: 10px; padding: 15px; margin-top: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
-    .table-events { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    .table-events th, .table-events td { border: 1px solid #dee2e6; padding: 8px; text-align: left; }
+    .table-events { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.85rem; }
+    .table-events th, .table-events td { border: 1px solid #dee2e6; padding: 6px; text-align: left; }
     .table-events th { background: #e9ecef; }
     .table-events td.tiempo-cell { cursor: pointer; color: #007bff; text-decoration: underline; }
     .table-events td.tiempo-cell:hover { color: #0056b3; }
 
     .hidden { display: none !important; }
-    .loading-msg { color: #6c757d; margin-left: 10px; }
+    .loading-msg { color: #6c757d; margin-left: 10px; font-size: 0.85rem; }
 
-    .result-badge { padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
+    .result-badge { padding: 2px 6px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; }
     .result-winner-propio { background: #d4edda; color: #155724; }
     .result-out-propio { background: #f8d7da; color: #721c24; }
     .result-winner-rival { background: #fff3cd; color: #856404; }
     .result-out-rival { background: #e2e3e5; color: #383d41; }
 
-    .tabs { display: flex; gap: 5px; margin: 15px 0 0 0; }
+    .tabs { display: flex; gap: 5px; margin: 10px 0 0 0; }
     .tab-btn {
-      padding: 10px 20px; background: #e9ecef; border: none; border-radius: 8px 8px 0 0;
-      cursor: pointer; font-weight: bold; font-size: 1rem;
+      padding: 8px 14px; background: #e9ecef; border: none; border-radius: 6px 6px 0 0;
+      cursor: pointer; font-weight: bold; font-size: 0.85rem;
     }
     .tab-btn.active { background: #007bff; color: white; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .chart-container { width: 100%; max-width: 600px; margin: 20px auto; }
+    .chart-container { width: 100%; max-width: 500px; margin: 15px auto; }
     canvas { width: 100%; height: auto; }
-    .export-btns { display: flex; gap: 10px; margin-top: 10px; }
+    .export-btns { display: flex; gap: 8px; margin-top: 8px; justify-content: flex-end; }
 
-    .summary-cards { display: flex; gap: 15px; margin: 20px 0; flex-wrap: wrap; }
+    .summary-cards { display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap; }
     .summary-card {
-      flex: 1; min-width: 150px; background: white; border-radius: 10px;
-      padding: 15px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      flex: 1; min-width: 120px; background: white; border-radius: 8px;
+      padding: 10px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    .summary-card h4 { margin: 0 0 10px 0; font-size: 0.9rem; }
-    .summary-card .number { font-size: 2rem; font-weight: bold; }
+    .summary-card h4 { margin: 0 0 6px 0; font-size: 0.8rem; }
+    .summary-card .number { font-size: 1.8rem; font-weight: bold; }
 
-    .toggle-ejecutor { display: flex; gap: 10px; align-items: center; margin: 10px 0; }
-    .toggle-btn { padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: bold; }
-    .toggle-activo { background: #007bff; color: white; }
-    .toggle-inactivo { background: #e9ecef; color: #333; }
+    @media (max-width: 900px) {
+      .two-columns { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
@@ -147,10 +161,10 @@
     </div>
   </div>
 
-  <!-- Selector de jugadores + toggle ejecutor -->
+  <!-- Selector de jugadores y toggle ejecutor en una barra -->
   <div class="controls-bar">
     <div class="jugador-selector">
-      <label><strong>Jugador propio:</strong></label>
+      <label><strong>Propio:</strong></label>
       <select id="jugadorPropio"></select>
       <button class="btn btn-sm btn-success" onclick="agregarJugador('propio')">➕</button>
     </div>
@@ -160,102 +174,122 @@
       <button class="btn btn-sm btn-dark" onclick="agregarJugador('rival')">➕</button>
     </div>
     <div class="toggle-ejecutor">
-      <span>Registrar como:</span>
       <button id="togglePropio" class="toggle-btn toggle-activo" onclick="cambiarEjecutor('propio')">Nosotros</button>
       <button id="toggleRival" class="toggle-btn toggle-inactivo" onclick="cambiarEjecutor('rival')">Rival</button>
     </div>
     <button class="btn btn-sm btn-warning" onclick="reiniciarContadores()">🔄 Reiniciar</button>
   </div>
 
-  <!-- Resultados rápidos -->
-  <div class="result-buttons">
-    <button class="btn-result btn-winner-propio" onclick="marcarResultado('winner-propio')">🚀 Winner propio</button>
-    <button class="btn-result btn-out-propio" onclick="marcarResultado('out-propio')">❌ Out propio</button>
-    <button class="btn-result btn-winner-rival" onclick="marcarResultado('winner-rival')">🏆 Punto rival</button>
-    <button class="btn-result btn-out-rival" onclick="marcarResultado('out-rival')">⚠️ Error rival</button>
+  <!-- Dos columnas: golpes a la izquierda, cancha y resultados a la derecha -->
+  <div class="two-columns">
+    <div class="left-column">
+      <div id="golpesContainer" class="golpes-grid"></div>
+    </div>
+    <div class="right-column">
+      <div class="result-buttons">
+        <button class="btn-result btn-winner-propio" onclick="marcarResultado('winner-propio')">🚀 Winner propio</button>
+        <button class="btn-result btn-out-propio" onclick="marcarResultado('out-propio')">❌ Out propio</button>
+        <button class="btn-result btn-winner-rival" onclick="marcarResultado('winner-rival')">🏆 Punto rival</button>
+        <button class="btn-result btn-out-rival" onclick="marcarResultado('out-rival')">⚠️ Error rival</button>
+      </div>
+
+      <div class="court-container">
+        <div class="court-title">📍 Toca la zona de caída</div>
+        <svg class="court-svg" viewBox="0 0 400 450" xmlns="http://www.w3.org/2000/svg">
+          <!-- Fondo de parqué -->
+          <defs>
+            <pattern id="wood" patternUnits="userSpaceOnUse" width="20" height="20">
+              <rect width="20" height="20" fill="#c19a6b"/>
+              <line x1="0" y1="5" x2="20" y2="5" stroke="#b08968" stroke-width="0.5"/>
+              <line x1="0" y1="15" x2="20" y2="15" stroke="#b08968" stroke-width="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="400" height="450" fill="url(#wood)" rx="10" />
+
+          <!-- Líneas blancas de la cancha -->
+          <g stroke="white" stroke-width="2" fill="none">
+            <!-- Línea de fondo superior -->
+            <line x1="30" y1="40" x2="370" y2="40" />
+            <!-- Línea de fondo inferior -->
+            <line x1="30" y1="410" x2="370" y2="410" />
+            <!-- Líneas laterales -->
+            <line x1="30" y1="40" x2="30" y2="410" />
+            <line x1="370" y1="40" x2="370" y2="410" />
+            <!-- Línea de saque largo (trasera) -->
+            <line x1="30" y1="160" x2="370" y2="160" />
+            <line x1="30" y1="290" x2="370" y2="290" />
+            <!-- Línea de servicio corto (delantera) -->
+            <line x1="30" y1="190" x2="370" y2="190" />
+            <line x1="30" y1="260" x2="370" y2="260" />
+            <!-- Línea central vertical -->
+            <line x1="200" y1="40" x2="200" y2="410" stroke-dasharray="6,4" stroke-width="1.5" />
+            <!-- Red (horizontal central) -->
+            <line x1="30" y1="225" x2="370" y2="225" stroke="black" stroke-width="3" />
+            <!-- Postes de la red -->
+            <line x1="20" y1="210" x2="20" y2="240" stroke="black" stroke-width="6" />
+            <line x1="380" y1="210" x2="380" y2="240" stroke="black" stroke-width="6" />
+          </g>
+
+          <!-- Zonas clickeables (9 rectángulos transparentes) -->
+          <!-- Red Izquierda -->
+          <rect class="zone" x="30" y="40" width="113" height="150" fill="transparent" onclick="asignarZona('Red Izquierda')" />
+          <!-- Red Centro -->
+          <rect class="zone" x="144" y="40" width="112" height="150" fill="transparent" onclick="asignarZona('Red Centro')" />
+          <!-- Red Derecha -->
+          <rect class="zone" x="257" y="40" width="113" height="150" fill="transparent" onclick="asignarZona('Red Derecha')" />
+
+          <!-- Media Izquierda -->
+          <rect class="zone" x="30" y="190" width="113" height="70" fill="transparent" onclick="asignarZona('Media Izquierda')" />
+          <!-- Media Centro -->
+          <rect class="zone" x="144" y="190" width="112" height="70" fill="transparent" onclick="asignarZona('Media Centro')" />
+          <!-- Media Derecha -->
+          <rect class="zone" x="257" y="190" width="113" height="70" fill="transparent" onclick="asignarZona('Media Derecha')" />
+
+          <!-- Fondo Izquierda -->
+          <rect class="zone" x="30" y="260" width="113" height="150" fill="transparent" onclick="asignarZona('Fondo Izquierda')" />
+          <!-- Fondo Centro -->
+          <rect class="zone" x="144" y="260" width="112" height="150" fill="transparent" onclick="asignarZona('Fondo Centro')" />
+          <!-- Fondo Derecha -->
+          <rect class="zone" x="257" y="260" width="113" height="150" fill="transparent" onclick="asignarZona('Fondo Derecha')" />
+
+          <!-- Etiquetas de zona (texto sobre cada zona) -->
+          <g fill="white" font-size="12" font-weight="bold" text-anchor="middle" opacity="0.8">
+            <text x="86" y="115">Red I</text>
+            <text x="200" y="115">Red C</text>
+            <text x="314" y="115">Red D</text>
+            <text x="86" y="225">Med I</text>
+            <text x="200" y="225">Med C</text>
+            <text x="314" y="225">Med D</text>
+            <text x="86" y="335">Fdo I</text>
+            <text x="200" y="335">Fdo C</text>
+            <text x="314" y="335">Fdo D</text>
+          </g>
+        </svg>
+        <p style="font-size:0.7rem; margin-top:4px; color:#555;">La zona se asigna al último golpe sin zona. Podés cambiarla haciendo otro clic.</p>
+      </div>
+    </div>
   </div>
 
-  <!-- Mapa de zonas con imagen SVG de cancha y 9 zonas -->
-  <div class="court-container">
-    <div class="court-title">📍 Zona de caída (clic sobre la cancha después de registrar un golpe)</div>
-    <svg class="court-svg" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
-      <!-- Fondo de cancha -->
-      <rect width="400" height="500" fill="#2e7d32" rx="8" />
-      <!-- Líneas de cancha -->
-      <g stroke="white" stroke-width="2" fill="none">
-        <!-- Línea de fondo -->
-        <line x1="20" y1="20" x2="380" y2="20" />
-        <line x1="20" y1="480" x2="380" y2="480" />
-        <!-- Líneas laterales -->
-        <line x1="20" y1="20" x2="20" y2="480" />
-        <line x1="380" y1="20" x2="380" y2="480" />
-        <!-- Línea de saque largo (fondo) -->
-        <line x1="20" y1="160" x2="380" y2="160" />
-        <line x1="20" y1="340" x2="380" y2="340" />
-        <!-- Línea de servicio corto -->
-        <line x1="20" y1="200" x2="380" y2="200" />
-        <line x1="20" y1="300" x2="380" y2="300" />
-        <!-- Línea central -->
-        <line x1="200" y1="20" x2="200" y2="480" stroke-dasharray="5,5" stroke-width="1" />
-        <!-- División de media cancha para zonas (no visible, lo haremos con rectángulos invisibles) -->
-      </g>
-      <!-- Zonas clickeables -->
-      <!-- Fila Red (superior) -->
-      <rect class="zone" x="20" y="20" width="126" height="180" fill="transparent" onclick="asignarZona('Red Izquierda')" />
-      <rect class="zone" x="147" y="20" width="106" height="180" fill="transparent" onclick="asignarZona('Red Centro')" />
-      <rect class="zone" x="254" y="20" width="126" height="180" fill="transparent" onclick="asignarZona('Red Derecha')" />
-      <!-- Fila Media -->
-      <rect class="zone" x="20" y="200" width="126" height="140" fill="transparent" onclick="asignarZona('Media Izquierda')" />
-      <rect class="zone" x="147" y="200" width="106" height="140" fill="transparent" onclick="asignarZona('Media Centro')" />
-      <rect class="zone" x="254" y="200" width="126" height="140" fill="transparent" onclick="asignarZona('Media Derecha')" />
-      <!-- Fila Fondo (inferior) -->
-      <rect class="zone" x="20" y="340" width="126" height="140" fill="transparent" onclick="asignarZona('Fondo Izquierda')" />
-      <rect class="zone" x="147" y="340" width="106" height="140" fill="transparent" onclick="asignarZona('Fondo Centro')" />
-      <rect class="zone" x="254" y="340" width="126" height="140" fill="transparent" onclick="asignarZona('Fondo Derecha')" />
-      <!-- Etiquetas opcionales (pequeñas) -->
-      <text x="83" y="110" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">Red I</text>
-      <text x="200" y="110" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">Red C</text>
-      <text x="317" y="110" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">Red D</text>
-      <text x="83" y="270" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">Media I</text>
-      <text x="200" y="270" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">Media C</text>
-      <text x="317" y="270" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">Media D</text>
-      <text x="83" y="410" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">Fondo I</text>
-      <text x="200" y="410" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">Fondo C</text>
-      <text x="317" y="410" fill="rgba(255,255,255,0.6)" font-size="12" text-anchor="middle">Fondo D</text>
-    </svg>
-    <p style="font-size:0.8rem; margin-top:5px;">La zona se asigna al último golpe sin zona. Podés cambiarla volviendo a hacer clic.</p>
-  </div>
-
-  <!-- Botones de golpes -->
-  <h2>Registro rápido de golpes</h2>
-  <div id="golpesContainer" class="golpes-grid"></div>
-
-  <!-- Pestañas -->
+  <!-- Pestañas de eventos / estadísticas -->
   <div class="tabs">
     <button id="btnTabEventos" class="tab-btn active" onclick="cambiarTab('eventos')">📋 Eventos</button>
     <button id="btnTabEstadisticas" class="tab-btn" onclick="cambiarTab('estadisticas')">📊 Estadísticas</button>
   </div>
 
-  <!-- Panel de Eventos -->
   <div id="tab-eventos" class="tab-content active stats-panel">
     <h3>Eventos registrados</h3>
-    <p><small>Hacé clic en el tiempo para revisar la jugada (retrocede 2 seg).</small></p>
+    <p style="font-size:0.8rem;">Hacé clic en el tiempo para revisar la jugada (retrocede 2 seg).</p>
     <table class="table-events">
       <thead><tr><th>Ejecutor</th><th>Tiempo</th><th>Golpe</th><th>Zona</th><th>Resultado</th></tr></thead>
       <tbody id="tablaEventos"></tbody>
     </table>
   </div>
 
-  <!-- Panel de Estadísticas -->
   <div id="tab-estadisticas" class="tab-content stats-panel">
     <h3>Estadísticas del Partido</h3>
     <div id="summaryCards" class="summary-cards"></div>
-    <div class="chart-container">
-      <canvas id="chartGolpes" width="400" height="250"></canvas>
-    </div>
-    <div class="chart-container">
-      <canvas id="chartZonas" width="400" height="250"></canvas>
-    </div>
+    <div class="chart-container"><canvas id="chartGolpes"></canvas></div>
+    <div class="chart-container"><canvas id="chartZonas"></canvas></div>
     <div class="export-btns">
       <button class="btn btn-sm btn-success" onclick="exportarCSV()">📥 Exportar CSV</button>
       <button class="btn btn-sm btn-info" onclick="exportarJSON()">📥 Exportar JSON</button>
@@ -265,7 +299,6 @@
 </div>
 
 <script>
-  // ---------- CONFIGURACIÓN ----------
   const golpesBase = [
     'Clear', 'Drop', 'Drop Slice', 'Smash', 'Stick Smash',
     'Bloqueo', 'Defensa', 'Defensa profunda', 'Lob', 'Lift', 'Dejada', 'Barrido'
@@ -282,8 +315,8 @@
   let jugadorPropio = localStorage.getItem('jugadorPropioBadminton') || '';
   let jugadorRival = localStorage.getItem('jugadorRivalBadminton') || '';
   let ejecutorActual = 'propio';
-  let contadores = {};  // { golpe: { propio, rival } }
-  let eventos = [];     // { jugador, tiempo, tipo, ejecutor, result, zona }
+  let contadores = {};
+  let eventos = [];
 
   function inicializarContadores() {
     golpesBase.forEach(golpe => {
@@ -323,15 +356,9 @@
     const url = document.getElementById('urlInput').value.trim();
     document.getElementById('errorMsg').classList.add('hidden');
     document.getElementById('loading').classList.remove('hidden');
-    if (!url) {
-      mostrarError('Por favor pega un enlace de YouTube.');
-      return;
-    }
+    if (!url) { mostrarError('Pega un enlace de YouTube.'); return; }
     const videoId = extraerID(url);
-    if (!videoId) {
-      mostrarError('No se pudo extraer el ID del vídeo.');
-      return;
-    }
+    if (!videoId) { mostrarError('No se pudo extraer el ID.'); return; }
     iframe = document.getElementById('youtube-frame');
     iframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
     document.getElementById('loading').classList.add('hidden');
@@ -367,16 +394,13 @@
     );
   }
 
-  // ---------- JUGADORES (corregido) ----------
+  // ---------- JUGADORES ----------
   function actualizarSelectores() {
     const selPropio = document.getElementById('jugadorPropio');
     const selRival = document.getElementById('jugadorRival');
     const opciones = jugadores.map(j => `<option value="${j}" ${j === jugadorPropio ? 'selected' : ''}>${j}</option>`).join('');
     selPropio.innerHTML = opciones || '<option value="">-- Sin jugador --</option>';
-    const opcionesRival = jugadores.map(j => `<option value="${j}" ${j === jugadorRival ? 'selected' : ''}>${j}</option>`).join('');
-    selRival.innerHTML = opcionesRival || '<option value="">-- Sin jugador --</option>';
-
-    // Sincronizar variables después de cargar opciones
+    selRival.innerHTML = jugadores.map(j => `<option value="${j}" ${j === jugadorRival ? 'selected' : ''}>${j}</option>`).join('') || '<option value="">-- Sin jugador --</option>';
     if (!jugadorPropio && selPropio.value) jugadorPropio = selPropio.value;
     if (!jugadorRival && selRival.value) jugadorRival = selRival.value;
   }
@@ -394,9 +418,7 @@
         localStorage.setItem('jugadorRivalBadminton', nombre);
       }
       actualizarSelectores();
-      // Forzar selección en el dropdown
-      if (tipo === 'propio') document.getElementById('jugadorPropio').value = nombre;
-      else document.getElementById('jugadorRival').value = nombre;
+      document.getElementById(tipo === 'propio' ? 'jugadorPropio' : 'jugadorRival').value = nombre;
     }
   }
 
@@ -404,7 +426,6 @@
     jugadorPropio = e.target.value;
     localStorage.setItem('jugadorPropioBadminton', jugadorPropio);
   });
-
   document.getElementById('jugadorRival').addEventListener('change', (e) => {
     jugadorRival = e.target.value;
     localStorage.setItem('jugadorRivalBadminton', jugadorRival);
@@ -416,20 +437,17 @@
     document.getElementById('toggleRival').className = `toggle-btn ${ejecutor === 'rival' ? 'toggle-activo' : 'toggle-inactivo'}`;
   }
 
-  // ---------- REGISTRO DE GOLPES (con validación de jugador) ----------
+  // ---------- REGISTRO DE GOLPES ----------
   function registrarGolpe(golpe, direccion) {
     if (!iframe?.src) { alert('Carga un video primero.'); return; }
-    
-    // Validar jugador según ejecutor actual
     const jugador = ejecutorActual === 'propio' ? jugadorPropio : jugadorRival;
     if (!jugador) {
-      alert(`Debes seleccionar un jugador ${ejecutorActual === 'propio' ? 'propio' : 'rival'} antes de registrar. Usa el botón + para añadirlo.`);
+      alert(`Debes seleccionar un jugador ${ejecutorActual === 'propio' ? 'propio' : 'rival'}. Usa el botón +.`);
       return;
     }
-    
     const tiempo = window.iframeCurrentTime;
     if (tiempo === undefined || tiempo === null) {
-      alert('No se pudo obtener el tiempo. Espera unos segundos.');
+      alert('Espera unos segundos a que el video esté listo.');
       solicitarTiempo();
       return;
     }
@@ -440,10 +458,7 @@
     guardarTodo();
     actualizarBotonesContadores();
 
-    const evento = {
-      jugador, tiempo, tipo: clave, ejecutor: ejecutorActual,
-      result: null, zona: null
-    };
+    const evento = { jugador, tiempo, tipo: clave, ejecutor: ejecutorActual, result: null, zona: null };
     eventos.push(evento);
     agregarFilaTabla(eventos.length - 1, evento);
     guardarTodo();
@@ -455,41 +470,29 @@
     fila.id = `row-${index}`;
     const mins = Math.floor(evento.tiempo / 60);
     const secs = Math.floor(evento.tiempo % 60);
-    const tiempoFormateado = `${mins}:${secs.toString().padStart(2, '0')}`;
-
     fila.innerHTML = `
-      <td>${evento.jugador} (${evento.ejecutor === 'propio' ? 'Nosotros' : 'Rival'})</td>
-      <td class="tiempo-cell" data-tiempo="${evento.tiempo}">${tiempoFormateado}</td>
+      <td>${evento.jugador} (${evento.ejecutor === 'propio' ? 'Nos.' : 'Riv.'})</td>
+      <td class="tiempo-cell" data-tiempo="${evento.tiempo}">${mins}:${secs.toString().padStart(2, '0')}</td>
       <td>${evento.tipo}</td>
       <td class="zona-cell">${evento.zona || ''}</td>
       <td class="result-cell">${evento.result ? `<span class="result-badge result-${evento.result}">${evento.result.replace('-', ' ')}</span>` : ''}</td>
     `;
-
-    fila.querySelector('.tiempo-cell').addEventListener('click', function() {
-      seekTo(Math.max(0, parseFloat(this.dataset.tiempo) - 2));
-    });
+    fila.querySelector('.tiempo-cell').addEventListener('click', () => seekTo(Math.max(0, evento.tiempo - 2)));
   }
 
   function actualizarFilaZona(index, zona) {
     const fila = document.getElementById(`row-${index}`);
-    if (!fila) return;
-    fila.querySelector('.zona-cell').textContent = zona || '';
+    if (fila) fila.querySelector('.zona-cell').textContent = zona || '';
   }
 
   function actualizarFilaResultado(index, result) {
     const fila = document.getElementById(`row-${index}`);
-    if (!fila) return;
-    const cell = fila.querySelector('.result-cell');
-    cell.innerHTML = result ? `<span class="result-badge result-${result}">${result.replace('-', ' ')}</span>` : '';
+    if (fila) fila.querySelector('.result-cell').innerHTML = result ? `<span class="result-badge result-${result}">${result.replace('-', ' ')}</span>` : '';
   }
 
-  // ---------- ASIGNACIÓN DE ZONA ----------
   function asignarZona(zona) {
     const sinZona = eventos.filter(e => e.zona === null);
-    if (sinZona.length === 0) {
-      alert('Todos los eventos ya tienen zona asignada.');
-      return;
-    }
+    if (sinZona.length === 0) { alert('Todos los golpes ya tienen zona.'); return; }
     const ultimo = sinZona[sinZona.length - 1];
     const index = eventos.indexOf(ultimo);
     eventos[index].zona = zona;
@@ -497,13 +500,9 @@
     actualizarFilaZona(index, zona);
   }
 
-  // ---------- RESULTADOS ----------
   function marcarResultado(result) {
     const sinMarcar = eventos.filter(e => e.result === null);
-    if (sinMarcar.length === 0) {
-      alert('Todos los eventos tienen resultado.');
-      return;
-    }
+    if (sinMarcar.length === 0) { alert('Todos los eventos ya tienen resultado.'); return; }
     const ultimo = sinMarcar[sinMarcar.length - 1];
     const index = eventos.indexOf(ultimo);
     eventos[index].result = result;
@@ -511,20 +510,14 @@
     actualizarFilaResultado(index, result);
   }
 
-  // ---------- BOTONES ----------
   function crearBotones() {
     const container = document.getElementById('golpesContainer');
     container.innerHTML = '';
     golpesBase.forEach(golpe => {
       const card = document.createElement('div');
       card.className = 'golpe-card';
-      const nombre = document.createElement('div');
-      nombre.className = 'golpe-nombre';
-      nombre.textContent = golpe;
-      card.appendChild(nombre);
-      const botonesDiv = document.createElement('div');
-      botonesDiv.className = 'botones-golpe';
-
+      card.innerHTML = `<div class="golpe-nombre">${golpe}</div><div class="botones-golpe"></div>`;
+      const botonesDiv = card.querySelector('.botones-golpe');
       direcciones.forEach(dir => {
         const clave = `${golpe} ${dir}`;
         const total = (contadores[clave]?.propio || 0) + (contadores[clave]?.rival || 0);
@@ -534,8 +527,6 @@
         btn.addEventListener('click', () => registrarGolpe(golpe, dir));
         botonesDiv.appendChild(btn);
       });
-
-      card.appendChild(botonesDiv);
       container.appendChild(card);
     });
   }
@@ -552,23 +543,17 @@
   }
 
   function reiniciarContadores() {
-    if (confirm('¿Reiniciar TODO?')) {
-      contadores = {};
-      inicializarContadores();
-      eventos = [];
-      guardarTodo();
-      document.getElementById('tablaEventos').innerHTML = '';
-      actualizarBotonesContadores();
+    if (confirm('¿Reiniciar todo?')) {
+      contadores = {}; inicializarContadores(); eventos = []; guardarTodo();
+      document.getElementById('tablaEventos').innerHTML = ''; actualizarBotonesContadores();
     }
   }
 
-  // ---------- PESTAÑAS ----------
   function cambiarTab(tabId) {
     document.getElementById('btnTabEventos').classList.remove('active');
     document.getElementById('btnTabEstadisticas').classList.remove('active');
     document.getElementById('tab-eventos').classList.remove('active');
     document.getElementById('tab-estadisticas').classList.remove('active');
-
     if (tabId === 'eventos') {
       document.getElementById('btnTabEventos').classList.add('active');
       document.getElementById('tab-eventos').classList.add('active');
@@ -579,105 +564,43 @@
     }
   }
 
-  // ---------- ESTADÍSTICAS ----------
   let chartGolpes, chartZonas;
-
   function generarEstadisticas() {
     const propias = eventos.filter(e => e.ejecutor === 'propio');
     const rival = eventos.filter(e => e.ejecutor === 'rival');
-    const winnersPropios = propias.filter(e => e.result === 'winner-propio').length;
-    const outsPropios = propias.filter(e => e.result === 'out-propio').length;
-    const winnersRival = rival.filter(e => e.result === 'winner-rival').length;
-    const outsRival = rival.filter(e => e.result === 'out-rival').length;
-
     document.getElementById('summaryCards').innerHTML = `
-      <div class="summary-card" style="border-left: 4px solid #28a745">
-        <h4>Winners propios</h4><div class="number">${winnersPropios}</div>
-      </div>
-      <div class="summary-card" style="border-left: 4px solid #dc3545">
-        <h4>Errores propios</h4><div class="number">${outsPropios}</div>
-      </div>
-      <div class="summary-card" style="border-left: 4px solid #ffc107">
-        <h4>Puntos rival</h4><div class="number">${winnersRival}</div>
-      </div>
-      <div class="summary-card" style="border-left: 4px solid #6c757d">
-        <h4>Errores rival</h4><div class="number">${outsRival}</div>
-      </div>
+      <div class="summary-card" style="border-left:4px solid #28a745"><h4>Winners propios</h4><div class="number">${propias.filter(e=>e.result==='winner-propio').length}</div></div>
+      <div class="summary-card" style="border-left:4px solid #dc3545"><h4>Errores propios</h4><div class="number">${propias.filter(e=>e.result==='out-propio').length}</div></div>
+      <div class="summary-card" style="border-left:4px solid #ffc107"><h4>Puntos rival</h4><div class="number">${rival.filter(e=>e.result==='winner-rival').length}</div></div>
+      <div class="summary-card" style="border-left:4px solid #6c757d"><h4>Errores rival</h4><div class="number">${rival.filter(e=>e.result==='out-rival').length}</div></div>
     `;
-
     if (chartGolpes) chartGolpes.destroy();
     const ctx1 = document.getElementById('chartGolpes').getContext('2d');
     const labels = golpesBase;
-    const dataPropio = labels.map(g => {
-      let total = 0;
-      direcciones.forEach(d => total += contadores[`${g} ${d}`]?.propio || 0);
-      return total;
-    });
-    const dataRival = labels.map(g => {
-      let total = 0;
-      direcciones.forEach(d => total += contadores[`${g} ${d}`]?.rival || 0);
-      return total;
-    });
+    const dataPropio = labels.map(g => { let t=0; direcciones.forEach(d=> t+= contadores[`${g} ${d}`]?.propio || 0); return t; });
+    const dataRival = labels.map(g => { let t=0; direcciones.forEach(d=> t+= contadores[`${g} ${d}`]?.rival || 0); return t; });
+    chartGolpes = new Chart(ctx1, { type:'bar', data:{ labels, datasets:[ {label:'Propios',data:dataPropio,backgroundColor:'rgba(54,162,235,0.7)'}, {label:'Rival',data:dataRival,backgroundColor:'rgba(255,99,132,0.7)'} ] }, options:{responsive:true,plugins:{title:{display:true,text:'Golpes por tipo'}}} });
 
-    chartGolpes = new Chart(ctx1, {
-      type: 'bar',
-      data: {
-        labels: labels,
-        datasets: [
-          { label: 'Propios', data: dataPropio, backgroundColor: 'rgba(54, 162, 235, 0.7)' },
-          { label: 'Rival', data: dataRival, backgroundColor: 'rgba(255, 99, 132, 0.7)' }
-        ]
-      },
-      options: { responsive: true, plugins: { title: { display: true, text: 'Golpes por tipo' } } }
-    });
-
-    // Gráfico de zonas con las 9 zonas
-    const conteoZonas = {};
-    zonasDisponibles.forEach(z => { conteoZonas[z] = { winnerPropio: 0, outPropio: 0, winnerRival: 0, outRival: 0 }; });
-    eventos.forEach(e => {
-      if (!e.zona) return;
-      if (e.result === 'winner-propio') conteoZonas[e.zona].winnerPropio++;
-      else if (e.result === 'out-propio') conteoZonas[e.zona].outPropio++;
-      else if (e.result === 'winner-rival') conteoZonas[e.zona].winnerRival++;
-      else if (e.result === 'out-rival') conteoZonas[e.zona].outRival++;
-    });
-
+    const conteoZonas = {}; zonasDisponibles.forEach(z=>conteoZonas[z]={wp:0,op:0,wr:0,or:0});
+    eventos.forEach(e=>{ if(!e.zona)return; if(e.result==='winner-propio')conteoZonas[e.zona].wp++; else if(e.result==='out-propio')conteoZonas[e.zona].op++; else if(e.result==='winner-rival')conteoZonas[e.zona].wr++; else if(e.result==='out-rival')conteoZonas[e.zona].or++; });
     if (chartZonas) chartZonas.destroy();
     const ctx2 = document.getElementById('chartZonas').getContext('2d');
-    chartZonas = new Chart(ctx2, {
-      type: 'bar',
-      data: {
-        labels: zonasDisponibles,
-        datasets: [
-          { label: 'Winner propio', data: zonasDisponibles.map(z => conteoZonas[z].winnerPropio), backgroundColor: '#28a745' },
-          { label: 'Error propio', data: zonasDisponibles.map(z => conteoZonas[z].outPropio), backgroundColor: '#dc3545' },
-          { label: 'Winner rival', data: zonasDisponibles.map(z => conteoZonas[z].winnerRival), backgroundColor: '#ffc107' },
-          { label: 'Error rival', data: zonasDisponibles.map(z => conteoZonas[z].outRival), backgroundColor: '#6c757d' }
-        ]
-      },
-      options: { responsive: true, plugins: { title: { display: true, text: 'Efectividad por zona' } } }
-    });
+    chartZonas = new Chart(ctx2, { type:'bar', data:{ labels:zonasDisponibles, datasets:[ {label:'Winner propio',data:zonasDisponibles.map(z=>conteoZonas[z].wp),backgroundColor:'#28a745'}, {label:'Error propio',data:zonasDisponibles.map(z=>conteoZonas[z].op),backgroundColor:'#dc3545'}, {label:'Winner rival',data:zonasDisponibles.map(z=>conteoZonas[z].wr),backgroundColor:'#ffc107'}, {label:'Error rival',data:zonasDisponibles.map(z=>conteoZonas[z].or),backgroundColor:'#6c757d'} ] }, options:{responsive:true,plugins:{title:{display:true,text:'Efectividad por zona'}}} });
   }
 
   function exportarCSV() {
     let csv = 'Ejecutor,Jugador,Tiempo,Golpe,Zona,Resultado\n';
-    eventos.forEach(e => csv += `${e.ejecutor},${e.jugador},${e.tiempo.toFixed(1)},${e.tipo},${e.zona || ''},${e.result || ''}\n`);
+    eventos.forEach(e=> csv+= `${e.ejecutor},${e.jugador},${e.tiempo.toFixed(1)},${e.tipo},${e.zona||''},${e.result||''}\n`);
     descargarArchivo(csv, 'eventos.csv', 'text/csv');
   }
-
   function exportarJSON() {
     descargarArchivo(JSON.stringify(eventos, null, 2), 'eventos.json', 'application/json');
   }
-
   function descargarArchivo(contenido, nombre, tipo) {
     const blob = new Blob([contenido], { type: tipo });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = nombre; a.click();
-    URL.revokeObjectURL(url);
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nombre; a.click();
   }
 
-  // ---------- INICIO ----------
   actualizarSelectores();
   crearBotones();
   cargarVideo();
