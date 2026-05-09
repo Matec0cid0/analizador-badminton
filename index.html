@@ -24,541 +24,444 @@
       --rival-err: #6b7280;
       --font-display: 'Barlow Condensed', sans-serif;
       --font-body: 'Barlow', sans-serif;
-      --radius: 8px;
-      --radius-lg: 14px;
+      --radius: 8px; --radius-lg: 14px;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
-      font-family: var(--font-body);
-      background: var(--bg);
-      color: var(--text);
-      font-size: 0.85rem;
-      min-height: 100vh;
+      font-family: var(--font-body); background: var(--bg); color: var(--text);
+      font-size: 0.85rem; min-height: 100vh;
       background-image:
         radial-gradient(ellipse 80% 50% at 20% -10%, rgba(0,229,255,0.06) 0%, transparent 60%),
         radial-gradient(ellipse 60% 40% at 80% 100%, rgba(124,58,237,0.05) 0%, transparent 60%);
     }
 
-    /* ─── HEADER ─── */
+    /* ── EXECUTOR BAR (visual top indicator) ── */
+    #executor-bar {
+      height: 3px; width: 100%;
+      background: var(--accent);
+      transition: background 0.3s;
+    }
+    #executor-bar.rival { background: var(--accent2); }
+
+    /* ── HEADER ── */
     .app-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 18px;
-      background: var(--surface);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 18px; background: var(--surface);
       border-bottom: 1px solid var(--border);
-      position: sticky; top: 0; z-index: 100;
+      position: sticky; top: 0; z-index: 100; gap: 12px;
     }
     .app-logo {
-      font-family: var(--font-display);
-      font-weight: 900;
-      font-size: 1.35rem;
-      letter-spacing: 1px;
-      color: var(--accent);
-      display: flex; align-items: center; gap: 8px;
+      font-family: var(--font-display); font-weight: 900; font-size: 1.25rem;
+      letter-spacing: 1px; color: var(--accent); display: flex; align-items: center; gap: 8px;
+      white-space: nowrap;
     }
     .app-logo span { color: var(--text); }
-    .header-actions { display: flex; gap: 6px; align-items: center; }
 
-    /* ─── LAYOUT ─── */
+    /* ── SCOREBOARD ── */
+    .scoreboard {
+      display: flex; align-items: center; gap: 0;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; flex-shrink: 0;
+    }
+    .score-team {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 4px 10px; min-width: 80px;
+    }
+    .score-team-name {
+      font-family: var(--font-display); font-size: 0.6rem; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--text-muted); white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis; max-width: 90px;
+    }
+    .score-sets { display: flex; gap: 4px; align-items: center; margin: 2px 0; }
+    .score-set {
+      font-family: var(--font-display); font-size: 1.4rem; font-weight: 900;
+      line-height: 1; min-width: 26px; text-align: center;
+      cursor: pointer; transition: color 0.15s;
+    }
+    .score-set:hover { color: var(--accent); }
+    .score-set.propio { color: var(--accent); }
+    .score-set.rival  { color: var(--accent2); }
+    .score-divider {
+      font-family: var(--font-display); font-size: 1rem; color: var(--text-muted); padding: 0 4px;
+    }
+    .score-controls-mid {
+      display: flex; flex-direction: column; align-items: center;
+      border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+      padding: 4px 8px; gap: 3px;
+    }
+    .set-label {
+      font-family: var(--font-display); font-size: 0.55rem; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .set-switcher { display: flex; gap: 3px; }
+    .set-btn {
+      width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted); cursor: pointer;
+      font-size: 0.6rem; font-family: var(--font-display); font-weight: 700; transition: all 0.15s;
+    }
+    .set-btn.active { background: var(--accent3); color: #000; border-color: var(--accent3); }
+    .streak-badge {
+      font-family: var(--font-display); font-size: 0.6rem; font-weight: 700;
+      padding: 1px 6px; border-radius: 8px; letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .streak-propio { background: rgba(0,229,255,0.15); color: var(--accent); border: 1px solid rgba(0,229,255,0.3); }
+    .streak-rival  { background: rgba(255,56,96,0.15);  color: var(--accent2); border: 1px solid rgba(255,56,96,0.3); }
+    .streak-none   { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .kbd-hint { font-size: 0.65rem; color: var(--text-muted); display: flex; gap: 6px; flex-wrap: wrap; }
+    .kbd { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; font-family: monospace; font-size: 0.6rem; }
+
+    /* ── TOAST ── */
+    #toast-container {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+    }
+    .toast {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 10px 16px;
+      font-family: var(--font-display); font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 0.5px; color: var(--text);
+      animation: toastIn 0.25s ease, toastOut 0.3s ease 1.8s forwards;
+      display: flex; align-items: center; gap: 8px; min-width: 180px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      pointer-events: none;
+    }
+    .toast.winner  { border-color: var(--winner); }
+    .toast.error   { border-color: var(--error); }
+    .toast.info    { border-color: var(--accent); }
+    .toast.warning { border-color: var(--accent3); }
+    @keyframes toastIn  { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity:1; } to { opacity:0; transform: translateX(10px); } }
+
+    /* ── LAYOUT ── */
     .main-layout {
-      display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 0;
-      height: calc(100vh - 49px);
-      overflow: hidden;
+      display: grid; grid-template-columns: 1fr 340px;
+      height: calc(100vh - 52px); overflow: hidden;
     }
-    .video-column {
-      display: flex;
-      flex-direction: column;
-      padding: 14px;
-      gap: 12px;
-      overflow-y: auto;
-    }
+    .video-column { display: flex; flex-direction: column; padding: 12px; gap: 10px; overflow-y: auto; }
     .controls-column {
-      background: var(--surface);
-      border-left: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-      padding: 12px;
-      gap: 10px;
+      background: var(--surface); border-left: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow-y: auto; padding: 12px; gap: 10px;
     }
 
-    /* ─── VIDEO ─── */
+    /* ── VIDEO ── */
     #player-wrapper {
-      position: relative;
-      width: 100%;
-      padding-bottom: 56.25%;
-      background: #000;
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      border: 1px solid var(--border);
+      position: relative; width: 100%; padding-bottom: 56.25%;
+      background: #000; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border);
     }
-    #player-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-
-    .url-bar {
-      display: flex;
-      gap: 8px;
-    }
+    #player-wrapper iframe { position: absolute; top:0; left:0; width:100%; height:100%; border:none; }
+    .url-bar { display: flex; gap: 8px; }
     .url-bar input {
-      flex: 1;
-      padding: 8px 12px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text);
-      font-family: var(--font-body);
-      font-size: 0.8rem;
-      transition: border-color 0.2s;
+      flex:1; padding: 7px 12px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius);
+      color: var(--text); font-family: var(--font-body); font-size: 0.8rem; transition: border-color 0.2s;
     }
     .url-bar input:focus { outline: none; border-color: var(--accent); }
     .url-bar input::placeholder { color: var(--text-muted); }
 
-    /* ─── BUTTONS ─── */
+    /* ── RALLY TIMER ── */
+    .rally-bar {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 6px 12px;
+    }
+    .rally-label { font-family: var(--font-display); font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); }
+    .rally-time  { font-family: var(--font-display); font-size: 1.2rem; font-weight: 900; color: var(--accent3); min-width: 52px; }
+    .rally-time.running { color: var(--winner); }
+    .rally-avg  { font-size: 0.7rem; color: var(--text-muted); margin-left: auto; }
+
+    /* ── BTNS ── */
     .btn {
-      padding: 7px 14px;
-      background: var(--accent);
-      color: #000;
-      border: none;
-      border-radius: var(--radius);
-      cursor: pointer;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 0.8rem;
-      letter-spacing: 0.5px;
-      transition: all 0.15s;
-      white-space: nowrap;
+      padding: 7px 14px; background: var(--accent); color: #000; border: none;
+      border-radius: var(--radius); cursor: pointer; font-family: var(--font-display);
+      font-weight: 700; font-size: 0.8rem; letter-spacing: 0.5px;
+      transition: all 0.15s; white-space: nowrap;
     }
     .btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); }
+    .btn:active { transform: translateY(0); filter: brightness(0.95); }
     .btn-sm { padding: 5px 10px; font-size: 0.72rem; }
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
     .btn-ghost:hover { border-color: var(--accent); color: var(--accent); filter: none; }
-    .btn-danger { background: var(--error); color: #fff; }
-    .btn-success { background: var(--winner); color: #fff; }
+    .btn-danger  { background: var(--error);   color: #fff; }
+    .btn-success { background: var(--winner);  color: #fff; }
     .btn-warning { background: var(--accent3); color: #000; }
-    .btn-purple { background: var(--accent4); color: #fff; }
-    .btn-muted { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-muted   { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
 
-    /* ─── SECTION TITLES ─── */
+    /* ── SECTION LABEL ── */
     .section-label {
-      font-family: var(--font-display);
-      font-size: 0.65rem;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 6px;
+      font-family: var(--font-display); font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted);
+      padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-bottom: 6px;
     }
 
-    /* ─── PARTIDO BAR ─── */
-    .partido-bar {
-      display: flex;
-      gap: 5px;
-      align-items: center;
-    }
-    .partido-bar select {
-      flex: 1;
-      padding: 5px 8px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: var(--radius);
-      font-size: 0.75rem;
-      font-family: var(--font-body);
+    /* ── PARTIDO BAR ── */
+    .partido-bar { display: flex; gap: 5px; align-items: center; }
+    .partido-bar select, .ctrl-select {
+      flex:1; padding: 5px 8px; background: var(--surface2);
+      border: 1px solid var(--border); color: var(--text);
+      border-radius: var(--radius); font-size: 0.72rem; font-family: var(--font-body);
     }
 
-    /* ─── PLAYERS ─── */
-    .players-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
+    /* ── PLAYERS ── */
+    .players-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .player-card {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 8px; display: flex; flex-direction: column; gap: 5px;
     }
-    .player-card label {
-      font-family: var(--font-display);
-      font-size: 0.65rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-    .player-card.own { border-left: 2px solid var(--accent); }
+    .player-card label { font-family: var(--font-display); font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
+    .player-card.own   { border-left: 2px solid var(--accent); }
     .player-card.rival { border-left: 2px solid var(--accent2); }
     .player-card-inner { display: flex; gap: 4px; }
-    .player-card select {
-      flex: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 5px;
-      padding: 4px 6px;
-      font-size: 0.75rem;
-      font-family: var(--font-body);
-    }
+    .player-card select { flex:1; background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 5px; padding: 4px 6px; font-size: 0.75rem; font-family: var(--font-body); }
 
-    /* ─── EXECUTOR TOGGLE ─── */
-    .executor-toggle {
-      display: flex;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      height: 34px;
-    }
-    .exec-btn {
-      flex: 1;
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 0.78rem;
-      letter-spacing: 0.5px;
-      transition: all 0.2s;
-    }
-    .exec-btn.active-propio { background: var(--accent); color: #000; }
-    .exec-btn.active-rival { background: var(--accent2); color: #fff; }
+    /* ── EXECUTOR TOGGLE ── */
+    .executor-toggle { display: flex; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; height: 34px; }
+    .exec-btn { flex:1; border: none; background: transparent; color: var(--text-muted); cursor: pointer; font-family: var(--font-display); font-weight: 700; font-size: 0.78rem; letter-spacing: 0.5px; transition: all 0.2s; }
+    .exec-btn.active-propio { background: var(--accent);  color: #000; }
+    .exec-btn.active-rival  { background: var(--accent2); color: #fff; }
 
-    /* ─── RESULT BUTTONS ─── */
-    .result-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
+    /* ── RESULT BUTTONS ── */
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .btn-result {
-      padding: 8px 6px;
-      border: 1px solid transparent;
-      border-radius: var(--radius);
-      cursor: pointer;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 0.72rem;
-      letter-spacing: 0.3px;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 4px;
+      padding: 8px 6px; border: 1px solid transparent; border-radius: var(--radius);
+      cursor: pointer; font-family: var(--font-display); font-weight: 700;
+      font-size: 0.72rem; letter-spacing: 0.3px; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: space-between; gap: 4px;
     }
     .btn-result:hover { filter: brightness(1.1); transform: translateY(-1px); }
     .btn-result .rc { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 1px 6px; font-size: 0.65rem; min-width: 22px; text-align: center; }
+    .btn-result .kbind { font-size: 0.58rem; opacity: 0.6; background: rgba(0,0,0,0.2); border-radius: 3px; padding: 1px 4px; font-family: monospace; }
     .r-wp { background: rgba(16,185,129,0.15); border-color: var(--winner); color: var(--winner); }
-    .r-op { background: rgba(239,68,68,0.12); border-color: var(--error); color: var(--error); }
-    .r-wr { background: rgba(245,158,11,0.12); border-color: var(--rival); color: var(--rival); }
-    .r-or { background: rgba(107,114,128,0.12); border-color: var(--rival-err); color: var(--rival-err); }
+    .r-op { background: rgba(239,68,68,0.12);  border-color: var(--error);  color: var(--error); }
+    .r-wr { background: rgba(245,158,11,0.12); border-color: var(--rival);  color: var(--rival); }
+    .r-or { background: rgba(107,114,128,0.12);border-color: var(--rival-err); color: var(--rival-err); }
 
-    /* ─── SHOTS ─── */
-    .zona-golpes { }
+    /* ── SHOTS ── */
     .zona-header {
-      font-family: var(--font-display);
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      padding: 6px 0 4px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      font-family: var(--font-display); font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted);
+      padding: 6px 0 4px; border-bottom: 1px solid var(--border); margin-bottom: 6px;
+      display: flex; align-items: center; gap: 6px;
     }
-    .zona-header::before {
-      content: '';
-      display: block;
-      width: 3px;
-      height: 14px;
-      border-radius: 2px;
-      background: var(--accent);
-    }
+    .zona-header::before { content:''; display:block; width:3px; height:14px; border-radius:2px; background: var(--accent); }
     .zona-header.mid::before { background: var(--rival); }
     .zona-header.red::before { background: var(--accent3); }
-
-    .golpes-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 4px;
-      margin-bottom: 10px;
-    }
-    .golpe-card {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
+    .golpes-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 4px; margin-bottom: 10px; }
+    .golpe-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
     .golpe-nombre {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 0.72rem;
-      letter-spacing: 0.5px;
-      text-align: center;
-      padding: 6px 4px;
-      background: rgba(0,229,255,0.07);
-      color: var(--accent);
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.15s;
-      border-bottom: 1px solid var(--border);
+      font-family: var(--font-display); font-weight: 700; font-size: 0.72rem;
+      letter-spacing: 0.5px; text-align: center; padding: 6px 4px;
+      background: rgba(0,229,255,0.07); color: var(--accent); cursor: pointer;
+      user-select: none; transition: background 0.15s; border-bottom: 1px solid var(--border);
     }
     .golpe-nombre:hover { background: rgba(0,229,255,0.15); }
-    .variantes-container { display: none; flex-direction: column; gap: 2px; padding: 4px; }
-    .variantes-container.visible { display: flex; }
+    .variantes-container { display:none; flex-direction:column; gap:2px; padding:4px; }
+    .variantes-container.visible { display:flex; }
     .variante-btn {
-      padding: 4px 6px;
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      background: var(--surface);
-      color: var(--text);
-      cursor: pointer;
-      font-size: 0.65rem;
-      font-family: var(--font-body);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all 0.15s;
-      line-height: 1.3;
+      padding: 4px 6px; border: 1px solid var(--border); border-radius: 5px;
+      background: var(--surface); color: var(--text); cursor: pointer;
+      font-size: 0.65rem; font-family: var(--font-body);
+      display: flex; justify-content: space-between; align-items: center;
+      transition: all 0.15s; line-height: 1.3;
     }
     .variante-btn:hover { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
-    .variante-btn .badge {
-      background: var(--border);
-      color: var(--text-muted);
-      border-radius: 10px;
-      padding: 1px 6px;
-      font-size: 0.6rem;
-      flex-shrink: 0;
-    }
+    .variante-btn .badge { background: var(--border); color: var(--text-muted); border-radius: 10px; padding: 1px 6px; font-size: 0.6rem; flex-shrink: 0; }
 
-    /* ─── MANO TOGGLE ─── */
+    /* ── MANO ── */
     .mano-btn {
-      padding: 5px 10px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      border-radius: var(--radius);
-      cursor: pointer;
-      font-family: var(--font-display);
-      font-size: 0.7rem;
-      letter-spacing: 0.5px;
-      transition: all 0.2s;
+      padding: 5px 10px; background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text-muted); border-radius: var(--radius); cursor: pointer;
+      font-family: var(--font-display); font-size: 0.7rem; letter-spacing: 0.5px; transition: all 0.2s;
     }
     .mano-btn:hover { border-color: var(--accent3); color: var(--accent3); }
 
-    /* ─── TABS ─── */
-    .bottom-section { padding: 14px; }
-    .tabs {
-      display: flex;
-      gap: 2px;
-      background: var(--surface);
-      padding: 4px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      margin-bottom: 12px;
-      width: fit-content;
-    }
-    .tab-btn {
-      padding: 6px 16px;
-      background: transparent;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: var(--font-display);
-      font-weight: 600;
-      font-size: 0.78rem;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      transition: all 0.2s;
-    }
+    /* ── TABS ── */
+    .tabs { display: flex; gap: 2px; background: var(--surface); padding: 4px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 12px; flex-wrap: wrap; }
+    .tab-btn { padding: 6px 13px; background: transparent; border: none; border-radius: 6px; cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 0.72rem; letter-spacing: 0.5px; color: var(--text-muted); transition: all 0.2s; }
     .tab-btn.active { background: var(--accent); color: #000; }
     .tab-btn:not(.active):hover { color: var(--text); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    /* ─── STATS PANEL ─── */
-    .stats-panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 16px;
-    }
-    .stats-panel h3 {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 1.1rem;
-      letter-spacing: 1px;
-      margin-bottom: 12px;
-      color: var(--accent);
-    }
+    /* ── STATS PANEL ── */
+    .stats-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; }
+    .stats-panel h3 { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; letter-spacing: 1px; margin-bottom: 12px; color: var(--accent); }
 
-    /* ─── TABLE ─── */
-    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
-    .table-events { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+    /* ── TABLE + FILTERS ── */
+    .table-filters {
+      display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; align-items: center;
+    }
+    .table-filters input, .table-filters select {
+      padding: 5px 9px; background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); border-radius: var(--radius); font-family: var(--font-body); font-size: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .table-filters input:focus, .table-filters select:focus { outline: none; border-color: var(--accent); }
+    .table-filters input { flex: 1; min-width: 120px; }
+    .filter-count { font-family: var(--font-display); font-size: 0.7rem; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); max-height: 380px; overflow-y: auto; }
+    .table-events { width:100%; border-collapse:collapse; font-size:0.75rem; }
+    .table-events thead { position: sticky; top: 0; z-index: 2; }
     .table-events th {
-      background: var(--surface2);
-      padding: 8px 10px;
-      text-align: left;
-      font-family: var(--font-display);
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      font-size: 0.65rem;
-      color: var(--text-muted);
+      background: var(--surface2); padding: 8px 10px; text-align: left;
+      font-family: var(--font-display); font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; font-size: 0.65rem; color: var(--text-muted);
       border-bottom: 1px solid var(--border);
     }
-    .table-events td {
-      padding: 7px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
-      color: var(--text);
-    }
-    .table-events tr:hover td { background: rgba(255,255,255,0.02); }
+    .table-events td { padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); color: var(--text); }
+    .table-events tr:hover td { background: rgba(255,255,255,0.025); }
     .table-events tr:last-child td { border-bottom: none; }
-    .tiempo-cell { cursor: pointer; color: var(--accent) !important; text-decoration: none !important; font-family: var(--font-display); font-weight: 600; }
+    .tr-hidden { display: none; }
+    .tiempo-cell { cursor:pointer; color: var(--accent) !important; font-family: var(--font-display); font-weight:600; }
     .tiempo-cell:hover { text-decoration: underline !important; }
+    .delete-cell { cursor:pointer; color: var(--error); text-align:center; font-size:0.8rem; opacity:0.4; transition:opacity 0.15s; }
+    .delete-cell:hover { opacity:1; }
 
-    .result-badge {
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 0.65rem;
-      font-family: var(--font-display);
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
+    /* ── RESULT BADGES ── */
+    .result-badge { padding: 2px 8px; border-radius: 10px; font-size: 0.65rem; font-family: var(--font-display); font-weight: 700; letter-spacing: 0.5px; }
     .result-winner-propio { background: rgba(16,185,129,0.15); color: var(--winner); border: 1px solid var(--winner); }
-    .result-out-propio { background: rgba(239,68,68,0.12); color: var(--error); border: 1px solid var(--error); }
-    .result-winner-rival { background: rgba(245,158,11,0.12); color: var(--rival); border: 1px solid var(--rival); }
-    .result-out-rival { background: rgba(107,114,128,0.12); color: var(--rival-err); border: 1px solid var(--rival-err); }
+    .result-out-propio    { background: rgba(239,68,68,0.12);  color: var(--error);  border: 1px solid var(--error); }
+    .result-winner-rival  { background: rgba(245,158,11,0.12); color: var(--rival);  border: 1px solid var(--rival); }
+    .result-out-rival     { background: rgba(107,114,128,0.12);color: var(--rival-err); border: 1px solid var(--rival-err); }
 
-    /* ─── SUMMARY CARDS ─── */
-    .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
-    .summary-card {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 12px;
-      text-align: center;
-    }
-    .summary-card h4 {
-      font-family: var(--font-display);
-      font-size: 0.62rem;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-    .summary-card .number {
-      font-family: var(--font-display);
-      font-size: 2rem;
-      font-weight: 900;
-      line-height: 1;
-    }
+    /* ── SUMMARY CARDS ── */
+    .summary-cards { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
+    .summary-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; text-align: center; }
+    .summary-card h4 { font-family: var(--font-display); font-size: 0.62rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .summary-card .number { font-family: var(--font-display); font-size: 2rem; font-weight: 900; line-height:1; }
+    .summary-card .sub { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
 
-    /* ─── CHARTS ─── */
-    .chart-container { max-width: 480px; margin: 16px auto; }
-    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+    /* ── CHART ── */
+    .chart-container { max-width:480px; margin:16px auto; }
+    .charts-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
 
-    /* ─── INFORME ─── */
-    .informe-header { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
-    .informe-header label { font-family: var(--font-display); font-size: 0.75rem; letter-spacing: 0.5px; color: var(--text-muted); }
-    .informe-header select {
-      padding: 6px 10px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: var(--radius);
-      font-family: var(--font-body);
-      font-size: 0.8rem;
-    }
-    .tactical-note {
-      margin-top: 12px;
-      padding: 12px 14px;
-      background: rgba(0,229,255,0.05);
-      border-left: 3px solid var(--accent);
-      border-radius: 0 var(--radius) var(--radius) 0;
-      font-size: 0.82rem;
-      line-height: 1.5;
-    }
-    .tactical-note strong { color: var(--accent); }
-    .stat-list { list-style: none; }
-    .stat-list li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 5px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.78rem;
-    }
-    .stat-list li:last-child { border-bottom: none; }
-    .stat-pct { font-family: var(--font-display); font-weight: 700; color: var(--accent); }
+    /* ── PLAYER DB ── */
+    .player-db-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; min-height: 400px; }
+    .player-list { display: flex; flex-direction: column; gap: 6px; }
+    .player-item { padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: space-between; }
+    .player-item:hover { border-color: var(--accent); }
+    .player-item.selected { border-color: var(--accent); background: rgba(0,229,255,0.07); }
+    .player-item-name { font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; }
+    .player-item-meta { font-size: 0.65rem; color: var(--text-muted); margin-top: 2px; }
+    .player-item-delete { color: var(--error); opacity: 0.4; cursor: pointer; font-size: 0.8rem; padding: 2px 6px; }
+    .player-item-delete:hover { opacity: 1; }
 
-    /* ─── TENDENCIAS ─── */
-    .tendencia-controls { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-    .tendencia-controls label { font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-display); letter-spacing: 0.5px; }
-    .tendencia-controls select {
-      padding: 6px 10px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: var(--radius);
-      font-family: var(--font-body);
-      font-size: 0.8rem;
-    }
-    #tendenciaResult ul { list-style: none; }
-    #tendenciaResult li {
-      display: flex; justify-content: space-between;
-      padding: 4px 0; border-bottom: 1px solid var(--border);
-      font-size: 0.78rem;
-    }
+    .profile-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+    .profile-avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent4)); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; color: #000; flex-shrink: 0; }
+    .profile-name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; }
+    .profile-sub  { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+    .profile-stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 16px; }
+    .profile-stat { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; text-align: center; }
+    .profile-stat .num { font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; }
+    .profile-stat .lbl { font-family: var(--font-display); font-size: 0.6rem; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); }
 
-    /* ─── EXPORT ─── */
-    .export-btns { display: flex; gap: 6px; margin-top: 12px; }
+    /* ── SCOUTING ── */
+    .scouting-panel { background: rgba(0,229,255,0.04); border: 1px solid rgba(0,229,255,0.2); border-radius: var(--radius-lg); padding: 16px; margin-top: 16px; }
+    .scouting-panel h4 { font-family: var(--font-display); font-weight: 900; font-size: 1rem; letter-spacing: 1px; color: var(--accent); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .scouting-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .scouting-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; }
+    .scouting-card-title { font-family: var(--font-display); font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .scouting-item { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; font-size: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .scouting-item:last-child { border-bottom: none; }
+    .scouting-pct { font-family: var(--font-display); font-weight: 700; }
+    .scouting-bar-wrap { background: var(--border); border-radius: 4px; height: 4px; margin-top: 2px; overflow: hidden; }
+    .scouting-bar { height: 4px; border-radius: 4px; background: var(--accent); transition: width 0.5s ease; }
+    .scouting-bar.danger  { background: var(--error); }
+    .scouting-bar.warning { background: var(--rival); }
+    .plan-juego { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-top: 12px; }
+    .plan-juego h5 { font-family: var(--font-display); font-weight: 700; font-size: 0.85rem; letter-spacing: 1px; color: var(--accent3); margin-bottom: 10px; }
+    .plan-item { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.78rem; line-height: 1.5; }
+    .plan-item:last-child { border-bottom: none; }
+    .plan-icon { font-size: 1rem; flex-shrink: 0; }
 
-    /* ─── MESSAGES ─── */
-    .loading-msg { color: var(--text-muted); font-size: 0.75rem; display: none; }
-    .error-msg { color: var(--error); font-size: 0.75rem; display: none; }
+    /* ── INFORME ── */
+    .informe-header { display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+    .informe-header label { font-family:var(--font-display); font-size:0.75rem; letter-spacing:0.5px; color:var(--text-muted); }
+    .informe-header select { padding:6px 10px; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:var(--radius); font-family:var(--font-body); font-size:0.8rem; }
+    .tactical-note { margin-top:12px; padding:12px 14px; background:rgba(0,229,255,0.05); border-left:3px solid var(--accent); border-radius:0 var(--radius) var(--radius) 0; font-size:0.82rem; line-height:1.5; }
+    .tactical-note strong { color:var(--accent); }
+    .stat-list { list-style:none; }
+    .stat-list li { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border); font-size:0.78rem; }
+    .stat-list li:last-child { border-bottom:none; }
+    .stat-pct { font-family:var(--font-display); font-weight:700; color:var(--accent); }
 
-    /* ─── SCROLLBAR ─── */
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #3a4055; }
+    /* ── TENDENCIAS ── */
+    .tendencia-controls { display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+    .tendencia-controls label { font-size:0.75rem; color:var(--text-muted); font-family:var(--font-display); letter-spacing:0.5px; }
+    .tendencia-controls select { padding:6px 10px; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:var(--radius); font-family:var(--font-body); font-size:0.8rem; }
+    #tendenciaResult ul { list-style:none; }
+    #tendenciaResult li { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid var(--border); font-size:0.78rem; }
 
-    /* ─── RESPONSIVE ─── */
-    @media (max-width: 900px) {
-      .main-layout { grid-template-columns: 1fr; height: auto; overflow: visible; }
-      .controls-column { border-left: none; border-top: 1px solid var(--border); }
-      .summary-cards { grid-template-columns: repeat(2, 1fr); }
-      .charts-row { grid-template-columns: 1fr; }
+    /* ── MISC ── */
+    .export-btns { display:flex; gap:6px; margin-top:12px; }
+    .loading-msg { color:var(--text-muted); font-size:0.75rem; display:none; }
+    .error-msg   { color:var(--error); font-size:0.75rem; display:none; }
+    .empty-state { text-align:center; padding:40px; color:var(--text-muted); font-family:var(--font-display); font-size:1rem; letter-spacing:1px; }
+
+    ::-webkit-scrollbar { width:5px; height:5px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:var(--border); border-radius:10px; }
+
+    @media (max-width:900px) {
+      .main-layout { grid-template-columns:1fr; height:auto; overflow:visible; }
+      .controls-column { border-left:none; border-top:1px solid var(--border); }
+      .summary-cards { grid-template-columns:repeat(2,1fr); }
+      .charts-row { grid-template-columns:1fr; }
+      .player-db-layout { grid-template-columns:1fr; }
+      .scouting-grid { grid-template-columns:1fr; }
+      .profile-stats-grid { grid-template-columns:repeat(2,1fr); }
+      .kbd-hint { display:none; }
+      .scoreboard { display:none; }
     }
   </style>
 </head>
 <body>
 
+<div id="executor-bar"></div>
+
 <!-- HEADER -->
 <header class="app-header">
-  <div class="app-logo">🏸 <span>BÁDMINTON</span> ANALYZER
+  <div class="app-logo">🏸 <span>BÁDMINTON</span> ANALYZER</div>
+
+  <!-- SCOREBOARD -->
+  <div class="scoreboard">
+    <div class="score-team">
+      <div class="score-team-name" id="sb-propio-name">NOSOTROS</div>
+      <div class="score-sets">
+        <span class="score-set propio" id="sb-p1" onclick="ajustarScore('propio',0,1)" title="+1">0</span>
+        <span class="score-set propio" id="sb-p2" onclick="ajustarScore('propio',1,1)" title="+1" style="opacity:0.4">0</span>
+        <span class="score-set propio" id="sb-p3" onclick="ajustarScore('propio',2,1)" title="+1" style="opacity:0.2">0</span>
+      </div>
+    </div>
+    <div class="score-controls-mid">
+      <div class="set-label">SET</div>
+      <div class="set-switcher">
+        <button class="set-btn active" id="setbtn1" onclick="cambiarSetActivo(0)">1</button>
+        <button class="set-btn"        id="setbtn2" onclick="cambiarSetActivo(1)">2</button>
+        <button class="set-btn"        id="setbtn3" onclick="cambiarSetActivo(2)">3</button>
+      </div>
+      <div id="streakBadge" class="streak-badge streak-none">— racha —</div>
+    </div>
+    <div class="score-team">
+      <div class="score-team-name" id="sb-rival-name">RIVAL</div>
+      <div class="score-sets">
+        <span class="score-set rival" id="sb-r1" onclick="ajustarScore('rival',0,1)" title="+1">0</span>
+        <span class="score-set rival" id="sb-r2" onclick="ajustarScore('rival',1,1)" title="+1" style="opacity:0.4">0</span>
+        <span class="score-set rival" id="sb-r3" onclick="ajustarScore('rival',2,1)" title="+1" style="opacity:0.2">0</span>
+      </div>
+    </div>
   </div>
-  <div class="header-actions">
-    <span id="loading" class="loading-msg">⏳ Cargando...</span>
+
+  <div class="header-right">
+    <div class="kbd-hint">
+      <span><span class="kbd">P</span> ejecutor</span>
+      <span><span class="kbd">1</span>–<span class="kbd">4</span> resultado</span>
+      <span><span class="kbd">R</span> rally</span>
+    </div>
+    <span id="loading" class="loading-msg">⏳</span>
     <span id="errorMsg" class="error-msg"></span>
-    <button class="btn btn-sm btn-ghost" onclick="cambiarTab('estadisticas')">📊 Stats</button>
-    <button class="btn btn-sm btn-ghost" onclick="cambiarTab('informe')">📋 Informe</button>
   </div>
 </header>
 
@@ -574,61 +477,83 @@
       <button class="btn" onclick="cargarVideo()">▶ Cargar</button>
     </div>
 
-    <!-- TABS ABAJO DEL VIDEO (eventos, stats, etc.) -->
-    <div class="tabs">
-      <button id="btnTabEventos" class="tab-btn active" onclick="cambiarTab('eventos')">📋 Eventos</button>
-      <button id="btnTabEstadisticas" class="tab-btn" onclick="cambiarTab('estadisticas')">📊 Stats</button>
-      <button id="btnTabTendencias" class="tab-btn" onclick="cambiarTab('tendencias')">📈 Tendencias</button>
-      <button id="btnTabInforme" class="tab-btn" onclick="cambiarTab('informe')">📋 Informe</button>
+    <!-- RALLY TIMER -->
+    <div class="rally-bar">
+      <span class="rally-label">⏱ Rally</span>
+      <span class="rally-time" id="rallyDisplay">0.0s</span>
+      <button class="btn btn-sm btn-ghost" onclick="toggleRally()" id="rallyBtn">Iniciar <span class="kbd" style="font-size:0.55rem">R</span></button>
+      <button class="btn btn-sm btn-muted" onclick="resetRally()">✕</button>
+      <span class="rally-avg" id="rallyAvg"></span>
     </div>
 
-    <!-- TAB EVENTOS -->
+    <!-- TABS -->
+    <div class="tabs">
+      <button id="btnTabEventos"      class="tab-btn active" onclick="cambiarTab('eventos')">📋 Eventos</button>
+      <button id="btnTabEstadisticas" class="tab-btn"        onclick="cambiarTab('estadisticas')">📊 Stats</button>
+      <button id="btnTabTendencias"   class="tab-btn"        onclick="cambiarTab('tendencias')">📈 Tendencias</button>
+      <button id="btnTabInforme"      class="tab-btn"        onclick="cambiarTab('informe')">📋 Informe</button>
+      <button id="btnTabJugadores"    class="tab-btn"        onclick="cambiarTab('jugadores')">👤 DB</button>
+    </div>
+
+    <!-- EVENTOS -->
     <div id="tab-eventos" class="tab-content active stats-panel">
       <h3>Eventos registrados</h3>
-      <p style="font-size:0.72rem; color:var(--text-muted); margin-bottom:10px;">Clic en el tiempo → retrocede 1 segundo en el vídeo.</p>
+      <div class="table-filters">
+        <input type="text"   id="filtroTexto"     placeholder="🔍 Buscar golpe..." oninput="filtrarTabla()">
+        <select id="filtroEjecutor" onchange="filtrarTabla()">
+          <option value="">Todos</option>
+          <option value="propio">Solo propios</option>
+          <option value="rival">Solo rival</option>
+        </select>
+        <select id="filtroResultado" onchange="filtrarTabla()">
+          <option value="">Todos los resultados</option>
+          <option value="winner-propio">Winners propios</option>
+          <option value="out-propio">Errores propios</option>
+          <option value="winner-rival">Puntos rival</option>
+          <option value="out-rival">Errores rival</option>
+          <option value="sin-resultado">Sin resultado</option>
+        </select>
+        <span class="filter-count" id="filtroCount"></span>
+      </div>
       <div class="table-wrap">
         <table class="table-events">
-          <thead><tr><th>Ejecutor</th><th>Tiempo</th><th>Golpe</th><th>Resultado</th><th>Zona</th></tr></thead>
+          <thead><tr><th>Ejecutor</th><th>Tiempo</th><th>Golpe</th><th>Resultado</th><th>Zona</th><th></th></tr></thead>
           <tbody id="tablaEventos"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- TAB ESTADÍSTICAS -->
+    <!-- ESTADÍSTICAS -->
     <div id="tab-estadisticas" class="tab-content stats-panel">
       <h3>Estadísticas del partido</h3>
       <div id="summaryCards" class="summary-cards"></div>
       <div class="chart-container"><canvas id="chartGolpes"></canvas></div>
       <div class="export-btns">
-        <button class="btn btn-sm btn-success" onclick="exportarCSV()">📥 Exportar CSV</button>
-        <button class="btn btn-sm btn-ghost" onclick="exportarJSON()">📥 Exportar JSON</button>
+        <button class="btn btn-sm btn-success" onclick="exportarCSV()">📥 CSV</button>
+        <button class="btn btn-sm btn-ghost"   onclick="exportarJSON()">📥 JSON</button>
       </div>
     </div>
 
-    <!-- TAB TENDENCIAS -->
+    <!-- TENDENCIAS -->
     <div id="tab-tendencias" class="tab-content stats-panel">
       <h3>Tendencias</h3>
       <div class="tendencia-controls">
         <label>GOLPE BASE</label>
         <select id="tendenciaGolpeSelect"></select>
         <label>HISTÓRICO DE</label>
-        <select id="tendenciaJugadorSelect">
-          <option value="">— Partido actual —</option>
-        </select>
+        <select id="tendenciaJugadorSelect"><option value="">— Partido actual —</option></select>
       </div>
-      <div id="tendenciaResult" style="font-size:0.8rem; margin-bottom:10px;"></div>
-      <div class="chart-container" style="max-width:360px;">
-        <canvas id="chartTendencia" width="300" height="200"></canvas>
-      </div>
+      <div id="tendenciaResult" style="font-size:0.8rem;margin-bottom:10px;"></div>
+      <div class="chart-container" style="max-width:360px;"><canvas id="chartTendencia" width="300" height="200"></canvas></div>
     </div>
 
-    <!-- TAB INFORME -->
+    <!-- INFORME -->
     <div id="tab-informe" class="tab-content stats-panel">
       <h3>Informe de jugador</h3>
       <div class="informe-header">
         <label>JUGADOR</label>
         <select id="informeJugadorSelect"></select>
-        <button class="btn btn-sm" onclick="generarInforme()">Generar informe</button>
+        <button class="btn btn-sm" onclick="generarInforme()">Generar</button>
       </div>
       <div id="informeResult"></div>
       <div class="charts-row">
@@ -637,6 +562,18 @@
       </div>
     </div>
 
+    <!-- JUGADORES DB -->
+    <div id="tab-jugadores" class="tab-content stats-panel">
+      <h3>Base de datos de jugadores</h3>
+      <div class="player-db-layout">
+        <div>
+          <div class="section-label" style="margin-bottom:8px;">Registrados</div>
+          <div id="playerListDB" class="player-list"></div>
+          <button class="btn btn-sm" style="margin-top:10px;width:100%;" onclick="agregarJugadorDB()">＋ Nuevo jugador</button>
+        </div>
+        <div id="playerProfileArea"><div class="empty-state">← Seleccioná un jugador</div></div>
+      </div>
+    </div>
   </div>
 
   <!-- ══ COLUMNA CONTROLES ══ -->
@@ -646,12 +583,10 @@
     <div>
       <div class="section-label">Partidos guardados</div>
       <div class="partido-bar">
-        <button class="btn btn-sm btn-ghost" onclick="guardarPartido()" title="Guardar">💾</button>
-        <select id="listaPartidos" style="flex:1; background:var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:var(--radius); padding:5px 8px; font-size:0.72rem; font-family:var(--font-body);">
-          <option value="">— Partidos —</option>
-        </select>
-        <button class="btn btn-sm btn-success" onclick="cargarPartido()" title="Cargar">📂</button>
-        <button class="btn btn-sm btn-danger" onclick="nuevoPartido()" title="Nuevo">📝</button>
+        <button class="btn btn-sm btn-ghost"   onclick="guardarPartido()" title="Guardar">💾</button>
+        <select id="listaPartidos" class="ctrl-select"><option value="">— Partidos —</option></select>
+        <button class="btn btn-sm btn-success" onclick="cargarPartido()"  title="Cargar">📂</button>
+        <button class="btn btn-sm btn-danger"  onclick="nuevoPartido()"   title="Nuevo">📝</button>
       </div>
     </div>
 
@@ -677,30 +612,30 @@
     </div>
 
     <!-- EJECUTOR + MANO -->
-    <div style="display:flex; gap:6px; align-items:stretch;">
+    <div style="display:flex;gap:6px;align-items:stretch;">
       <div class="executor-toggle" style="flex:1;">
-        <button id="togglePropio" class="exec-btn active-propio" onclick="cambiarEjecutor('propio')">▶ NUESTRO</button>
-        <button id="toggleRival" class="exec-btn" onclick="cambiarEjecutor('rival')">RIVAL ◀</button>
+        <button id="togglePropio" class="exec-btn active-propio" onclick="cambiarEjecutor('propio')">▶ NUESTRO <span class="kbd" style="font-size:0.55rem;margin-left:2px">P</span></button>
+        <button id="toggleRival"  class="exec-btn"               onclick="cambiarEjecutor('rival')">RIVAL ◀</button>
       </div>
-      <button id="btnMano" class="mano-btn" onclick="toggleMano()">✋ Diestro</button>
-      <button class="btn btn-sm btn-muted" onclick="reiniciarContadores()" title="Reiniciar contadores">🔄</button>
+      <button id="btnMano" class="mano-btn" onclick="toggleMano()">✋ D</button>
+      <button class="btn btn-sm btn-muted"  onclick="reiniciarContadores()" title="Reiniciar">🔄</button>
     </div>
 
     <!-- RESULTADOS -->
     <div>
       <div class="section-label">Marcar resultado</div>
       <div class="result-grid">
-        <button class="btn-result r-wp" onclick="marcarResultado('winner-propio', 'propio')">
-          🚀 Winner propio <span class="rc" id="counter-winner-propio">0</span>
+        <button class="btn-result r-wp" onclick="marcarResultado('winner-propio','propio')">
+          🚀 Winner propio <span style="display:flex;gap:3px;align-items:center"><span class="kbind">1</span><span class="rc" id="counter-winner-propio">0</span></span>
         </button>
-        <button class="btn-result r-op" onclick="marcarResultado('out-propio', 'propio')">
-          ❌ Error propio <span class="rc" id="counter-out-propio">0</span>
+        <button class="btn-result r-op" onclick="marcarResultado('out-propio','propio')">
+          ❌ Error propio <span style="display:flex;gap:3px;align-items:center"><span class="kbind">2</span><span class="rc" id="counter-out-propio">0</span></span>
         </button>
-        <button class="btn-result r-wr" onclick="marcarResultado('winner-rival', 'rival')">
-          🏆 Punto rival <span class="rc" id="counter-winner-rival">0</span>
+        <button class="btn-result r-wr" onclick="marcarResultado('winner-rival','rival')">
+          🏆 Punto rival <span style="display:flex;gap:3px;align-items:center"><span class="kbind">3</span><span class="rc" id="counter-winner-rival">0</span></span>
         </button>
-        <button class="btn-result r-or" onclick="marcarResultado('out-rival', 'rival')">
-          ⚠️ Error rival <span class="rc" id="counter-out-rival">0</span>
+        <button class="btn-result r-or" onclick="marcarResultado('out-rival','rival')">
+          ⚠️ Error rival <span style="display:flex;gap:3px;align-items:center"><span class="kbind">4</span><span class="rc" id="counter-out-rival">0</span></span>
         </button>
       </div>
     </div>
@@ -714,488 +649,789 @@
   </div>
 </div>
 
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
 <script>
-  // ─── CONFIG ───────────────────────────────────────────────────────────────
-  let manoActual = 'diestro';
+// ═══════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════
+let manoActual = 'diestro';
 
-  const golpesPorZona = {
-    'Fondo': {
-      'Drop': ['Drop Drive Paralelo','Drop Drive Cruzado','Drop Rectificado Paralelo','Drop Rectificado Cruzado'],
-      'Smash': ['Smash Drive Paralelo','Smash Drive Cruzado','Smash Rectificado Paralelo','Smash Rectificado Cruzado'],
-      'Stick Smash': ['Stick Smash Drive Paralelo','Stick Smash Drive Cruzado','Stick Smash Rectificado Paralelo','Stick Smash Rectificado Cruzado'],
-      'Clear': ['Clear Drive Paralelo','Clear Drive Cruzado','Clear Rectificado Paralelo','Clear Rectificado Cruzado'],
-      'Reves': ['Reves Drop Paralelo','Reves Drop Cruzado','Reves Clear Paralelo','Reves Clear Cruzado'],
-      'Barrido': ['Barrido Drive Paralelo','Barrido Drive Cruzado','Barrido Reves Paralelo','Barrido Reves Cruzado']
-    },
-    'Mitad': {
-      'Defensa': ['Defensa Drive Paralelo','Defensa Drive Cruzada','Defensa Reves Paralela','Defensa Reves Cruzada'],
-      'Bloqueo': ['Bloqueo Drive Paralelo','Bloqueo Drive Cruzado','Bloqueo Reves Paralelo','Bloqueo Reves Cruzado'],
-      'Lift': ['Lift Drive Paralelo','Lift Drive Cruzado','Lift Reves Paralelo','Lift Reves Cruzado']
-    },
-    'Red': {
-      'Lob': ['Lob Drive Paralelo','Lob Drive Cruzado','Lob Reves Paralelo','Lob Reves Cruzado'],
-      'Dejada': ['Dejada Drive Paralela','Dejada Drive Cruzada','Dejada Reves Paralela','Dejada Reves Cruzada'],
-      'Kill': ['Kill Drive Paralela','Kill Drive Cruzada','Kill Reves Paralela','Kill Reves Cruzada']
-    }
-  };
-
-  const zonaPorGolpe = {
-    'Drop Drive Paralelo':'Fondo Derecha','Drop Drive Cruzado':'Fondo Derecha',
-    'Drop Rectificado Paralelo':'Fondo Izquierda','Drop Rectificado Cruzado':'Fondo Izquierda',
-    'Smash Drive Paralelo':'Fondo Derecha','Smash Drive Cruzado':'Fondo Derecha',
-    'Smash Rectificado Paralelo':'Fondo Izquierda','Smash Rectificado Cruzado':'Fondo Izquierda',
-    'Stick Smash Drive Paralelo':'Fondo Derecha','Stick Smash Drive Cruzado':'Fondo Derecha',
-    'Stick Smash Rectificado Paralelo':'Fondo Izquierda','Stick Smash Rectificado Cruzado':'Fondo Izquierda',
-    'Clear Drive Paralelo':'Fondo Derecha','Clear Drive Cruzado':'Fondo Derecha',
-    'Clear Rectificado Paralelo':'Fondo Izquierda','Clear Rectificado Cruzado':'Fondo Izquierda',
-    'Reves Drop Paralelo':'Fondo Izquierda','Reves Drop Cruzado':'Fondo Izquierda',
-    'Reves Clear Paralelo':'Fondo Izquierda','Reves Clear Cruzado':'Fondo Izquierda',
-    'Barrido Drive Paralelo':'Fondo Derecha','Barrido Drive Cruzado':'Fondo Derecha',
-    'Barrido Reves Paralelo':'Fondo Izquierda','Barrido Reves Cruzado':'Fondo Izquierda',
-    'Defensa Drive Paralelo':'Medio Derecha','Defensa Drive Cruzada':'Medio Derecha',
-    'Defensa Reves Paralela':'Medio Izquierda','Defensa Reves Cruzada':'Medio Izquierda',
-    'Bloqueo Drive Paralelo':'Medio Derecha','Bloqueo Drive Cruzado':'Medio Derecha',
-    'Bloqueo Reves Paralelo':'Medio Izquierda','Bloqueo Reves Cruzado':'Medio Izquierda',
-    'Lift Drive Paralelo':'Medio Derecha','Lift Drive Cruzado':'Medio Derecha',
-    'Lift Reves Paralelo':'Medio Izquierda','Lift Reves Cruzado':'Medio Izquierda',
-    'Lob Drive Paralelo':'Red Derecha','Lob Drive Cruzado':'Red Derecha',
-    'Lob Reves Paralelo':'Red Izquierda','Lob Reves Cruzado':'Red Izquierda',
-    'Dejada Drive Paralela':'Red Derecha','Dejada Drive Cruzada':'Red Derecha',
-    'Dejada Reves Paralela':'Red Izquierda','Dejada Reves Cruzada':'Red Izquierda',
-    'Kill Drive Paralela':'Red Derecha','Kill Drive Cruzada':'Red Derecha',
-    'Kill Reves Paralela':'Red Izquierda','Kill Reves Cruzada':'Red Izquierda'
-  };
-
-  function obtenerZona(golpe) {
-    const zona = zonaPorGolpe[golpe] || '';
-    if (manoActual === 'diestro') return zona;
-    if (zona.includes('Izquierda')) return zona.replace('Izquierda','Derecha');
-    if (zona.includes('Derecha')) return zona.replace('Derecha','Izquierda');
-    return zona;
+const golpesPorZona = {
+  'Fondo':{
+    'Drop':        ['Drop Drive Paralelo','Drop Drive Cruzado','Drop Rectificado Paralelo','Drop Rectificado Cruzado'],
+    'Smash':       ['Smash Drive Paralelo','Smash Drive Cruzado','Smash Rectificado Paralelo','Smash Rectificado Cruzado'],
+    'Stick Smash': ['Stick Smash Drive Paralelo','Stick Smash Drive Cruzado','Stick Smash Rectificado Paralelo','Stick Smash Rectificado Cruzado'],
+    'Clear':       ['Clear Drive Paralelo','Clear Drive Cruzado','Clear Rectificado Paralelo','Clear Rectificado Cruzado'],
+    'Reves':       ['Reves Drop Paralelo','Reves Drop Cruzado','Reves Clear Paralelo','Reves Clear Cruzado'],
+    'Barrido':     ['Barrido Drive Paralelo','Barrido Drive Cruzado','Barrido Reves Paralelo','Barrido Reves Cruzado']
+  },
+  'Mitad':{
+    'Defensa':['Defensa Drive Paralelo','Defensa Drive Cruzada','Defensa Reves Paralela','Defensa Reves Cruzada'],
+    'Bloqueo':['Bloqueo Drive Paralelo','Bloqueo Drive Cruzado','Bloqueo Reves Paralelo','Bloqueo Reves Cruzado'],
+    'Lift':   ['Lift Drive Paralelo','Lift Drive Cruzado','Lift Reves Paralelo','Lift Reves Cruzado']
+  },
+  'Red':{
+    'Lob':   ['Lob Drive Paralelo','Lob Drive Cruzado','Lob Reves Paralelo','Lob Reves Cruzado'],
+    'Dejada':['Dejada Drive Paralela','Dejada Drive Cruzada','Dejada Reves Paralela','Dejada Reves Cruzada'],
+    'Kill':  ['Kill Drive Paralela','Kill Drive Cruzada','Kill Reves Paralela','Kill Reves Cruzada']
   }
+};
 
-  const todasLasVariantes = Object.values(golpesPorZona).flatMap(z => Object.values(z).flat());
-  let iframe, jugadores = JSON.parse(localStorage.getItem('jugadoresBadminton') || '[]');
-  let jugadorPropio = localStorage.getItem('jugadorPropioBadminton') || '';
-  let jugadorRival  = localStorage.getItem('jugadorRivalBadminton')  || '';
-  let ejecutorActual = 'propio';
-  let contadores = {}, eventos = [];
-  let resultadosContador = {'winner-propio':0,'out-propio':0,'winner-rival':0,'out-rival':0};
+const zonaPorGolpe = {
+  'Drop Drive Paralelo':'Fondo Derecha','Drop Drive Cruzado':'Fondo Derecha','Drop Rectificado Paralelo':'Fondo Izquierda','Drop Rectificado Cruzado':'Fondo Izquierda',
+  'Smash Drive Paralelo':'Fondo Derecha','Smash Drive Cruzado':'Fondo Derecha','Smash Rectificado Paralelo':'Fondo Izquierda','Smash Rectificado Cruzado':'Fondo Izquierda',
+  'Stick Smash Drive Paralelo':'Fondo Derecha','Stick Smash Drive Cruzado':'Fondo Derecha','Stick Smash Rectificado Paralelo':'Fondo Izquierda','Stick Smash Rectificado Cruzado':'Fondo Izquierda',
+  'Clear Drive Paralelo':'Fondo Derecha','Clear Drive Cruzado':'Fondo Derecha','Clear Rectificado Paralelo':'Fondo Izquierda','Clear Rectificado Cruzado':'Fondo Izquierda',
+  'Reves Drop Paralelo':'Fondo Izquierda','Reves Drop Cruzado':'Fondo Izquierda','Reves Clear Paralelo':'Fondo Izquierda','Reves Clear Cruzado':'Fondo Izquierda',
+  'Barrido Drive Paralelo':'Fondo Derecha','Barrido Drive Cruzado':'Fondo Derecha','Barrido Reves Paralelo':'Fondo Izquierda','Barrido Reves Cruzado':'Fondo Izquierda',
+  'Defensa Drive Paralelo':'Medio Derecha','Defensa Drive Cruzada':'Medio Derecha','Defensa Reves Paralela':'Medio Izquierda','Defensa Reves Cruzada':'Medio Izquierda',
+  'Bloqueo Drive Paralelo':'Medio Derecha','Bloqueo Drive Cruzado':'Medio Derecha','Bloqueo Reves Paralelo':'Medio Izquierda','Bloqueo Reves Cruzado':'Medio Izquierda',
+  'Lift Drive Paralelo':'Medio Derecha','Lift Drive Cruzado':'Medio Derecha','Lift Reves Paralelo':'Medio Izquierda','Lift Reves Cruzado':'Medio Izquierda',
+  'Lob Drive Paralelo':'Red Derecha','Lob Drive Cruzado':'Red Derecha','Lob Reves Paralelo':'Red Izquierda','Lob Reves Cruzado':'Red Izquierda',
+  'Dejada Drive Paralela':'Red Derecha','Dejada Drive Cruzada':'Red Derecha','Dejada Reves Paralela':'Red Izquierda','Dejada Reves Cruzada':'Red Izquierda',
+  'Kill Drive Paralela':'Red Derecha','Kill Drive Cruzada':'Red Derecha','Kill Reves Paralela':'Red Izquierda','Kill Reves Cruzada':'Red Izquierda'
+};
 
-  function inicializarContadores() { todasLasVariantes.forEach(v => { if (!contadores[v]) contadores[v] = {propio:0,rival:0}; }); }
-  inicializarContadores();
+function obtenerZona(golpe) {
+  const z = zonaPorGolpe[golpe]||'';
+  if (manoActual==='diestro') return z;
+  if (z.includes('Izquierda')) return z.replace('Izquierda','Derecha');
+  if (z.includes('Derecha'))   return z.replace('Derecha','Izquierda');
+  return z;
+}
 
-  function guardarTodo() {
-    localStorage.setItem('contadoresBadmintonV7', JSON.stringify(contadores));
-    localStorage.setItem('eventosBadmintonV7',   JSON.stringify(eventos));
-    localStorage.setItem('jugadoresBadminton',   JSON.stringify(jugadores));
-    localStorage.setItem('jugadorPropioBadminton', jugadorPropio);
-    localStorage.setItem('jugadorRivalBadminton',  jugadorRival);
-  }
+const todasLasVariantes = Object.values(golpesPorZona).flatMap(z=>Object.values(z).flat());
+let iframe;
+let jugadores = JSON.parse(localStorage.getItem('jugadoresBadminton')||'[]');
+let jugadorPropio = localStorage.getItem('jugadorPropioBadminton')||'';
+let jugadorRival  = localStorage.getItem('jugadorRivalBadminton') ||'';
+let ejecutorActual = 'propio';
+let contadores = {}, eventos = [];
+let resultadosContador = {'winner-propio':0,'out-propio':0,'winner-rival':0,'out-rival':0};
 
-  function cargarTodo() {
-    const cont = JSON.parse(localStorage.getItem('contadoresBadmintonV7') || '{}');
-    if (Object.keys(cont).length) contadores = cont;
-    const evts = JSON.parse(localStorage.getItem('eventosBadmintonV7') || '[]');
-    if (evts.length) {
-      eventos = evts;
-      document.getElementById('tablaEventos').innerHTML = '';
-      eventos.forEach((e,i) => agregarFilaTabla(i,e));
-      resultadosContador = {'winner-propio':0,'out-propio':0,'winner-rival':0,'out-rival':0};
-      eventos.forEach(e => { if (e.result) resultadosContador[e.result]++; });
-      actualizarContadoresResultados();
-    }
-    cargarListaPartidos();
-  }
-  cargarTodo();
+// SCORE
+let score = [ [0,0], [0,0], [0,0] ]; // [set][propio,rival]
+let setActivo = 0;
+let rallyDurations = [];
 
-  function cargarListaPartidos() {
-    const partidos = JSON.parse(localStorage.getItem('partidosBadmintonV7') || '[]');
-    const sel = document.getElementById('listaPartidos');
-    sel.innerHTML = '<option value="">— Partidos —</option>';
-    partidos.forEach((p,i) => { const o = document.createElement('option'); o.value = i; o.textContent = p.nombre; sel.appendChild(o); });
-  }
+function inicializarContadores() { todasLasVariantes.forEach(v=>{ if(!contadores[v]) contadores[v]={propio:0,rival:0}; }); }
+inicializarContadores();
 
-  function guardarPartido() {
-    const nombre = prompt('Nombre del partido:');
-    if (!nombre) return;
-    const partidos = JSON.parse(localStorage.getItem('partidosBadmintonV7') || '[]');
-    partidos.push({ nombre, fecha: new Date().toLocaleString(), videoUrl: document.getElementById('urlInput').value, jugadores, jugadorPropio, jugadorRival, contadores: JSON.parse(JSON.stringify(contadores)), eventos: JSON.parse(JSON.stringify(eventos)), resultadosContador: {...resultadosContador} });
-    localStorage.setItem('partidosBadmintonV7', JSON.stringify(partidos));
-    cargarListaPartidos(); alert('Partido guardado ✓');
-  }
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+function toast(msg, tipo='info') {
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${tipo}`;
+  el.innerHTML = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 2200);
+}
 
-  function cargarPartido() {
-    const idx = document.getElementById('listaPartidos').value;
-    if (idx === '') return;
-    const partido = JSON.parse(localStorage.getItem('partidosBadmintonV7') || '[]')[parseInt(idx)];
-    if (!partido) return;
-    jugadores    = partido.jugadores    || [];
-    jugadorPropio = partido.jugadorPropio || '';
-    jugadorRival  = partido.jugadorRival  || '';
-    contadores = partido.contadores;
-    eventos    = partido.eventos || [];
-    resultadosContador = partido.resultadosContador || {'winner-propio':0,'out-propio':0,'winner-rival':0,'out-rival':0};
-    document.getElementById('urlInput').value = partido.videoUrl || '';
-    actualizarSelectores();
-    document.getElementById('jugadorPropio').value = jugadorPropio;
-    document.getElementById('jugadorRival').value  = jugadorRival;
-    guardarTodo(); actualizarTodosLosContadoresVisuales(); actualizarContadoresResultados();
-    document.getElementById('tablaEventos').innerHTML = '';
-    eventos.forEach((e,i) => agregarFilaTabla(i,e));
-    cargarVideo(); alert('Partido cargado ✓');
-  }
-
-  function nuevoPartido() {
-    if (!confirm('¿Iniciar nuevo análisis? Se borrarán los datos actuales.')) return;
-    contadores = {}; inicializarContadores(); eventos = [];
-    resultadosContador = {'winner-propio':0,'out-propio':0,'winner-rival':0,'out-rival':0};
-    actualizarContadoresResultados(); guardarTodo();
-    document.getElementById('tablaEventos').innerHTML = '';
-    actualizarTodosLosContadoresVisuales();
-  }
-
-  // ─── VIDEO ────────────────────────────────────────────────────────────────
-  function extraerID(url) { const m = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/); return m?m[1]:null; }
-  function cargarVideo() {
-    const url = document.getElementById('urlInput').value.trim();
-    document.getElementById('errorMsg').style.display = 'none';
-    document.getElementById('loading').style.display = 'inline';
-    if (!url) { mostrarError('Pega un enlace.'); return; }
-    const id = extraerID(url);
-    if (!id) { mostrarError('ID inválido.'); return; }
-    iframe = document.getElementById('youtube-frame');
-    iframe.src = `https://www.youtube.com/embed/${id}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
-    document.getElementById('loading').style.display = 'none';
-  }
-  function mostrarError(msg) { document.getElementById('errorMsg').textContent = msg; document.getElementById('errorMsg').style.display='inline'; document.getElementById('loading').style.display='none'; }
-
-  window.addEventListener('message', e => {
-    if (e.origin !== 'https://www.youtube.com') return;
-    try { const d = JSON.parse(e.data); if (d.event==='infoDelivery'&&d.info?.currentTime) window.iframeCurrentTime=d.info.currentTime; } catch(ex){}
+// ═══════════════════════════════════════════
+// SCOREBOARD
+// ═══════════════════════════════════════════
+function actualizarScoreboard() {
+  const propName = jugadorPropio || 'NOSOTROS';
+  const rivName  = jugadorRival  || 'RIVAL';
+  document.getElementById('sb-propio-name').textContent = propName.toUpperCase().substring(0,10);
+  document.getElementById('sb-rival-name').textContent  = rivName.toUpperCase().substring(0,10);
+  const ids = [['sb-p1','sb-r1'],['sb-p2','sb-r2'],['sb-p3','sb-r3']];
+  ids.forEach(([pid,rid],i) => {
+    const pe = document.getElementById(pid), re = document.getElementById(rid);
+    pe.textContent = score[i][0];
+    re.textContent = score[i][1];
+    const active = i === setActivo;
+    pe.style.opacity = i < setActivo ? '0.5' : (active ? '1' : '0.25');
+    re.style.opacity = i < setActivo ? '0.5' : (active ? '1' : '0.25');
+    document.getElementById(`setbtn${i+1}`).className = `set-btn ${i===setActivo?'active':''}`;
   });
-  setInterval(() => { if (iframe?.contentWindow) iframe.contentWindow.postMessage('{"event":"listening","id":1}','https://www.youtube.com'); }, 500);
-  function seekTo(s) { if (iframe?.contentWindow) iframe.contentWindow.postMessage(JSON.stringify({event:'command',func:'seekTo',args:[s,true]}),'https://www.youtube.com'); }
+  // Racha
+  actualizarRacha();
+}
 
-  // ─── SELECTORES ──────────────────────────────────────────────────────────
-  function actualizarSelectores() {
-    const op = jugadores.map(j=>`<option value="${j}">${j}</option>`).join('');
-    document.getElementById('jugadorPropio').innerHTML = op || '<option value="">—</option>';
-    document.getElementById('jugadorRival').innerHTML  = op || '<option value="">—</option>';
-    if (jugadorPropio) document.getElementById('jugadorPropio').value = jugadorPropio;
-    if (jugadorRival)  document.getElementById('jugadorRival').value  = jugadorRival;
+function ajustarScore(equipo, setIdx, delta) {
+  const col = equipo==='propio' ? 0 : 1;
+  score[setIdx][col] = Math.max(0, score[setIdx][col] + delta);
+  actualizarScoreboard();
+  guardarTodo();
+}
+
+function cambiarSetActivo(idx) {
+  setActivo = idx;
+  actualizarScoreboard();
+}
+
+function actualizarRacha() {
+  const ult = eventos.filter(e=>e.result).slice(-10);
+  let rachaProp=0, rachaRiv=0, last='';
+  for (let i=ult.length-1;i>=0;i--) {
+    const r=ult[i].result;
+    const esPunto = r==='winner-propio'||r==='out-rival';
+    const esRival = r==='winner-rival' ||r==='out-propio';
+    if (!last) { last = esPunto?'propio':'rival'; }
+    if (esPunto && last==='propio') rachaProp++;
+    else if (esRival && last==='rival') rachaRiv++;
+    else break;
   }
+  const badge = document.getElementById('streakBadge');
+  if (rachaProp>=2) { badge.textContent=`🔥 ${rachaProp} seguidos`; badge.className='streak-badge streak-propio'; }
+  else if (rachaRiv>=2) { badge.textContent=`⚡ rival ${rachaRiv}`; badge.className='streak-badge streak-rival'; }
+  else { badge.textContent='— racha —'; badge.className='streak-badge streak-none'; }
+}
 
-  function agregarJugador(tipo) {
-    const nombre = prompt('Nombre del jugador:');
-    if (!nombre || jugadores.includes(nombre)) return;
-    jugadores.push(nombre); localStorage.setItem('jugadoresBadminton', JSON.stringify(jugadores));
-    if (tipo==='propio') { jugadorPropio=nombre; localStorage.setItem('jugadorPropioBadminton',nombre); }
-    else { jugadorRival=nombre; localStorage.setItem('jugadorRivalBadminton',nombre); }
-    actualizarSelectores();
-    document.getElementById(tipo==='propio'?'jugadorPropio':'jugadorRival').value = nombre;
+// ═══════════════════════════════════════════
+// RALLY TIMER
+// ═══════════════════════════════════════════
+let rallyRunning=false, rallyStart=0, rallyInterval=null;
+
+function toggleRally() {
+  if (!rallyRunning) {
+    rallyRunning=true; rallyStart=Date.now();
+    document.getElementById('rallyDisplay').classList.add('running');
+    document.getElementById('rallyBtn').textContent='Detener  R';
+    rallyInterval=setInterval(()=>{
+      const s=(Date.now()-rallyStart)/1000;
+      document.getElementById('rallyDisplay').textContent=s.toFixed(1)+'s';
+    },100);
+  } else {
+    clearInterval(rallyInterval); rallyRunning=false;
+    const dur=(Date.now()-rallyStart)/1000;
+    rallyDurations.push(dur);
+    document.getElementById('rallyDisplay').classList.remove('running');
+    document.getElementById('rallyDisplay').textContent=dur.toFixed(1)+'s';
+    document.getElementById('rallyBtn').textContent='Iniciar  R';
+    const avg=rallyDurations.reduce((a,b)=>a+b,0)/rallyDurations.length;
+    document.getElementById('rallyAvg').textContent=`Promedio: ${avg.toFixed(1)}s (${rallyDurations.length} rallies)`;
+    toast(`⏱ Rally: ${dur.toFixed(1)}s — Promedio ${avg.toFixed(1)}s`, 'info');
   }
-  document.getElementById('jugadorPropio').onchange = e => { jugadorPropio=e.target.value; localStorage.setItem('jugadorPropioBadminton',jugadorPropio); };
-  document.getElementById('jugadorRival').onchange  = e => { jugadorRival=e.target.value;  localStorage.setItem('jugadorRivalBadminton', jugadorRival); };
+}
 
-  // ─── EJECUTOR ────────────────────────────────────────────────────────────
-  function cambiarEjecutor(ej) {
-    ejecutorActual = ej;
-    document.getElementById('togglePropio').className = `exec-btn ${ej==='propio'?'active-propio':''}`;
-    document.getElementById('toggleRival').className  = `exec-btn ${ej==='rival'?'active-rival':''}`;
-  }
+function resetRally() {
+  clearInterval(rallyInterval); rallyRunning=false;
+  document.getElementById('rallyDisplay').textContent='0.0s';
+  document.getElementById('rallyDisplay').classList.remove('running');
+  document.getElementById('rallyBtn').textContent='Iniciar  R';
+}
 
-  function toggleMano() {
-    manoActual = manoActual==='diestro'?'zurdo':'diestro';
-    document.getElementById('btnMano').textContent = `✋ ${manoActual.charAt(0).toUpperCase()+manoActual.slice(1)}`;
-    document.getElementById('tablaEventos').innerHTML = '';
-    eventos.forEach((e,i) => { e.zona=obtenerZona(e.tipo); agregarFilaTabla(i,e); });
-    guardarTodo();
-  }
+// ═══════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT') return;
+  if (e.key==='p'||e.key==='P') { cambiarEjecutor(ejecutorActual==='propio'?'rival':'propio'); toast(`Ejecutor: ${ejecutorActual==='propio'?'NUESTRO':'RIVAL'}`, 'info'); }
+  if (e.key==='1') marcarResultado('winner-propio','propio');
+  if (e.key==='2') marcarResultado('out-propio','propio');
+  if (e.key==='3') marcarResultado('winner-rival','rival');
+  if (e.key==='4') marcarResultado('out-rival','rival');
+  if (e.key==='r'||e.key==='R') toggleRally();
+});
 
-  // ─── GOLPES ───────────────────────────────────────────────────────────────
-  function registrarGolpe(variante) {
-    if (!iframe?.src) return alert('Carga un vídeo primero.');
-    const jugador = ejecutorActual==='propio'?jugadorPropio:jugadorRival;
-    if (!jugador) return alert(`Falta configurar el jugador ${ejecutorActual==='propio'?'propio':'rival'}.`);
-    const tiempo = window.iframeCurrentTime;
-    if (tiempo==null) return alert('Espera a que el vídeo cargue.');
-    if (!contadores[variante]) contadores[variante]={propio:0,rival:0};
-    contadores[variante][ejecutorActual]++;
-    guardarTodo(); actualizarBadgeDeVariante(variante);
-    const zona = obtenerZona(variante);
-    const evento = { jugador, tiempo, tipo:variante, ejecutor:ejecutorActual, result:null, zona };
-    eventos.push(evento);
-    agregarFilaTabla(eventos.length-1, evento);
-    guardarTodo();
-  }
+// ═══════════════════════════════════════════
+// PERSISTENCIA
+// ═══════════════════════════════════════════
+function guardarTodo() {
+  localStorage.setItem('contadoresBadmintonV7', JSON.stringify(contadores));
+  localStorage.setItem('eventosBadmintonV7',    JSON.stringify(eventos));
+  localStorage.setItem('jugadoresBadminton',    JSON.stringify(jugadores));
+  localStorage.setItem('jugadorPropioBadminton', jugadorPropio);
+  localStorage.setItem('jugadorRivalBadminton',  jugadorRival);
+  localStorage.setItem('scoreBadminton',         JSON.stringify(score));
+}
 
-  function agregarFilaTabla(index, ev) {
-    const tbody = document.getElementById('tablaEventos');
-    const fila = tbody.insertRow(); fila.id=`row-${index}`;
-    const m=Math.floor(ev.tiempo/60), s=Math.floor(ev.tiempo%60);
-    fila.innerHTML=`
-      <td>${ev.jugador} <span style="color:var(--text-muted);font-size:0.65rem;">(${ev.ejecutor==='propio'?'N':'R'})</span></td>
-      <td class="tiempo-cell" data-tiempo="${ev.tiempo}">${m}:${s.toString().padStart(2,'0')}</td>
-      <td>${ev.tipo}</td>
-      <td class="result-cell">${ev.result?`<span class="result-badge result-${ev.result}">${ev.result.replace('-',' ')}</span>`:''}</td>
-      <td style="color:var(--text-muted)">${ev.zona||''}</td>
-    `;
-    fila.querySelector('.tiempo-cell').onclick=()=>seekTo(Math.max(0,ev.tiempo-1));
-  }
-
-  function actualizarFilaResultado(index, result) {
-    const fila = document.getElementById(`row-${index}`);
-    if (fila) fila.querySelector('.result-cell').innerHTML = result?`<span class="result-badge result-${result}">${result.replace('-',' ')}</span>`:'';
-  }
-
-  function marcarResultado(result, ejecutor) {
-    const candidatos = eventos.filter(e=>e.result===null&&e.ejecutor===ejecutor);
-    if (!candidatos.length) return alert(`Sin golpes sin resultado de ${ejecutor==='propio'?'tu equipo':'el rival'}.`);
-    const ultimo = candidatos[candidatos.length-1];
-    const index  = eventos.indexOf(ultimo);
-    eventos[index].result=result; guardarTodo(); actualizarFilaResultado(index,result);
-    resultadosContador[result]++; actualizarContadoresResultados();
-  }
-
-  function actualizarContadoresResultados() {
-    document.getElementById('counter-winner-propio').textContent=resultadosContador['winner-propio'];
-    document.getElementById('counter-out-propio').textContent   =resultadosContador['out-propio'];
-    document.getElementById('counter-winner-rival').textContent =resultadosContador['winner-rival'];
-    document.getElementById('counter-out-rival').textContent    =resultadosContador['out-rival'];
-  }
-
-  // ─── CREAR BOTONES DE GOLPES ──────────────────────────────────────────────
-  const zonaClase = { 'Fondo':'', 'Mitad':'mid', 'Red':'red' };
-  function crearBotones() {
-    const container = document.getElementById('golpesContainer');
-    container.innerHTML = '';
-    for (const [zona, golpes] of Object.entries(golpesPorZona)) {
-      const zonaDiv = document.createElement('div'); zonaDiv.className='zona-golpes';
-      const hdr = document.createElement('div'); hdr.className=`zona-header ${zonaClase[zona]||''}`; hdr.textContent=zona;
-      zonaDiv.appendChild(hdr);
-      const grid = document.createElement('div'); grid.className='golpes-grid';
-      for (const [nombreBase, variantes] of Object.entries(golpes)) {
-        const card=document.createElement('div'); card.className='golpe-card';
-        const btnBase=document.createElement('div'); btnBase.className='golpe-nombre'; btnBase.textContent=nombreBase;
-        btnBase.onclick=function(e){ e.stopPropagation(); this.nextElementSibling.classList.toggle('visible'); };
-        const panel=document.createElement('div'); panel.className='variantes-container';
-        variantes.forEach(v=>{
-          const btnVar=document.createElement('button'); btnVar.className='variante-btn';
-          const total=(contadores[v]?.propio||0)+(contadores[v]?.rival||0);
-          btnVar.innerHTML=`<span>${v.replace(nombreBase+' ','')}</span><span class="badge" id="cont-${v.replace(/\s/g,'_')}">${total}</span>`;
-          btnVar.onclick=function(e){ e.stopPropagation(); registrarGolpe(v); panel.classList.remove('visible'); };
-          panel.appendChild(btnVar);
-        });
-        card.appendChild(btnBase); card.appendChild(panel); grid.appendChild(card);
-      }
-      zonaDiv.appendChild(grid); container.appendChild(zonaDiv);
-    }
-  }
-
-  function actualizarBadgeDeVariante(v) { const b=document.getElementById(`cont-${v.replace(/\s/g,'_')}`); if(b) b.textContent=(contadores[v]?.propio||0)+(contadores[v]?.rival||0); }
-  function actualizarTodosLosContadoresVisuales() { todasLasVariantes.forEach(v=>actualizarBadgeDeVariante(v)); }
-  function reiniciarContadores() {
-    if (!confirm('¿Reiniciar todos los contadores?')) return;
-    contadores={}; inicializarContadores(); eventos=[];
+function cargarTodo() {
+  const cont=JSON.parse(localStorage.getItem('contadoresBadmintonV7')||'{}');
+  if (Object.keys(cont).length) contadores=cont;
+  const evts=JSON.parse(localStorage.getItem('eventosBadmintonV7')||'[]');
+  if (evts.length) {
+    eventos=evts; reconstruirTablaEventos();
     resultadosContador={'winner-propio':0,'out-propio':0,'winner-rival':0,'out-rival':0};
-    actualizarContadoresResultados(); guardarTodo();
-    document.getElementById('tablaEventos').innerHTML='';
-    actualizarTodosLosContadoresVisuales();
+    eventos.forEach(e=>{ if(e.result) resultadosContador[e.result]++; });
+    actualizarContadoresResultados();
   }
-
-  // ─── TABS ─────────────────────────────────────────────────────────────────
-  function cambiarTab(tab) {
-    ['eventos','estadisticas','tendencias','informe'].forEach(t=>{
-      document.getElementById(`btnTab${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.remove('active');
-      document.getElementById(`tab-${t}`).classList.remove('active');
-    });
-    document.getElementById(`btnTab${tab.charAt(0).toUpperCase()+tab.slice(1)}`).classList.add('active');
-    document.getElementById(`tab-${tab}`).classList.add('active');
-    if (tab==='estadisticas') generarEstadisticas();
-    if (tab==='tendencias') inicializarTendencias();
-    if (tab==='informe') inicializarInforme();
-  }
-
-  // ─── ESTADÍSTICAS ─────────────────────────────────────────────────────────
-  let chartGolpes;
-  function generarEstadisticas() {
-    document.getElementById('summaryCards').innerHTML=`
-      <div class="summary-card" style="border-top:2px solid var(--winner)"><h4>Winners propios</h4><div class="number" style="color:var(--winner)">${resultadosContador['winner-propio']}</div></div>
-      <div class="summary-card" style="border-top:2px solid var(--error)"><h4>Errores propios</h4><div class="number" style="color:var(--error)">${resultadosContador['out-propio']}</div></div>
-      <div class="summary-card" style="border-top:2px solid var(--rival)"><h4>Puntos rival</h4><div class="number" style="color:var(--rival)">${resultadosContador['winner-rival']}</div></div>
-      <div class="summary-card" style="border-top:2px solid var(--rival-err)"><h4>Errores rival</h4><div class="number" style="color:var(--rival-err)">${resultadosContador['out-rival']}</div></div>
-    `;
-    if (chartGolpes) chartGolpes.destroy();
-    const ctx=document.getElementById('chartGolpes').getContext('2d');
-    const labels=todasLasVariantes;
-    const propio=labels.map(v=>contadores[v]?.propio||0);
-    const rival =labels.map(v=>contadores[v]?.rival||0);
-    Chart.defaults.color='#6b7280';
-    chartGolpes=new Chart(ctx,{
-      type:'bar', data:{ labels, datasets:[
-        {label:'Propios', data:propio, backgroundColor:'rgba(0,229,255,0.7)'},
-        {label:'Rival',   data:rival,  backgroundColor:'rgba(255,56,96,0.6)'}
-      ]},
-      options:{ responsive:true, plugins:{ title:{display:true,text:'Golpes por variante',color:'#e8eaf0'}, legend:{labels:{color:'#e8eaf0'}} }, scales:{ x:{ticks:{color:'#6b7280'}}, y:{ticks:{color:'#6b7280'}} } }
-    });
-  }
-
-  function exportarCSV() {
-    let csv='Ejecutor,Jugador,Tiempo,Golpe,Resultado,Zona\n';
-    eventos.forEach(e=>csv+=`${e.ejecutor},${e.jugador},${e.tiempo.toFixed(1)},${e.tipo},${e.result||''},${e.zona||''}\n`);
-    descargarArchivo(csv,'eventos.csv','text/csv');
-  }
-  function exportarJSON() { descargarArchivo(JSON.stringify(eventos,null,2),'eventos.json','application/json'); }
-  function descargarArchivo(contenido,nombre,tipo) {
-    const blob=new Blob([contenido],{type}); const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob); a.download=nombre; a.click(); URL.revokeObjectURL(a.href);
-  }
-
-  // ─── TENDENCIAS ───────────────────────────────────────────────────────────
-  let chartTendencia;
-  function inicializarTendencias() {
-    const selectGolpe=document.getElementById('tendenciaGolpeSelect');
-    const bases=[...new Set(todasLasVariantes.map(v=>v.split(' ').slice(0,-1).join(' ')))].sort();
-    selectGolpe.innerHTML=''; bases.forEach(b=>{ const o=document.createElement('option'); o.value=b; o.textContent=b; selectGolpe.appendChild(o); });
-    const selectJ=document.getElementById('tendenciaJugadorSelect');
-    selectJ.innerHTML='<option value="">— Partido actual —</option>';
-    jugadores.forEach(j=>{ const o=document.createElement('option'); o.value=j; o.textContent=j; selectJ.appendChild(o); });
-    selectGolpe.onchange=()=>mostrarTendencia(selectGolpe.value);
-    selectJ.onchange=()=>mostrarTendencia(selectGolpe.value);
-    if (bases.length) mostrarTendencia(bases[0]);
-  }
-
-  function obtenerContadoresHistoricos(jugador) {
-    if (!jugador) return null;
-    const partidos=JSON.parse(localStorage.getItem('partidosBadmintonV7')||'[]');
-    const acumulado={};
-    partidos.forEach(p=>{
-      if ((p.jugadorPropio===jugador||p.jugadorRival===jugador)&&p.contadores) {
-        for (const [variante,datos] of Object.entries(p.contadores)) {
-          if (!acumulado[variante]) acumulado[variante]={propio:0,rival:0};
-          acumulado[variante].propio+=datos.propio||0;
-          acumulado[variante].rival +=datos.rival ||0;
-        }
-      }
-    });
-    return acumulado;
-  }
-
-  function mostrarTendencia(base) {
-    const jugadorH=document.getElementById('tendenciaJugadorSelect').value;
-    const fuente=jugadorH?obtenerContadoresHistoricos(jugadorH):contadores;
-    const variantesDelBase=todasLasVariantes.filter(v=>v.startsWith(base));
-    let total=0;
-    const data=variantesDelBase.map(v=>{ const s=(fuente?.[v]?.propio||0)+(fuente?.[v]?.rival||0); total+=s; return {variante:v.replace(base+' ',''),total:s}; });
-    let html=`<p style="font-weight:700; margin-bottom:8px; color:var(--accent)">Total de <em>${base}</em>: ${total} golpes ${jugadorH?'de '+jugadorH:'(partido actual)'}</p><ul class="stat-list">`;
-    data.forEach(d=>{ const pct=total?((d.total/total)*100).toFixed(1):0; html+=`<li><span>${d.variante}</span><span><strong>${d.total}</strong> <span class="stat-pct">${pct}%</span></span></li>`; });
-    html+='</ul>';
-    document.getElementById('tendenciaResult').innerHTML=html;
-    if (chartTendencia) chartTendencia.destroy();
-    const ctx=document.getElementById('chartTendencia').getContext('2d');
-    chartTendencia=new Chart(ctx,{
-      type:'pie',
-      data:{ labels:data.map(d=>d.variante), datasets:[{data:data.map(d=>d.total), backgroundColor:['#00e5ff','#ff3860','#ffd700','#7c3aed','#10b981','#f59e0b']}]},
-      options:{responsive:true,plugins:{title:{display:true,text:`Distribución de ${base}`,color:'#e8eaf0'},legend:{labels:{color:'#e8eaf0'}}}}
-    });
-  }
-
-  // ─── INFORME ──────────────────────────────────────────────────────────────
-  let chartInformeTorta, chartInformeEfectividad;
-  function inicializarInforme() {
-    const select=document.getElementById('informeJugadorSelect');
-    select.innerHTML=''; jugadores.forEach(j=>{ const o=document.createElement('option'); o.value=j; o.textContent=j; select.appendChild(o); });
-    if (jugadores.length) select.value=jugadores[0];
-    document.getElementById('informeResult').innerHTML='';
-    if (chartInformeTorta) chartInformeTorta.destroy();
-    if (chartInformeEfectividad) chartInformeEfectividad.destroy();
-  }
-
-  function generarInforme() {
-    const jugador=document.getElementById('informeJugadorSelect').value;
-    if (!jugador) return alert('Selecciona un jugador.');
-    const partidos=JSON.parse(localStorage.getItem('partidosBadmintonV7')||'[]');
-    let totalGolpes=0;
-    const conteoBase={}, efectividad={winners:0,errores:0};
-    partidos.forEach(p=>{
-      if (p.jugadorPropio===jugador||p.jugadorRival===jugador) {
-        (p.eventos||[]).forEach(ev=>{
-          if (ev.jugador!==jugador) return;
-          totalGolpes++;
-          const base=ev.tipo.split(' ').slice(0,-1).join(' ');
-          conteoBase[base]=(conteoBase[base]||0)+1;
-          if (p.jugadorPropio===jugador) {
-            if (ev.result==='winner-propio') efectividad.winners++;
-            if (ev.result==='out-propio') efectividad.errores++;
-          } else {
-            if (ev.result==='winner-rival') efectividad.winners++;
-            if (ev.result==='out-rival') efectividad.errores++;
-          }
-        });
-      }
-    });
-    if (totalGolpes===0) { document.getElementById('informeResult').innerHTML='<p style="color:var(--text-muted)">Sin datos para este jugador.</p>'; return; }
-    const basesOrdenadas=Object.entries(conteoBase).sort((a,b)=>b[1]-a[1]);
-    let html=`<p><strong style="color:var(--text)">Golpes analizados:</strong> ${totalGolpes}</p>
-      <p style="margin-top:4px"><strong style="color:var(--winner)">Winners:</strong> ${efectividad.winners} (${((efectividad.winners/totalGolpes)*100).toFixed(1)}%)&nbsp;&nbsp;<strong style="color:var(--error)">Errores:</strong> ${efectividad.errores} (${((efectividad.errores/totalGolpes)*100).toFixed(1)}%)</p>
-      <h4 style="font-family:var(--font-display); margin:12px 0 6px; letter-spacing:1px; color:var(--text-muted); font-size:0.7rem; text-transform:uppercase;">Distribución de golpes</h4>
-      <ul class="stat-list">`;
-    basesOrdenadas.forEach(([base,total])=>{ const pct=((total/totalGolpes)*100).toFixed(1); html+=`<li><span>${base}</span><span><strong>${total}</strong> <span class="stat-pct">${pct}%</span></span></li>`; });
-    html+='</ul>';
-    if (basesOrdenadas.length>0) {
-      const favorito=basesOrdenadas[0];
-      let frase=`El golpe más frecuente de <strong>${jugador}</strong> es el <strong>${favorito[0]}</strong>, representando el ${((favorito[1]/totalGolpes)*100).toFixed(1)}% de sus acciones. `;
-      if (efectividad.winners+efectividad.errores>0) { const ef=((efectividad.winners/(efectividad.winners+efectividad.errores))*100).toFixed(1); frase+=`Índice winner/error: <strong>${ef}%</strong>.`; }
-      html+=`<div class="tactical-note"><strong>📌 Análisis táctico —</strong> ${frase}</div>`;
-    }
-    document.getElementById('informeResult').innerHTML=html;
-
-    if (chartInformeTorta) chartInformeTorta.destroy();
-    const ctx1=document.getElementById('chartInformeTorta').getContext('2d');
-    chartInformeTorta=new Chart(ctx1,{
-      type:'doughnut',
-      data:{ labels:basesOrdenadas.map(b=>b[0]), datasets:[{data:basesOrdenadas.map(b=>b[1]),backgroundColor:['#00e5ff','#ff3860','#ffd700','#7c3aed','#10b981','#f59e0b','#6610f2','#fd7e14','#20c997']}]},
-      options:{responsive:true,plugins:{title:{display:true,text:'Golpes base',color:'#e8eaf0'},legend:{labels:{color:'#e8eaf0'}}}}
-    });
-
-    const efectividadPorBase={};
-    basesOrdenadas.forEach(([base])=>{ efectividadPorBase[base]={winners:0,errores:0}; });
-    partidos.forEach(p=>{
-      if (p.jugadorPropio===jugador||p.jugadorRival===jugador) {
-        (p.eventos||[]).forEach(ev=>{
-          if (ev.jugador!==jugador) return;
-          const base=ev.tipo.split(' ').slice(0,-1).join(' ');
-          if (!efectividadPorBase[base]) efectividadPorBase[base]={winners:0,errores:0};
-          if (p.jugadorPropio===jugador) {
-            if (ev.result==='winner-propio') efectividadPorBase[base].winners++;
-            if (ev.result==='out-propio') efectividadPorBase[base].errores++;
-          } else {
-            if (ev.result==='winner-rival') efectividadPorBase[base].winners++;
-            if (ev.result==='out-rival') efectividadPorBase[base].errores++;
-          }
-        });
-      }
-    });
-    const labelsEf=Object.keys(efectividadPorBase);
-    if (chartInformeEfectividad) chartInformeEfectividad.destroy();
-    const ctx2=document.getElementById('chartInformeEfectividad').getContext('2d');
-    chartInformeEfectividad=new Chart(ctx2,{
-      type:'bar',
-      data:{ labels:labelsEf, datasets:[
-        {label:'Winners',data:labelsEf.map(b=>efectividadPorBase[b].winners),backgroundColor:'rgba(16,185,129,0.75)'},
-        {label:'Errores',data:labelsEf.map(b=>efectividadPorBase[b].errores),backgroundColor:'rgba(239,68,68,0.65)'}
-      ]},
-      options:{responsive:true,plugins:{title:{display:true,text:'Efectividad por golpe',color:'#e8eaf0'},legend:{labels:{color:'#e8eaf0'}}},scales:{x:{ticks:{color:'#6b7280'},stacked:true},y:{ticks:{color:'#6b7280'},stacked:true}}}
-    });
-  }
-
-  // ─── INIT ─────────────────────────────────────────────────────────────────
-  actualizarSelectores();
-  crearBotones();
+  const sc=JSON.parse(localStorage.getItem('scoreBadminton')||'null');
+  if (sc) score=sc;
+  actualizarScoreboard();
   cargarListaPartidos();
-  cargarVideo();
-  actualizarContadoresResultados();
+}
+cargarTodo();
+
+function cargarListaPartidos() {
+  const partidos=JSON.parse(localStorage.getItem('partidosBadmintonV7')||'[]');
+  const sel=document.getElementById('listaPartidos');
+  sel.innerHTML='<option value="">— Partidos —</option>';
+  partidos.forEach((p,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=p.nombre; sel.appendChild(o); });
+}
+
+function guardarPartido() {
+  const nombre=prompt('Nombre del partido:');
+  if (!nombre) return;
+  const partidos=JSON.parse(localStorage.getItem('partidosBadmintonV7')||'[]');
+  partidos.push({ nombre, fecha:new Date().toLocaleString(), videoUrl:document.getElementById('urlInput').value,
+    jugadores, jugadorPropio, jugadorRival,
+    contadores:JSON.parse(JSON.stringify(contadores)),
+    eventos:JSON.parse(JSON.stringify(eventos)),
+    resultadosContador:{...resultadosContador}, score:JSON.parse(JSON.stringify(score)) });
+  localStorage.setItem('partidosBadmintonV7',JSON.stringify(partidos));
+  actualizarDBJugadores(jugadorPropio,jugadorRival,eventos);
+  cargarListaPartidos();
+  toast('💾 Partido guardado', 'winner');
+}
+
+function cargarPartido() {
+  const idx=document.getElementById('listaPartidos').value;
+  if (idx==='') return;
+  const partido=JSON.parse(localStorage.getItem('partidosBadmintonV7')||'[]')[parseInt(idx)];
+  if (!partido) return;
+  jugadores=partido.jugadores||[]; jugadorPropio=partido.jugadorPropio||''; jugadorRival=partido.jugadorRival||'';
+  contadores=partido.contadores; eventos=partido.eventos||[];
+  resultadosContador=partido.resultadosContador||{'winner-propio':0,'out-propio':0,'winner-rival':0,'out-rival':0};
+  if (partido.score) score=partido.score;
+  document.getElementById('urlInput').value=partido.videoUrl||'';
+  actualizarSelectores(); document.getElementById('jugadorPropio').value=jugadorPropio; document.getElementById('jugadorRival').value=jugadorRival;
+  guardarTodo(); actualizarTodosLosContadoresVisuales(); actualizarContadoresResultados();
+  reconstruirTablaEventos(); actualizarScoreboard();
+  cargarVideo(); toast('📂 Partido cargado', 'info');
+}
+
+function nuevoPartido() {
+  if (!confirm('¿Iniciar nuevo análisis?')) return;
+  contadores={}; inicializarContadores(); eventos=[];
+  resultadosContador={'winner-propio':0,'out-propio':0,'winner-rival':0,'out-rival':0};
+  score=[[0,0],[0,0],[0,0]]; setActivo=0;
+  actualizarContadoresResultados(); guardarTodo();
+  document.getElementById('tablaEventos').innerHTML='';
+  actualizarTodosLosContadoresVisuales(); actualizarScoreboard();
+  toast('📝 Nuevo análisis', 'info');
+}
+
+// ═══════════════════════════════════════════
+// VIDEO
+// ═══════════════════════════════════════════
+function extraerID(url) { const m=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/); return m?m[1]:null; }
+function cargarVideo() {
+  const url=document.getElementById('urlInput').value.trim();
+  document.getElementById('errorMsg').style.display='none'; document.getElementById('loading').style.display='inline';
+  if (!url) { mostrarError('Pega un enlace.'); return; }
+  const id=extraerID(url);
+  if (!id) { mostrarError('ID inválido.'); return; }
+  iframe=document.getElementById('youtube-frame');
+  iframe.src=`https://www.youtube.com/embed/${id}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`;
+  document.getElementById('loading').style.display='none';
+}
+function mostrarError(msg) { document.getElementById('errorMsg').textContent=msg; document.getElementById('errorMsg').style.display='inline'; document.getElementById('loading').style.display='none'; }
+window.addEventListener('message',e=>{ if(e.origin!=='https://www.youtube.com') return; try{ const d=JSON.parse(e.data); if(d.event==='infoDelivery'&&d.info?.currentTime) window.iframeCurrentTime=d.info.currentTime; }catch(ex){} });
+setInterval(()=>{ if(iframe?.contentWindow) iframe.contentWindow.postMessage('{"event":"listening","id":1}','https://www.youtube.com'); },500);
+function seekTo(s) { if(iframe?.contentWindow) iframe.contentWindow.postMessage(JSON.stringify({event:'command',func:'seekTo',args:[s,true]}),'https://www.youtube.com'); }
+
+// ═══════════════════════════════════════════
+// JUGADORES
+// ═══════════════════════════════════════════
+function actualizarSelectores() {
+  const op=jugadores.map(j=>`<option value="${j}">${j}</option>`).join('');
+  document.getElementById('jugadorPropio').innerHTML=op||'<option value="">—</option>';
+  document.getElementById('jugadorRival').innerHTML =op||'<option value="">—</option>';
+  if(jugadorPropio) document.getElementById('jugadorPropio').value=jugadorPropio;
+  if(jugadorRival)  document.getElementById('jugadorRival').value=jugadorRival;
+  actualizarScoreboard();
+}
+
+function agregarJugador(tipo) {
+  const nombre=prompt('Nombre del jugador:');
+  if (!nombre||jugadores.includes(nombre)) return;
+  jugadores.push(nombre); localStorage.setItem('jugadoresBadminton',JSON.stringify(jugadores));
+  if (tipo==='propio') { jugadorPropio=nombre; localStorage.setItem('jugadorPropioBadminton',nombre); }
+  else                 { jugadorRival=nombre;  localStorage.setItem('jugadorRivalBadminton',nombre); }
+  actualizarSelectores();
+  document.getElementById(tipo==='propio'?'jugadorPropio':'jugadorRival').value=nombre;
+  crearJugadorEnDB(nombre);
+}
+
+document.getElementById('jugadorPropio').onchange=e=>{ jugadorPropio=e.target.value; localStorage.setItem('jugadorPropioBadminton',jugadorPropio); actualizarScoreboard(); };
+document.getElementById('jugadorRival').onchange =e=>{ jugadorRival=e.target.value;  localStorage.setItem('jugadorRivalBadminton', jugadorRival);  actualizarScoreboard(); };
+
+function cambiarEjecutor(ej) {
+  ejecutorActual=ej;
+  document.getElementById('togglePropio').className=`exec-btn ${ej==='propio'?'active-propio':''}`;
+  document.getElementById('toggleRival').className =`exec-btn ${ej==='rival'?'active-rival':''}`;
+  const bar=document.getElementById('executor-bar');
+  bar.className=ej==='rival'?'rival':'';
+}
+
+function toggleMano() {
+  manoActual=manoActual==='diestro'?'zurdo':'diestro';
+  document.getElementById('btnMano').textContent=`✋ ${manoActual==='diestro'?'D':'Z'}`;
+  eventos.forEach(e=>{ e.zona=obtenerZona(e.tipo); });
+  reconstruirTablaEventos(); guardarTodo();
+}
+
+// ═══════════════════════════════════════════
+// REGISTRO DE GOLPES
+// ═══════════════════════════════════════════
+function registrarGolpe(variante) {
+  if (!iframe?.src) return alert('Carga un vídeo primero.');
+  const jugador=ejecutorActual==='propio'?jugadorPropio:jugadorRival;
+  if (!jugador) return alert(`Falta jugador ${ejecutorActual==='propio'?'propio':'rival'}.`);
+  const tiempo=window.iframeCurrentTime;
+  if (tiempo==null) return alert('Espera a que el vídeo cargue.');
+  if (!contadores[variante]) contadores[variante]={propio:0,rival:0};
+  contadores[variante][ejecutorActual]++;
+  guardarTodo(); actualizarBadgeDeVariante(variante);
+  const zona=obtenerZona(variante);
+  const evento={jugador,tiempo,tipo:variante,ejecutor:ejecutorActual,result:null,zona};
+  eventos.push(evento);
+  agregarFilaTabla(eventos.length-1,evento);
+  guardarTodo();
+  const base=variante.split(' ').slice(0,-1).join(' ');
+  toast(`🏸 ${base} — ${jugador}`, 'info');
+}
+
+// ═══════════════════════════════════════════
+// TABLA DE EVENTOS
+// ═══════════════════════════════════════════
+function reconstruirTablaEventos() {
+  document.getElementById('tablaEventos').innerHTML='';
+  eventos.forEach((e,i)=>agregarFilaTabla(i,e));
+  filtrarTabla();
+}
+
+function agregarFilaTabla(index,ev) {
+  const tbody=document.getElementById('tablaEventos');
+  const fila=tbody.insertRow(); fila.id=`row-${index}`;
+  fila.dataset.ejecutor=ev.ejecutor; fila.dataset.result=ev.result||'sin-resultado'; fila.dataset.tipo=ev.tipo.toLowerCase();
+  const m=Math.floor(ev.tiempo/60), s=Math.floor(ev.tiempo%60);
+  fila.innerHTML=`
+    <td>${ev.jugador} <span style="color:var(--text-muted);font-size:0.62rem">(${ev.ejecutor==='propio'?'N':'R'})</span></td>
+    <td class="tiempo-cell">${m}:${s.toString().padStart(2,'0')}</td>
+    <td>${ev.tipo}</td>
+    <td class="result-cell">${ev.result?`<span class="result-badge result-${ev.result}">${ev.result.replace('-',' ')}</span>`:''}</td>
+    <td style="color:var(--text-muted);font-size:0.72rem">${ev.zona||''}</td>
+    <td class="delete-cell">🗑</td>
+  `;
+  fila.querySelector('.tiempo-cell').onclick=()=>seekTo(Math.max(0,ev.tiempo-1));
+  fila.querySelector('.delete-cell').onclick=()=>borrarEvento(index);
+}
+
+function filtrarTabla() {
+  const texto=(document.getElementById('filtroTexto')?.value||'').toLowerCase();
+  const ejFil=document.getElementById('filtroEjecutor')?.value||'';
+  const resFil=document.getElementById('filtroResultado')?.value||'';
+  const filas=document.querySelectorAll('#tablaEventos tr');
+  let visibles=0;
+  filas.forEach(fila=>{
+    const matchTexto=!texto||fila.dataset.tipo?.includes(texto);
+    const matchEj=!ejFil||fila.dataset.ejecutor===ejFil;
+    const matchRes=!resFil||fila.dataset.result===resFil;
+    const show=matchTexto&&matchEj&&matchRes;
+    fila.classList.toggle('tr-hidden',!show);
+    if(show) visibles++;
+  });
+  const fc=document.getElementById('filtroCount');
+  if(fc) fc.textContent=`${visibles} de ${filas.length}`;
+}
+
+function borrarEvento(index) {
+  if (!confirm('¿Borrar este registro?')) return;
+  const ev=eventos[index];
+  if (ev.result) { resultadosContador[ev.result]=Math.max(0,resultadosContador[ev.result]-1); actualizarContadoresResultados(); }
+  if (contadores[ev.tipo]) { contadores[ev.tipo][ev.ejecutor]=Math.max(0,contadores[ev.tipo][ev.ejecutor]-1); actualizarBadgeDeVariante(ev.tipo); }
+  eventos.splice(index,1);
+  guardarTodo(); reconstruirTablaEventos();
+  toast('🗑 Registro eliminado', 'warning');
+}
+
+function actualizarFilaResultado(index,result) {
+  const fila=document.getElementById(`row-${index}`);
+  if (fila) {
+    fila.querySelector('.result-cell').innerHTML=result?`<span class="result-badge result-${result}">${result.replace('-',' ')}</span>`:'';
+    fila.dataset.result=result||'sin-resultado';
+  }
+}
+
+function marcarResultado(result,ejecutor) {
+  const candidatos=eventos.filter(e=>e.result===null&&e.ejecutor===ejecutor);
+  if (!candidatos.length) return toast(`Sin golpes de ${ejecutor==='propio'?'tu equipo':'el rival'} sin resultado`, 'warning');
+  const ultimo=candidatos[candidatos.length-1];
+  const index=eventos.indexOf(ultimo);
+  eventos[index].result=result; guardarTodo(); actualizarFilaResultado(index,result);
+  resultadosContador[result]++; actualizarContadoresResultados();
+  actualizarRacha();
+  const labels={'winner-propio':'🚀 Winner propio','out-propio':'❌ Error propio','winner-rival':'🏆 Punto rival','out-rival':'⚠️ Error rival'};
+  const tipos={'winner-propio':'winner','out-propio':'error','winner-rival':'warning','out-rival':'info'};
+  toast(labels[result], tipos[result]);
+}
+
+function actualizarContadoresResultados() {
+  document.getElementById('counter-winner-propio').textContent=resultadosContador['winner-propio'];
+  document.getElementById('counter-out-propio').textContent   =resultadosContador['out-propio'];
+  document.getElementById('counter-winner-rival').textContent =resultadosContador['winner-rival'];
+  document.getElementById('counter-out-rival').textContent    =resultadosContador['out-rival'];
+}
+
+// ═══════════════════════════════════════════
+// BOTONES DE GOLPES
+// ═══════════════════════════════════════════
+const zonaClase={'Fondo':'','Mitad':'mid','Red':'red'};
+function crearBotones() {
+  const container=document.getElementById('golpesContainer'); container.innerHTML='';
+  for (const [zona,golpes] of Object.entries(golpesPorZona)) {
+    const zonaDiv=document.createElement('div');
+    const hdr=document.createElement('div'); hdr.className=`zona-header ${zonaClase[zona]||''}`; hdr.textContent=zona;
+    zonaDiv.appendChild(hdr);
+    const grid=document.createElement('div'); grid.className='golpes-grid';
+    for (const [nombreBase,variantes] of Object.entries(golpes)) {
+      const card=document.createElement('div'); card.className='golpe-card';
+      const btnBase=document.createElement('div'); btnBase.className='golpe-nombre'; btnBase.textContent=nombreBase;
+      btnBase.onclick=function(e){ e.stopPropagation(); this.nextElementSibling.classList.toggle('visible'); };
+      const panel=document.createElement('div'); panel.className='variantes-container';
+      variantes.forEach(v=>{
+        const btnVar=document.createElement('button'); btnVar.className='variante-btn';
+        const total=(contadores[v]?.propio||0)+(contadores[v]?.rival||0);
+        btnVar.innerHTML=`<span>${v.replace(nombreBase+' ','')}</span><span class="badge" id="cont-${v.replace(/\s/g,'_')}">${total}</span>`;
+        btnVar.onclick=function(e){ e.stopPropagation(); registrarGolpe(v); panel.classList.remove('visible'); };
+        panel.appendChild(btnVar);
+      });
+      card.appendChild(btnBase); card.appendChild(panel); grid.appendChild(card);
+    }
+    zonaDiv.appendChild(grid); container.appendChild(zonaDiv);
+  }
+}
+
+function actualizarBadgeDeVariante(v){ const b=document.getElementById(`cont-${v.replace(/\s/g,'_')}`); if(b) b.textContent=(contadores[v]?.propio||0)+(contadores[v]?.rival||0); }
+function actualizarTodosLosContadoresVisuales(){ todasLasVariantes.forEach(v=>actualizarBadgeDeVariante(v)); }
+function reiniciarContadores() {
+  if (!confirm('¿Reiniciar todos los contadores?')) return;
+  contadores={}; inicializarContadores(); eventos=[];
+  resultadosContador={'winner-propio':0,'out-propio':0,'winner-rival':0,'out-rival':0};
+  score=[[0,0],[0,0],[0,0]]; setActivo=0;
+  actualizarContadoresResultados(); guardarTodo();
+  document.getElementById('tablaEventos').innerHTML='';
+  actualizarTodosLosContadoresVisuales(); actualizarScoreboard();
+  toast('🔄 Reiniciado', 'info');
+}
+
+// ═══════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════
+function cambiarTab(tab) {
+  ['eventos','estadisticas','tendencias','informe','jugadores'].forEach(t=>{
+    document.getElementById(`btnTab${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.remove('active');
+    document.getElementById(`tab-${t}`).classList.remove('active');
+  });
+  document.getElementById(`btnTab${tab.charAt(0).toUpperCase()+tab.slice(1)}`).classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  if(tab==='estadisticas') generarEstadisticas();
+  if(tab==='tendencias')   inicializarTendencias();
+  if(tab==='informe')      inicializarInforme();
+  if(tab==='jugadores')    renderizarListaJugadoresDB();
+}
+
+// ═══════════════════════════════════════════
+// ESTADÍSTICAS
+// ═══════════════════════════════════════════
+let chartGolpes;
+function generarEstadisticas() {
+  const total=eventos.length;
+  const propios=eventos.filter(e=>e.ejecutor==='propio').length;
+  const rivales=eventos.filter(e=>e.ejecutor==='rival').length;
+  const winRate=resultadosContador['winner-propio']>0||resultadosContador['out-propio']>0
+    ? Math.round(resultadosContador['winner-propio']/(resultadosContador['winner-propio']+resultadosContador['out-propio']||1)*100)+'%'
+    : '—';
+  document.getElementById('summaryCards').innerHTML=`
+    <div class="summary-card" style="border-top:2px solid var(--winner)"><h4>Winners propios</h4><div class="number" style="color:var(--winner)">${resultadosContador['winner-propio']}</div><div class="sub">Win rate: ${winRate}</div></div>
+    <div class="summary-card" style="border-top:2px solid var(--error)"><h4>Errores propios</h4><div class="number" style="color:var(--error)">${resultadosContador['out-propio']}</div><div class="sub">${propios} golpes totales</div></div>
+    <div class="summary-card" style="border-top:2px solid var(--rival)"><h4>Puntos rival</h4><div class="number" style="color:var(--rival)">${resultadosContador['winner-rival']}</div><div class="sub">${rivales} golpes rival</div></div>
+    <div class="summary-card" style="border-top:2px solid var(--rival-err)"><h4>Errores rival</h4><div class="number" style="color:var(--rival-err)">${resultadosContador['out-rival']}</div><div class="sub">${total} total</div></div>
+  `;
+  if(chartGolpes) chartGolpes.destroy();
+  const ctx=document.getElementById('chartGolpes').getContext('2d');
+  Chart.defaults.color='#6b7280';
+  chartGolpes=new Chart(ctx,{
+    type:'bar',
+    data:{labels:todasLasVariantes,datasets:[
+      {label:'Propios',data:todasLasVariantes.map(v=>contadores[v]?.propio||0),backgroundColor:'rgba(0,229,255,0.7)'},
+      {label:'Rival',  data:todasLasVariantes.map(v=>contadores[v]?.rival||0), backgroundColor:'rgba(255,56,96,0.6)'}
+    ]},
+    options:{responsive:true,plugins:{title:{display:true,text:'Golpes por variante',color:'#e8eaf0'},legend:{labels:{color:'#e8eaf0'}}},scales:{x:{ticks:{color:'#6b7280'}},y:{ticks:{color:'#6b7280'}}}}
+  });
+}
+
+function exportarCSV() {
+  let csv='Ejecutor,Jugador,Tiempo,Golpe,Resultado,Zona\n';
+  eventos.forEach(e=>csv+=`${e.ejecutor},${e.jugador},${e.tiempo.toFixed(1)},${e.tipo},${e.result||''},${e.zona||''}\n`);
+  descargarArchivo(csv,'eventos.csv','text/csv');
+}
+function exportarJSON() { descargarArchivo(JSON.stringify(eventos,null,2),'eventos.json','application/json'); }
+function descargarArchivo(contenido,nombre,tipo) {
+  const blob=new Blob([contenido],{type}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=nombre; a.click(); URL.revokeObjectURL(a.href);
+}
+
+// ═══════════════════════════════════════════
+// DB JUGADORES
+// ═══════════════════════════════════════════
+function getDB()    { return JSON.parse(localStorage.getItem('badmintonJugadoresDB')||'{}'); }
+function saveDB(db) { localStorage.setItem('badmintonJugadoresDB',JSON.stringify(db)); }
+function crearJugadorEnDB(nombre) { const db=getDB(); if(!db[nombre]){ db[nombre]={nombre,historial:[],notas:''}; saveDB(db); } }
+
+function agregarJugadorDB() {
+  const nombre=prompt('Nombre del jugador:');
+  if (!nombre) return;
+  if (!jugadores.includes(nombre)) { jugadores.push(nombre); localStorage.setItem('jugadoresBadminton',JSON.stringify(jugadores)); actualizarSelectores(); }
+  crearJugadorEnDB(nombre); renderizarListaJugadoresDB();
+}
+
+function actualizarDBJugadores(propioNombre,rivalNombre,evts) {
+  const db=getDB(); const fechaHoy=new Date().toLocaleDateString('es-AR');
+  [propioNombre,rivalNombre].forEach(n=>{ if(n&&!db[n]) db[n]={nombre:n,historial:[],notas:''}; });
+  evts.forEach(ev=>{
+    const n=ev.jugador; if(!n) return;
+    if(!db[n]) db[n]={nombre:n,historial:[],notas:''};
+    if(!db[n].historial) db[n].historial=[];
+    db[n].historial.push({...ev,fecha:fechaHoy});
+  });
+  saveDB(db);
+}
+
+function calcularPerfil(nombre) {
+  const db=getDB(); const jugadorDB=db[nombre]||{};
+  const historial=jugadorDB.historial||[];
+  const partidos=JSON.parse(localStorage.getItem('partidosBadmintonV7')||'[]');
+  const eventosExtras=[];
+  partidos.forEach(p=>{ if(p.jugadorPropio===nombre||p.jugadorRival===nombre) (p.eventos||[]).forEach(ev=>{ if(ev.jugador===nombre) eventosExtras.push(ev); }); });
+  const todos=[...historial,...eventosExtras];
+  const vistos=new Set();
+  const evtsU=todos.filter(e=>{ const k=`${e.tiempo}_${e.tipo}_${e.jugador}`; if(vistos.has(k)) return false; vistos.add(k); return true; });
+  if (!evtsU.length) return null;
+  const totalGolpes=evtsU.length;
+  const conteoBase={},conteoVariante={},conteoZona={};
+  const efect={winners:0,errores:0};
+  evtsU.forEach(ev=>{
+    const base=ev.tipo.split(' ').slice(0,-1).join(' ');
+    conteoBase[base]=(conteoBase[base]||0)+1;
+    conteoVariante[ev.tipo]=(conteoVariante[ev.tipo]||0)+1;
+    const zona=ev.zona||obtenerZona(ev.tipo);
+    conteoZona[zona]=(conteoZona[zona]||0)+1;
+    const partE=partidos.find(p=>(p.jugadorPropio===nombre||p.jugadorRival===nombre)&&(p.eventos||[]).some(e=>e.tiempo===ev.tiempo&&e.tipo===ev.tipo));
+    const esP=partE?partE.jugadorPropio===nombre:true;
+    if(ev.result){ if(esP&&ev.result==='winner-propio') efect.winners++; else if(!esP&&ev.result==='winner-rival') efect.winners++; else if(esP&&ev.result==='out-propio') efect.errores++; else if(!esP&&ev.result==='out-rival') efect.errores++; }
+  });
+  return {
+    totalGolpes,
+    basesOrdenadas:Object.entries(conteoBase).sort((a,b)=>b[1]-a[1]),
+    zonasOrdenadas:Object.entries(conteoZona).sort((a,b)=>b[1]-a[1]),
+    variantesOrdenadas:Object.entries(conteoVariante).sort((a,b)=>b[1]-a[1]),
+    efectividad:efect, notas:jugadorDB.notas||''
+  };
+}
+
+function renderizarListaJugadoresDB() {
+  const db=getDB(); jugadores.forEach(j=>{ if(!db[j]) crearJugadorEnDB(j); });
+  const dbA=getDB(); const lista=document.getElementById('playerListDB'); lista.innerHTML='';
+  const nombres=Object.keys(dbA);
+  if (!nombres.length) { lista.innerHTML='<div class="empty-state">Sin jugadores</div>'; return; }
+  nombres.forEach(nombre=>{
+    const perfil=calcularPerfil(nombre);
+    const div=document.createElement('div'); div.className='player-item';
+    div.innerHTML=`<div><div class="player-item-name">${nombre}</div><div class="player-item-meta">${perfil?perfil.totalGolpes+' golpes':'Sin datos'}</div></div><span class="player-item-delete" onclick="event.stopPropagation();eliminarJugadorDB('${nombre}')">✕</span>`;
+    div.onclick=()=>mostrarPerfilJugador(nombre,div); lista.appendChild(div);
+  });
+}
+
+function eliminarJugadorDB(nombre) {
+  if (!confirm(`¿Eliminar datos de ${nombre}?`)) return;
+  const db=getDB(); delete db[nombre]; saveDB(db);
+  jugadores=jugadores.filter(j=>j!==nombre); localStorage.setItem('jugadoresBadminton',JSON.stringify(jugadores));
+  actualizarSelectores(); renderizarListaJugadoresDB();
+  document.getElementById('playerProfileArea').innerHTML='<div class="empty-state">← Seleccioná un jugador</div>';
+}
+
+let chartPerfilTorta,chartPerfilZona;
+function mostrarPerfilJugador(nombre,itemEl) {
+  document.querySelectorAll('.player-item').forEach(el=>el.classList.remove('selected'));
+  if(itemEl) itemEl.classList.add('selected');
+  const perfil=calcularPerfil(nombre);
+  const area=document.getElementById('playerProfileArea');
+  if (!perfil) {
+    area.innerHTML=`<div class="profile-header"><div class="profile-avatar">${nombre.charAt(0).toUpperCase()}</div><div><div class="profile-name">${nombre}</div><div class="profile-sub">Sin partidos analizados aún</div></div></div><p style="color:var(--text-muted);font-size:0.8rem;">Guardá partidos con este jugador para generar su perfil.</p>`;
+    return;
+  }
+  const ef=perfil.efectividad;
+  const winPct=ef.winners+ef.errores>0?((ef.winners/(ef.winners+ef.errores))*100).toFixed(0):'—';
+  const errPct=ef.winners+ef.errores>0?((ef.errores/(ef.winners+ef.errores))*100).toFixed(0):'—';
+  const planItems=generarPlanJuego(perfil,nombre);
+  area.innerHTML=`
+    <div class="profile-header">
+      <div class="profile-avatar">${nombre.charAt(0).toUpperCase()}</div>
+      <div><div class="profile-name">${nombre}</div><div class="profile-sub">${perfil.totalGolpes} golpes · ${perfil.basesOrdenadas.length} tipos</div></div>
+    </div>
+    <div class="profile-stats-grid">
+      <div class="profile-stat"><div class="num" style="color:var(--accent)">${perfil.totalGolpes}</div><div class="lbl">Golpes</div></div>
+      <div class="profile-stat"><div class="num" style="color:var(--winner)">${winPct}%</div><div class="lbl">Win%</div></div>
+      <div class="profile-stat"><div class="num" style="color:var(--error)">${errPct}%</div><div class="lbl">Err%</div></div>
+      <div class="profile-stat"><div class="num" style="color:var(--rival)">${perfil.zonasOrdenadas.length}</div><div class="lbl">Zonas</div></div>
+    </div>
+    <div class="scouting-panel">
+      <h4>🔍 Scouting report</h4>
+      <div class="scouting-grid">
+        <div class="scouting-card">
+          <div class="scouting-card-title">Golpes más usados</div>
+          ${perfil.basesOrdenadas.slice(0,5).map(([b,n])=>{ const pct=((n/perfil.totalGolpes)*100).toFixed(0); return `<div class="scouting-item"><span>${b}</span><span class="scouting-pct">${pct}%</span></div><div class="scouting-bar-wrap"><div class="scouting-bar" style="width:${pct}%"></div></div>`; }).join('')}
+        </div>
+        <div class="scouting-card">
+          <div class="scouting-card-title">Zonas de origen</div>
+          ${perfil.zonasOrdenadas.slice(0,5).map(([z,n])=>{ const pct=((n/perfil.totalGolpes)*100).toFixed(0); return `<div class="scouting-item"><span>${z}</span><span class="scouting-pct">${pct}%</span></div><div class="scouting-bar-wrap"><div class="scouting-bar warning" style="width:${pct}%"></div></div>`; }).join('')}
+        </div>
+        <div class="scouting-card">
+          <div class="scouting-card-title">Variantes top 5</div>
+          ${perfil.variantesOrdenadas.slice(0,5).map(([v,n])=>{ const pct=((n/perfil.totalGolpes)*100).toFixed(0); return `<div class="scouting-item"><span style="font-size:0.7rem">${v}</span><span class="scouting-pct">${pct}%</span></div>`; }).join('')}
+        </div>
+        <div class="scouting-card">
+          <div class="scouting-card-title">Efectividad</div>
+          <div class="scouting-item"><span>Winners</span><span class="scouting-pct" style="color:var(--winner)">${ef.winners}</span></div>
+          <div class="scouting-bar-wrap"><div class="scouting-bar" style="width:${winPct==='—'?0:winPct}%"></div></div>
+          <div class="scouting-item" style="margin-top:6px"><span>Errores</span><span class="scouting-pct" style="color:var(--error)">${ef.errores}</span></div>
+          <div class="scouting-bar-wrap"><div class="scouting-bar danger" style="width:${errPct==='—'?0:errPct}%"></div></div>
+        </div>
+      </div>
+      <div class="plan-juego">
+        <h5>🎯 Plan de juego vs ${nombre}</h5>
+        ${planItems.map(p=>`<div class="plan-item"><span class="plan-icon">${p.icon}</span><span>${p.texto}</span></div>`).join('')}
+      </div>
+    </div>
+    <div class="charts-row" style="margin-top:16px;">
+      <div><canvas id="chartPerfilTorta" width="280" height="220"></canvas></div>
+      <div><canvas id="chartPerfilZona"  width="280" height="220"></canvas></div>
+    </div>
+    <div style="margin-top:12px;">
+      <div class="section-label">Notas del entrenador</div>
+      <textarea id="notasJugador" rows="3" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:8px;font-family:var(--font-body);font-size:0.8rem;resize:vertical;">${perfil.notas}</textarea>
+      <button class="btn btn-sm" style="margin-top:6px;" onclick="guardarNotas('${nombre}')">Guardar notas</button>
+    </div>
+  `;
+  if(chartPerfilTorta) chartPerfilTorta.destroy();
+  if(chartPerfilZona)  chartPerfilZona.destroy();
+  Chart.defaults.color='#6b7280';
+  const ctx1=document.getElementById('chartPerfilTorta').getContext('2d');
+  chartPerfilTorta=new Chart(ctx1,{type:'doughnut',data:{labels:perfil.basesOrdenadas.map(b=>b[0]),datasets:[{data:perfil.basesOrdenadas.map(b=>b[1]),backgroundColor:['#00e5ff','#ff3860','#ffd700','#7c3aed','#10b981','#f59e0b','#6610f2','#fd7e14','#20c997']}]},options:{responsive:true,plugins:{title:{display:true,text:'Golpes base',color:'#e8eaf0'},legend:{labels:{color:'#e8eaf0',boxWidth:10,font:{size:9}}}}}});
+  const ctx2=document.getElementById('chartPerfilZona').getContext('2d');
+  chartPerfilZona=new Chart(ctx2,{type:'bar',data:{labels:perfil.zonasOrdenadas.map(z=>z[0]),datasets:[{label:'Golpes',data:perfil.zonasOrdenadas.map(z=>z[1]),backgroundColor:'rgba(0,229,255,0.6)'}]},options:{responsive:true,indexAxis:'y',plugins:{title:{display:true,text:'Por zona',color:'#e8eaf0'},legend:{display:false}},scales:{x:{ticks:{color:'#6b7280'}},y:{ticks:{color:'#6b7280',font:{size:9}}}}}});
+}
+
+function generarPlanJuego(perfil,nombre) {
+  const plan=[];
+  if (!perfil) return plan;
+  const gF=perfil.basesOrdenadas[0], zF=perfil.zonasOrdenadas[0], vF=perfil.variantesOrdenadas[0], ef=perfil.efectividad;
+  if(gF){ const pct=((gF[1]/perfil.totalGolpes)*100).toFixed(0); plan.push({icon:'⚠️',texto:`Su golpe favorito es el <strong>${gF[0]}</strong> (${pct}% de sus acciones). Preparate para recibirlo con anticipación.`}); }
+  if(zF){ const pct=((zF[1]/perfil.totalGolpes)*100).toFixed(0); const esF=zF[0].includes('Fondo'),esR=zF[0].includes('Red'); plan.push({icon:'📍',texto:`Opera principalmente desde <strong>${zF[0]}</strong> (${pct}%). ${esF?'Forzalo a la red con drops cortos para sacarlo de su zona de confort.':esR?'Levantale el volante para sacarlo de la red y obligarlo a jugar desde atrás.':'Variá la profundidad para desorientarlo.'}`}); }
+  if(vF){ plan.push({icon:'🔄',texto:`Su variante más repetida es <strong>${vF[0]}</strong>. Anticipa esa trayectoria y posicioná la defensa en ese lado.`}); }
+  if(ef.winners+ef.errores>3){
+    const wP=((ef.winners/(ef.winners+ef.errores))*100).toFixed(0);
+    const eP=((ef.errores/(ef.winners+ef.errores))*100).toFixed(0);
+    if(parseInt(eP)>30) plan.push({icon:'💡',texto:`Comete errores no forzados frecuentes (${eP}%). Apostá al rally largo y dejá que se equivoque solo.`});
+    else if(parseInt(wP)>55) plan.push({icon:'🚨',texto:`Alta tasa de winners (${wP}%). No le des tiempo ni espacio para ejecutar su golpe favorito — presioná con velocidad.`});
+    else plan.push({icon:'✅',texto:`Nivel equilibrado (${wP}% winners, ${eP}% errores). Apostá a la consistencia y esperá que el cansancio incremente sus errores.`});
+  }
+  if(perfil.zonasOrdenadas.length>2){ const zD=perfil.zonasOrdenadas[perfil.zonasOrdenadas.length-1]; plan.push({icon:'🎯',texto:`Su zona menos frecuentada es <strong>${zD[0]}</strong>. Dirigí el juego hacia ahí para sacarlo de su zona cómoda.`}); }
+  if(!plan.length) plan.push({icon:'📊',texto:'Necesitás más datos para generar un plan de juego. Registrá al menos 10 golpes en un partido.'});
+  return plan;
+}
+
+function guardarNotas(nombre) {
+  const notas=document.getElementById('notasJugador')?.value||'';
+  const db=getDB(); if(!db[nombre]) db[nombre]={nombre,historial:[],notas:''}; db[nombre].notas=notas; saveDB(db);
+  toast('📝 Notas guardadas', 'winner');
+}
+
+// ═══════════════════════════════════════════
+// TENDENCIAS
+// ═══════════════════════════════════════════
+let chartTendencia;
+function inicializarTendencias() {
+  const sg=document.getElementById('tendenciaGolpeSelect');
+  const bases=[...new Set(todasLasVariantes.map(v=>v.split(' ').slice(0,-1).join(' ')))].sort();
+  sg.innerHTML=''; bases.forEach(b=>{ const o=document.createElement('option'); o.value=b; o.textContent=b; sg.appendChild(o); });
+  const sj=document.getElementById('tendenciaJugadorSelect');
+  sj.innerHTML='<option value="">— Partido actual —</option>';
+  jugadores.forEach(j=>{ const o=document.createElement('option'); o.value=j; o.textContent=j; sj.appendChild(o); });
+  sg.onchange=()=>mostrarTendencia(sg.value);
+  sj.onchange=()=>mostrarTendencia(sg.value);
+  if(bases.length) mostrarTendencia(bases[0]);
+}
+
+function obtenerContadoresHistoricos(jugador) {
+  if (!jugador) return null;
+  const partidos=JSON.parse(localStorage.getItem('partidosBadmintonV7')||'[]');
+  const acum={};
+  partidos.forEach(p=>{ if((p.jugadorPropio===jugador||p.jugadorRival===jugador)&&p.contadores){ for(const [v,d] of Object.entries(p.contadores)){ if(!acum[v]) acum[v]={propio:0,rival:0}; acum[v].propio+=d.propio||0; acum[v].rival+=d.rival||0; } } });
+  return acum;
+}
+
+function mostrarTendencia(base) {
+  const jh=document.getElementById('tendenciaJugadorSelect').value;
+  const fuente=jh?obtenerContadoresHistoricos(jh):contadores;
+  const vars=todasLasVariantes.filter(v=>v.startsWith(base));
+  let total=0;
+  const data=vars.map(v=>{ const s=(fuente?.[v]?.propio||0)+(fuente?.[v]?.rival||0); total+=s; return {variante:v.replace(base+' ',''),total:s}; });
+  let html=`<p style="font-weight:700;margin-bottom:8px;color:var(--accent)">Total <em>${base}</em>: ${total} golpes ${jh?'de '+jh:'(partido actual)'}</p><ul class="stat-list">`;
+  data.forEach(d=>{ const pct=total?((d.total/total)*100).toFixed(1):0; html+=`<li><span>${d.variante}</span><span><strong>${d.total}</strong> <span class="stat-pct">${pct}%</span></span></li>`; });
+  html+='</ul>';
+  document.getElementById('tendenciaResult').innerHTML=html;
+  if(chartTendencia) chartTendencia.destroy();
+  const ctx=document.getElementById('chartTendencia').getContext('2d');
+  chartTendencia=new Chart(ctx,{type:'pie',data:{labels:data.map(d=>d.variante),datasets:[{data:data.map(d=>d.total),backgroundColor:['#00e5ff','#ff3860','#ffd700','#7c3aed','#10b981','#f59e0b']}]},options:{responsive:true,plugins:{title:{display:true,text:`Distribución ${base}`,color:'#e8eaf0'},legend:{labels:{color:'#e8eaf0'}}}}});
+}
+
+// ═══════════════════════════════════════════
+// INFORME
+// ═══════════════════════════════════════════
+let chartInformeTorta,chartInformeEfectividad;
+function inicializarInforme() {
+  const s=document.getElementById('informeJugadorSelect'); s.innerHTML='';
+  jugadores.forEach(j=>{ const o=document.createElement('option'); o.value=j; o.textContent=j; s.appendChild(o); });
+  if(jugadores.length) s.value=jugadores[0];
+  document.getElementById('informeResult').innerHTML='';
+  if(chartInformeTorta) chartInformeTorta.destroy();
+  if(chartInformeEfectividad) chartInformeEfectividad.destroy();
+}
+
+function generarInforme() {
+  const jugador=document.getElementById('informeJugadorSelect').value;
+  if (!jugador) return alert('Seleccioná un jugador.');
+  const partidos=JSON.parse(localStorage.getItem('partidosBadmintonV7')||'[]');
+  let total=0; const cB={},ef={winners:0,errores:0};
+  partidos.forEach(p=>{ if(p.jugadorPropio===jugador||p.jugadorRival===jugador){ (p.eventos||[]).forEach(ev=>{ if(ev.jugador!==jugador) return; total++; const b=ev.tipo.split(' ').slice(0,-1).join(' '); cB[b]=(cB[b]||0)+1; if(p.jugadorPropio===jugador){ if(ev.result==='winner-propio') ef.winners++; if(ev.result==='out-propio') ef.errores++; }else{ if(ev.result==='winner-rival') ef.winners++; if(ev.result==='out-rival') ef.errores++; } }); } });
+  if (!total) { document.getElementById('informeResult').innerHTML='<p style="color:var(--text-muted)">Sin datos. Guardá al menos un partido primero.</p>'; return; }
+  const bo=Object.entries(cB).sort((a,b)=>b[1]-a[1]);
+  let html=`<p><strong>Golpes:</strong> ${total} &nbsp;|&nbsp; <strong style="color:var(--winner)">Winners:</strong> ${ef.winners} &nbsp;|&nbsp; <strong style="color:var(--error)">Errores:</strong> ${ef.errores}</p><ul class="stat-list" style="margin-top:10px;">`;
+  bo.forEach(([b,n])=>{ const pct=((n/total)*100).toFixed(1); html+=`<li><span>${b}</span><span><strong>${n}</strong> <span class="stat-pct">${pct}%</span></span></li>`; });
+  html+='</ul>';
+  if(bo.length){ const f=bo[0]; let fr=`Golpe más frecuente de <strong>${jugador}</strong>: <strong>${f[0]}</strong> (${((f[1]/total)*100).toFixed(1)}%). `; if(ef.winners+ef.errores>0){ const e=((ef.winners/(ef.winners+ef.errores))*100).toFixed(1); fr+=`Índice winner/error: <strong>${e}%</strong>.`; } html+=`<div class="tactical-note"><strong>📌 Análisis táctico —</strong> ${fr}</div>`; }
+  document.getElementById('informeResult').innerHTML=html;
+  if(chartInformeTorta) chartInformeTorta.destroy();
+  const ctx1=document.getElementById('chartInformeTorta').getContext('2d');
+  chartInformeTorta=new Chart(ctx1,{type:'doughnut',data:{labels:bo.map(b=>b[0]),datasets:[{data:bo.map(b=>b[1]),backgroundColor:['#00e5ff','#ff3860','#ffd700','#7c3aed','#10b981','#f59e0b','#6610f2','#fd7e14','#20c997']}]},options:{responsive:true,plugins:{title:{display:true,text:'Golpes base',color:'#e8eaf0'},legend:{labels:{color:'#e8eaf0'}}}}});
+  const epB={};
+  bo.forEach(([b])=>epB[b]={winners:0,errores:0});
+  partidos.forEach(p=>{ if(p.jugadorPropio===jugador||p.jugadorRival===jugador){ (p.eventos||[]).forEach(ev=>{ if(ev.jugador!==jugador) return; const b=ev.tipo.split(' ').slice(0,-1).join(' '); if(!epB[b]) epB[b]={winners:0,errores:0}; if(p.jugadorPropio===jugador){ if(ev.result==='winner-propio') epB[b].winners++; if(ev.result==='out-propio') epB[b].errores++; }else{ if(ev.result==='winner-rival') epB[b].winners++; if(ev.result==='out-rival') epB[b].errores++; } }); } });
+  const lE=Object.keys(epB);
+  if(chartInformeEfectividad) chartInformeEfectividad.destroy();
+  const ctx2=document.getElementById('chartInformeEfectividad').getContext('2d');
+  chartInformeEfectividad=new Chart(ctx2,{type:'bar',data:{labels:lE,datasets:[{label:'Winners',data:lE.map(b=>epB[b].winners),backgroundColor:'rgba(16,185,129,0.75)'},{label:'Errores',data:lE.map(b=>epB[b].errores),backgroundColor:'rgba(239,68,68,0.65)'}]},options:{responsive:true,plugins:{title:{display:true,text:'Efectividad por golpe',color:'#e8eaf0'},legend:{labels:{color:'#e8eaf0'}}},scales:{x:{ticks:{color:'#6b7280'},stacked:true},y:{ticks:{color:'#6b7280'},stacked:true}}}});
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+actualizarSelectores();
+crearBotones();
+cargarListaPartidos();
+cargarVideo();
+actualizarContadoresResultados();
+jugadores.forEach(j=>crearJugadorEnDB(j));
 </script>
 </body>
 </html>
