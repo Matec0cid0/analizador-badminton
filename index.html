@@ -134,6 +134,7 @@
     .toast.error   { border-color: var(--error); }
     .toast.info    { border-color: var(--accent); }
     .toast.warning { border-color: var(--accent3); }
+    .toast.rival   { border-color: var(--rival); }
     @keyframes toastIn  { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
     @keyframes toastOut { from { opacity:1; } to { opacity:0; transform: translateX(10px); } }
 
@@ -339,6 +340,46 @@
     .chart-container { max-width:480px; margin:16px auto; }
     .charts-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
 
+    /* ── COURT HEATMAP (media cancha, 6 zonas reales) ── */
+    .court-heatmap-wrap { display:flex; flex-direction:column; align-items:center; }
+    .court-heatmap-title { font-family:var(--font-display); font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; text-align:center; }
+    .court-heatmap-svg { width:100%; max-width:240px; height:auto; }
+    .heatzone-tag { font-family:var(--font-display); font-size:9px; font-weight:700; text-anchor:middle; letter-spacing:0.5px; }
+    .heatzone-num { font-family:var(--font-display); font-size:26px; font-weight:900; text-anchor:middle; }
+    .heatzone-pct { font-family:var(--font-body); font-size:10px; text-anchor:middle; }
+    .court-heatmap-legend { display:flex; align-items:center; gap:6px; margin-top:8px; width:100%; max-width:240px; }
+    .court-heatmap-legend-track { flex:1; height:6px; border-radius:3px; background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent2)); }
+    .court-heatmap-legend span { font-family:var(--font-display); font-size:0.55rem; color:var(--text-muted); letter-spacing:0.5px; }
+
+    /* ── PATRONES DE ZONA ── */
+    .patrones-wrap { margin-top:16px; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-lg); padding:14px 16px; }
+    .patrones-title { font-family:var(--font-display); font-weight:700; font-size:0.95rem; margin-bottom:2px; }
+    .patrones-sub { font-size:0.72rem; color:var(--text-muted); margin-bottom:10px; }
+    .patrones-grupo-label { font-family:var(--font-display); font-size:0.65rem; letter-spacing:0.8px; text-transform:uppercase; color:var(--accent); margin:10px 0 4px; }
+    .patron-row { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid var(--border); }
+    .patron-row:last-child { border-bottom:none; }
+    .patron-zonas { font-size:0.78rem; }
+    .patron-meta { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+    .patron-count { font-family:var(--font-display); font-weight:700; color:var(--accent); font-size:0.85rem; }
+    .patron-golpes { font-size:0.65rem; color:var(--text-muted); background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:2px 6px; }
+    .patrones-empty { font-size:0.78rem; color:var(--text-muted); text-align:center; padding:10px 0; }
+
+    /* ── PREDICCIÓN EN VIVO ── */
+    .prediccion-panel:empty { display:none; }
+    .prediccion-panel { background:rgba(0,229,255,0.05); border:1px solid rgba(0,229,255,0.25); border-radius:var(--radius-lg); padding:10px 12px; margin-top:10px; }
+    .prediccion-header { display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:0.74rem; margin-bottom:6px; flex-wrap:wrap; }
+    .prediccion-header strong { color:var(--accent); }
+    .prediccion-conf { font-family:var(--font-display); font-size:0.6rem; letter-spacing:0.4px; text-transform:uppercase; padding:2px 6px; border-radius:5px; white-space:nowrap; }
+    .prediccion-conf.conf-alta  { background:rgba(16,185,129,0.15); color:var(--winner); }
+    .prediccion-conf.conf-media { background:rgba(255,215,0,0.12); color:var(--accent3); }
+    .prediccion-conf.conf-baja  { background:rgba(107,114,128,0.15); color:var(--text-muted); }
+    .prediccion-row { display:flex; align-items:center; gap:8px; padding:3px 0; font-size:0.75rem; }
+    .prediccion-row span:first-child { width:110px; flex-shrink:0; }
+    .prediccion-bar-wrap { flex:1; height:6px; background:var(--surface); border-radius:3px; overflow:hidden; }
+    .prediccion-bar { height:100%; background:var(--accent); border-radius:3px; }
+    .prediccion-pct { width:34px; text-align:right; font-family:var(--font-display); font-weight:700; color:var(--text); flex-shrink:0; }
+    .prediccion-vacio { font-size:0.72rem; color:var(--text-muted); }
+
     /* ── PLAYER DB ── */
     .player-db-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; min-height: 400px; }
     .player-list { display: flex; flex-direction: column; gap: 6px; }
@@ -493,8 +534,7 @@
       <button id="btnTabEventos"      class="tab-btn active" onclick="cambiarTab('eventos')">📋 Eventos</button>
       <button id="btnTabEstadisticas" class="tab-btn"        onclick="cambiarTab('estadisticas')">📊 Stats</button>
       <button id="btnTabTendencias"   class="tab-btn"        onclick="cambiarTab('tendencias')">📈 Tendencias</button>
-      <button id="btnTabInforme"      class="tab-btn"        onclick="cambiarTab('informe')">📋 Informe</button>
-      <button id="btnTabJugadores"    class="tab-btn"        onclick="cambiarTab('jugadores')">👤 DB</button>
+      <button id="btnTabJugadores"    class="tab-btn"        onclick="cambiarTab('jugadores')">📋 Informe de jugador</button>
     </div>
 
     <!-- EVENTOS -->
@@ -550,22 +590,7 @@
       <div class="chart-container" style="max-width:360px;"><canvas id="chartTendencia" width="300" height="200"></canvas></div>
     </div>
 
-    <!-- INFORME -->
-    <div id="tab-informe" class="tab-content stats-panel">
-      <h3>Informe de jugador</h3>
-      <div class="informe-header">
-        <label>JUGADOR</label>
-        <select id="informeJugadorSelect"></select>
-        <button class="btn btn-sm" onclick="generarInforme()">Generar</button>
-      </div>
-      <div id="informeResult"></div>
-      <div class="charts-row">
-        <div><canvas id="chartInformeTorta" width="300" height="220"></canvas></div>
-        <div><canvas id="chartInformeEfectividad" width="400" height="220"></canvas></div>
-      </div>
-    </div>
-
-    <!-- JUGADORES DB -->
+    <!-- JUGADORES DB / INFORME (unificado) -->
     <div id="tab-jugadores" class="tab-content stats-panel">
       <h3>Base de datos de jugadores</h3>
       <div class="player-db-layout">
@@ -590,6 +615,18 @@
         <select id="listaPartidos" class="ctrl-select"><option value="">— Partidos —</option></select>
         <button class="btn btn-sm btn-success" onclick="cargarPartido()"  title="Cargar">📂</button>
         <button class="btn btn-sm btn-danger"  onclick="nuevoPartido()"   title="Nuevo">📝</button>
+      </div>
+    </div>
+
+    <!-- BACKUP -->
+    <div>
+      <div class="section-label">Backup completo</div>
+      <div class="partido-bar">
+        <button class="btn btn-sm btn-ghost" style="flex:1;" onclick="exportarBackupCompleto()" title="Descarga un .json con todo">⬇️ Backup</button>
+        <label class="btn btn-sm btn-success" style="flex:1;text-align:center;cursor:pointer;" title="Restaura desde un .json">
+          ⬆️ Restaurar
+          <input type="file" accept=".json" onchange="importarBackupCompleto(this)" style="display:none;">
+        </label>
       </div>
     </div>
 
@@ -643,6 +680,9 @@
       </div>
     </div>
 
+    <!-- PREDICCIÓN EN VIVO -->
+    <div id="prediccionLive" class="prediccion-panel"></div>
+
     <!-- GOLPES -->
     <div>
       <div class="section-label">Golpes</div>
@@ -682,20 +722,22 @@ const golpesPorZona = {
   }
 };
 
-const zonaPorGolpe = {
-  'Drop Drive Paralelo':'Fondo Derecha','Drop Drive Cruzado':'Fondo Derecha','Drop Rectificado Paralelo':'Fondo Izquierda','Drop Rectificado Cruzado':'Fondo Izquierda',
-  'Smash Drive Paralelo':'Fondo Derecha','Smash Drive Cruzado':'Fondo Derecha','Smash Rectificado Paralelo':'Fondo Izquierda','Smash Rectificado Cruzado':'Fondo Izquierda',
-  'Stick Smash Drive Paralelo':'Fondo Derecha','Stick Smash Drive Cruzado':'Fondo Derecha','Stick Smash Rectificado Paralelo':'Fondo Izquierda','Stick Smash Rectificado Cruzado':'Fondo Izquierda',
-  'Clear Drive Paralelo':'Fondo Derecha','Clear Drive Cruzado':'Fondo Derecha','Clear Rectificado Paralelo':'Fondo Izquierda','Clear Rectificado Cruzado':'Fondo Izquierda',
-  'Reves Drop Paralelo':'Fondo Izquierda','Reves Drop Cruzado':'Fondo Izquierda','Reves Clear Paralelo':'Fondo Izquierda','Reves Clear Cruzado':'Fondo Izquierda',
-  'Barrido Drive Paralelo':'Fondo Derecha','Barrido Drive Cruzado':'Fondo Derecha','Barrido Reves Paralelo':'Fondo Izquierda','Barrido Reves Cruzado':'Fondo Izquierda',
-  'Defensa Drive Paralelo':'Medio Derecha','Defensa Drive Cruzada':'Medio Derecha','Defensa Reves Paralela':'Medio Izquierda','Defensa Reves Cruzada':'Medio Izquierda',
-  'Bloqueo Drive Paralelo':'Medio Derecha','Bloqueo Drive Cruzado':'Medio Derecha','Bloqueo Reves Paralelo':'Medio Izquierda','Bloqueo Reves Cruzado':'Medio Izquierda',
-  'Lift Drive Paralelo':'Medio Derecha','Lift Drive Cruzado':'Medio Derecha','Lift Reves Paralelo':'Medio Izquierda','Lift Reves Cruzado':'Medio Izquierda',
-  'Lob Drive Paralelo':'Red Derecha','Lob Drive Cruzado':'Red Derecha','Lob Reves Paralelo':'Red Izquierda','Lob Reves Cruzado':'Red Izquierda',
-  'Dejada Drive Paralela':'Red Derecha','Dejada Drive Cruzada':'Red Derecha','Dejada Reves Paralela':'Red Izquierda','Dejada Reves Cruzada':'Red Izquierda',
-  'Kill Drive Paralela':'Red Derecha','Kill Drive Cruzada':'Red Derecha','Kill Reves Paralela':'Red Izquierda','Kill Reves Cruzada':'Red Izquierda'
-};
+// Zona por golpe: generada automáticamente a partir de golpesPorZona,
+// en vez de tipeada a mano. Regla (verificada contra la tabla manual anterior,
+// 48/48 coincidencias): el golpe hereda el sector (Fondo/Medio/Red) de su grupo,
+// y el lado es Izquierda si la variante es "Reves" o "Rectificado", Derecha si no.
+// Ventaja: si mañana agregás un golpe nuevo a golpesPorZona, su zona se calcula
+// sola — no hay forma de que quede "sin mapear" por un olvido.
+const PREFIJO_ZONA = { 'Fondo':'Fondo', 'Mitad':'Medio', 'Red':'Red' };
+const zonaPorGolpe = {};
+Object.entries(golpesPorZona).forEach(([grupo, golpes]) => {
+  Object.values(golpes).forEach(variantes => {
+    variantes.forEach(v => {
+      const lado = (v.includes('Reves') || v.includes('Rectificado')) ? 'Izquierda' : 'Derecha';
+      zonaPorGolpe[v] = `${PREFIJO_ZONA[grupo]} ${lado}`;
+    });
+  });
+});
 
 function obtenerZona(golpe) {
   const z = zonaPorGolpe[golpe]||'';
@@ -717,6 +759,7 @@ let resultadosContador = {'winner-propio':0,'out-propio':0,'winner-rival':0,'out
 // SCORE
 let score = [ [0,0], [0,0], [0,0] ]; // [set][propio,rival]
 let setActivo = 0;
+let setsFinalizados = [false,false,false]; // marcador inteligente: qué sets ya se cerraron
 let rallyDurations = [];
 
 function inicializarContadores() { todasLasVariantes.forEach(v=>{ if(!contadores[v]) contadores[v]={propio:0,rival:0}; }); }
@@ -759,6 +802,7 @@ function actualizarScoreboard() {
 function ajustarScore(equipo, setIdx, delta) {
   const col = equipo==='propio' ? 0 : 1;
   score[setIdx][col] = Math.max(0, score[setIdx][col] + delta);
+  verificarFinSet(setIdx);
   actualizarScoreboard();
   guardarTodo();
 }
@@ -766,6 +810,48 @@ function ajustarScore(equipo, setIdx, delta) {
 function cambiarSetActivo(idx) {
   setActivo = idx;
   actualizarScoreboard();
+}
+
+// ═══════════════════════════════════════════
+// MARCADOR INTELIGENTE
+// Reglas de bádminton: gana el set quien llega a 21 con 2 de diferencia,
+// o quien llega primero a 30 (tope de muerte súbita).
+// ═══════════════════════════════════════════
+function evaluarSet(setIdx) {
+  const [p, r] = score[setIdx];
+  const max = Math.max(p, r), diff = Math.abs(p - r);
+  return (max >= 21 && diff >= 2) || max >= 30;
+}
+
+function sincronizarSetsFinalizados() {
+  // Recalcula el estado de sets cerrados SIN disparar avisos.
+  // Se usa al cargar un partido guardado, para no re-anunciar sets viejos.
+  setsFinalizados = score.map((_, i) => evaluarSet(i));
+}
+
+function verificarFinSet(setIdx) {
+  const terminado = evaluarSet(setIdx);
+  if (terminado && !setsFinalizados[setIdx]) {
+    setsFinalizados[setIdx] = true;
+    const [p, r] = score[setIdx];
+    const propioGana = p > r;
+    const ganador = propioGana ? (jugadorPropio || 'Nosotros') : (jugadorRival || 'Rival');
+    toast(`🏸 Set ${setIdx + 1} para ${ganador} (${Math.max(p,r)}-${Math.min(p,r)})`, propioGana ? 'winner' : 'rival');
+    if (setIdx < 2 && setActivo === setIdx) setActivo = setIdx + 1; // auto-avanza al siguiente set
+    verificarFinPartido();
+  } else if (!terminado) {
+    setsFinalizados[setIdx] = false; // permite corregir un marcador tocado por error
+  }
+}
+
+function verificarFinPartido() {
+  const setsProp = score.filter((s,i) => setsFinalizados[i] && s[0] > s[1]).length;
+  const setsRiv  = score.filter((s,i) => setsFinalizados[i] && s[1] > s[0]).length;
+  if (setsProp === 2 || setsRiv === 2) {
+    const propioGana = setsProp === 2;
+    const ganador = propioGana ? (jugadorPropio || 'Nosotros') : (jugadorRival || 'Rival');
+    toast(`🏆 ¡Partido ganado por ${ganador}! (${Math.max(setsProp,setsRiv)}-${Math.min(setsProp,setsRiv)} sets)`, propioGana ? 'winner' : 'rival');
+  }
 }
 
 function actualizarRacha() {
@@ -857,8 +943,10 @@ function cargarTodo() {
   }
   const sc=JSON.parse(localStorage.getItem('scoreBadminton')||'null');
   if (sc) score=sc;
+  sincronizarSetsFinalizados();
   actualizarScoreboard();
   cargarListaPartidos();
+  chequearRecordatorioBackup();
 }
 cargarTodo();
 
@@ -893,10 +981,11 @@ function cargarPartido() {
   contadores=partido.contadores; eventos=partido.eventos||[];
   resultadosContador=partido.resultadosContador||{'winner-propio':0,'out-propio':0,'winner-rival':0,'out-rival':0};
   if (partido.score) score=partido.score;
+  sincronizarSetsFinalizados();
   document.getElementById('urlInput').value=partido.videoUrl||'';
   actualizarSelectores(); document.getElementById('jugadorPropio').value=jugadorPropio; document.getElementById('jugadorRival').value=jugadorRival;
   guardarTodo(); actualizarTodosLosContadoresVisuales(); actualizarContadoresResultados();
-  reconstruirTablaEventos(); actualizarScoreboard();
+  reconstruirTablaEventos(); actualizarScoreboard(); limpiarPrediccionLive();
   cargarVideo(); toast('📂 Partido cargado', 'info');
 }
 
@@ -904,11 +993,61 @@ function nuevoPartido() {
   if (!confirm('¿Iniciar nuevo análisis?')) return;
   contadores={}; inicializarContadores(); eventos=[];
   resultadosContador={'winner-propio':0,'out-propio':0,'winner-rival':0,'out-rival':0};
-  score=[[0,0],[0,0],[0,0]]; setActivo=0;
+  score=[[0,0],[0,0],[0,0]]; setActivo=0; setsFinalizados=[false,false,false];
   actualizarContadoresResultados(); guardarTodo();
   document.getElementById('tablaEventos').innerHTML='';
-  actualizarTodosLosContadoresVisuales(); actualizarScoreboard();
+  actualizarTodosLosContadoresVisuales(); actualizarScoreboard(); limpiarPrediccionLive();
   toast('📝 Nuevo análisis', 'info');
+}
+
+// ═══════════════════════════════════════════
+// BACKUP / RESTAURAR
+// Todo hoy vive en el localStorage del navegador. Este backup es la red de
+// seguridad real: un .json descargable que podés guardar en Drive, mandarte
+// por mail, o subir desde OTRA compu/navegador para recuperar todo tal cual.
+// ═══════════════════════════════════════════
+const CLAVES_BACKUP = [
+  'contadoresBadmintonV7','eventosBadmintonV7','jugadoresBadminton',
+  'jugadorPropioBadminton','jugadorRivalBadminton','scoreBadminton',
+  'partidosBadmintonV7','badmintonJugadoresDB'
+];
+
+function exportarBackupCompleto() {
+  const backup = { version:1, fecha:new Date().toISOString(), datos:{} };
+  CLAVES_BACKUP.forEach(k => { const v=localStorage.getItem(k); if (v!==null) backup.datos[k]=v; });
+  const fechaArchivo = new Date().toISOString().slice(0,10);
+  descargarArchivo(JSON.stringify(backup,null,2), `backup-badminton-${fechaArchivo}.json`, 'application/json');
+  localStorage.setItem('ultimoBackupBadminton', Date.now().toString());
+  toast('⬇️ Backup descargado — guardalo en Drive o donde no se pierda', 'winner');
+}
+
+function importarBackupCompleto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const backup = JSON.parse(e.target.result);
+      if (!backup.datos) throw new Error('Formato inválido');
+      if (!confirm('Esto va a REEMPLAZAR todos los datos actuales de este navegador por los del backup. ¿Continuar?')) return;
+      Object.entries(backup.datos).forEach(([k,v]) => localStorage.setItem(k, v));
+      localStorage.setItem('ultimoBackupBadminton', Date.now().toString());
+      toast('⬆️ Backup restaurado — recargando…', 'winner');
+      setTimeout(() => location.reload(), 900);
+    } catch (err) {
+      toast('❌ Archivo de backup inválido', 'error');
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function chequearRecordatorioBackup() {
+  const ultimo = parseInt(localStorage.getItem('ultimoBackupBadminton')||'0');
+  const dias = ultimo ? (Date.now()-ultimo)/(1000*60*60*24) : Infinity;
+  if (dias > 7 && (eventos.length>0 || JSON.parse(localStorage.getItem('partidosBadmintonV7')||'[]').length>0)) {
+    setTimeout(() => toast('💾 Hace más de 7 días que no hacés un backup completo', 'warning'), 1500);
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -974,6 +1113,82 @@ function toggleMano() {
 // ═══════════════════════════════════════════
 // REGISTRO DE GOLPES
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// PREDICCIÓN EN VIVO — probabilidad condicional de zona siguiente,
+// dado la última zona golpeada por ESE jugador. Combina TODO su historial
+// guardado + lo que vas tageando en el partido actual, en tiempo real.
+// Cuantos más partidos analizás, más se afina el % (más n = más confianza).
+// ═══════════════════════════════════════════
+function obtenerRalliesJugador(eventosPartido, ejecutorObjetivo) {
+  const ordenados = [...eventosPartido].sort((a,b)=>a.tiempo-b.tiempo);
+  const rallies = []; let actual = [];
+  ordenados.forEach(ev => { actual.push(ev); if (ev.result) { rallies.push(actual); actual=[]; } });
+  if (actual.length) rallies.push(actual);
+  return rallies.map(r => r.filter(ev => ev.ejecutor===ejecutorObjetivo && ev.zona));
+}
+
+function calcularProbabilidadesZona(nombre) {
+  const transiciones = {}; // { 'Fondo Derecha': { 'Red Izquierda': count, ... } }
+  const registrarSecuencia = (secuencia) => {
+    for (let i=0; i<secuencia.length-1; i++) {
+      const a=secuencia[i].zona, b=secuencia[i+1].zona;
+      (transiciones[a]=transiciones[a]||{})[b]=(transiciones[a][b]||0)+1;
+    }
+  };
+  // Historial de partidos guardados
+  const partidos = JSON.parse(localStorage.getItem('partidosBadmintonV7')||'[]');
+  partidos.filter(p=>p.jugadorPropio===nombre||p.jugadorRival===nombre).forEach(p=>{
+    const ej = p.jugadorPropio===nombre ? 'propio' : 'rival';
+    obtenerRalliesJugador(p.eventos||[], ej).forEach(registrarSecuencia);
+  });
+  // Partido en curso (todavía no guardado) — solo si este jugador está activo ahora
+  if (jugadorPropio===nombre || jugadorRival===nombre) {
+    const ej = jugadorPropio===nombre ? 'propio' : 'rival';
+    obtenerRalliesJugador(eventos, ej).forEach(registrarSecuencia);
+  }
+  return transiciones;
+}
+
+function nivelConfianzaPrediccion(n) {
+  if (n>=10) return {texto:'patrón consolidado', clase:'alta'};
+  if (n>=4)  return {texto:'tendencia emergente', clase:'media'};
+  return {texto:'dato preliminar', clase:'baja'};
+}
+
+function actualizarPrediccionLive(evento) {
+  const panel = document.getElementById('prediccionLive');
+  if (!panel) return;
+  if (!evento || !evento.zona) { panel.innerHTML=''; return; }
+  const transiciones = calcularProbabilidadesZona(evento.jugador);
+  const destinos = transiciones[evento.zona];
+  if (!destinos) {
+    panel.innerHTML = `<div class="prediccion-vacio">🔮 Sin historial todavía de ${evento.jugador} desde ${evento.zona} — se va a ir armando a medida que tagees.</div>`;
+    return;
+  }
+  const total = Object.values(destinos).reduce((a,b)=>a+b,0);
+  const ordenado = Object.entries(destinos).sort((a,b)=>b[1]-a[1]);
+  const conf = nivelConfianzaPrediccion(total);
+  panel.innerHTML = `
+    <div class="prediccion-header">
+      <span>🔮 <strong>${evento.jugador}</strong> — después de ${evento.zona} suele ir a:</span>
+      <span class="prediccion-conf conf-${conf.clase}">${conf.texto} · n=${total}</span>
+    </div>
+    ${ordenado.slice(0,3).map(([zona,n]) => {
+      const pct = Math.round((n/total)*100);
+      return `<div class="prediccion-row">
+        <span>${zona}</span>
+        <div class="prediccion-bar-wrap"><div class="prediccion-bar" style="width:${pct}%"></div></div>
+        <span class="prediccion-pct">${pct}%</span>
+      </div>`;
+    }).join('')}
+  `;
+}
+
+function limpiarPrediccionLive() {
+  const panel = document.getElementById('prediccionLive');
+  if (panel) panel.innerHTML = '';
+}
+
 function registrarGolpe(variante) {
   if (!iframe?.src) return alert('Carga un vídeo primero.');
   const jugador=ejecutorActual==='propio'?jugadorPropio:jugadorRival;
@@ -988,6 +1203,7 @@ function registrarGolpe(variante) {
   eventos.push(evento);
   agregarFilaTabla(eventos.length-1,evento);
   guardarTodo();
+  actualizarPrediccionLive(evento);
   const base=variante.split(' ').slice(0,-1).join(' ');
   toast(`🏸 ${base} — ${jugador}`, 'info');
 }
@@ -1109,10 +1325,10 @@ function reiniciarContadores() {
   if (!confirm('¿Reiniciar todos los contadores?')) return;
   contadores={}; inicializarContadores(); eventos=[];
   resultadosContador={'winner-propio':0,'out-propio':0,'winner-rival':0,'out-rival':0};
-  score=[[0,0],[0,0],[0,0]]; setActivo=0;
+  score=[[0,0],[0,0],[0,0]]; setActivo=0; setsFinalizados=[false,false,false];
   actualizarContadoresResultados(); guardarTodo();
   document.getElementById('tablaEventos').innerHTML='';
-  actualizarTodosLosContadoresVisuales(); actualizarScoreboard();
+  actualizarTodosLosContadoresVisuales(); actualizarScoreboard(); limpiarPrediccionLive();
   toast('🔄 Reiniciado', 'info');
 }
 
@@ -1120,7 +1336,7 @@ function reiniciarContadores() {
 // TABS
 // ═══════════════════════════════════════════
 function cambiarTab(tab) {
-  ['eventos','estadisticas','tendencias','informe','jugadores'].forEach(t=>{
+  ['eventos','estadisticas','tendencias','jugadores'].forEach(t=>{
     document.getElementById(`btnTab${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.remove('active');
     document.getElementById(`tab-${t}`).classList.remove('active');
   });
@@ -1128,7 +1344,6 @@ function cambiarTab(tab) {
   document.getElementById(`tab-${tab}`).classList.add('active');
   if(tab==='estadisticas') generarEstadisticas();
   if(tab==='tendencias')   inicializarTendencias();
-  if(tab==='informe')      inicializarInforme();
   if(tab==='jugadores')    renderizarListaJugadoresDB();
 }
 
@@ -1252,7 +1467,196 @@ function eliminarJugadorDB(nombre) {
   document.getElementById('playerProfileArea').innerHTML='<div class="empty-state">← Seleccioná un jugador</div>';
 }
 
-let chartPerfilTorta,chartPerfilZona;
+// ═══════════════════════════════════════════
+// COURT HEATMAP — media cancha con las 6 zonas reales
+// (Fondo/Medio/Red × Izquierda/Derecha) que ya calcula calcularPerfil().
+// Idea adaptada de ShuttleScope, reescrita en SVG plano con la paleta propia.
+// ═══════════════════════════════════════════
+const ZONE_GRID = {
+  'Red Izquierda':   { r:0, c:0, label:'RED · IZQ'   },
+  'Red Derecha':      { r:0, c:1, label:'RED · DER'   },
+  'Medio Izquierda':  { r:1, c:0, label:'MEDIO · IZQ' },
+  'Medio Derecha':    { r:1, c:1, label:'MEDIO · DER' },
+  'Fondo Izquierda':  { r:2, c:0, label:'FONDO · IZQ' },
+  'Fondo Derecha':    { r:2, c:1, label:'FONDO · DER' },
+};
+
+function heatColor(t) {
+  // Escala fría → caliente reusando accent/accent3/accent2 (ya existen en la paleta)
+  const stops = [[0,229,255],[255,215,0],[255,56,96]];
+  const [c1,c2,lt] = t < 0.5 ? [stops[0],stops[1],t/0.5] : [stops[1],stops[2],(t-0.5)/0.5];
+  const r=Math.round(c1[0]+(c2[0]-c1[0])*lt), g=Math.round(c1[1]+(c2[1]-c1[1])*lt), b=Math.round(c1[2]+(c2[2]-c1[2])*lt);
+  return `rgb(${r},${g},${b})`;
+}
+
+function renderZonaHeatmap(zonasOrdenadas) {
+  const dataMap = {}; zonasOrdenadas.forEach(([z,n]) => dataMap[z]=n);
+  const maxN = Math.max(1, ...zonasOrdenadas.map(z=>z[1]));
+  const totalN = zonasOrdenadas.reduce((s,z)=>s+z[1], 0);
+  const colW=150, rowH=125;
+  let cells='';
+  Object.entries(ZONE_GRID).forEach(([zoneName,pos]) => {
+    const n = dataMap[zoneName]||0;
+    const t = n/maxN;
+    const x = pos.c*colW, y = pos.r*rowH;
+    const hasData = n>0;
+    const fill = hasData ? heatColor(t) : '#171b26';
+    const pct = totalN ? Math.round((n/totalN)*100) : 0;
+    const textFill = hasData && t>0.35 ? '#0a0c10' : '#6b7280';
+    cells += `
+      <rect x="${x+3}" y="${y+3}" width="${colW-6}" height="${rowH-6}" rx="10" fill="${fill}" stroke="#252a38" stroke-width="1.5"/>
+      <text x="${x+colW/2}" y="${y+20}" class="heatzone-tag" fill="${textFill}">${pos.label}</text>
+      <text x="${x+colW/2}" y="${y+rowH/2+9}" class="heatzone-num" fill="${textFill}">${n}</text>
+      <text x="${x+colW/2}" y="${y+rowH-12}" class="heatzone-pct" fill="${textFill}">${hasData?pct+'%':'—'}</text>`;
+  });
+  return `
+    <div class="court-heatmap-wrap">
+      <div class="court-heatmap-title">🔥 Mapa de calor · zona de origen</div>
+      <svg viewBox="0 0 ${colW*2} ${rowH*3}" class="court-heatmap-svg">
+        <line x1="0" y1="0" x2="${colW*2}" y2="0" stroke="#fff" stroke-width="3" opacity="0.6"/>
+        ${cells}
+        <line x1="${colW}" y1="0" x2="${colW}" y2="${rowH*3}" stroke="#0a0c10" stroke-width="4"/>
+        <line x1="0" y1="${rowH}" x2="${colW*2}" y2="${rowH}" stroke="#0a0c10" stroke-width="4"/>
+        <line x1="0" y1="${rowH*2}" x2="${colW*2}" y2="${rowH*2}" stroke="#0a0c10" stroke-width="4"/>
+      </svg>
+      <div class="court-heatmap-legend">
+        <span>Menos</span><div class="court-heatmap-legend-track"></div><span>Más</span>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════
+// PATRONES DE ZONA — detecta secuencias de zona que se repiten
+// (a dónde ataca un jugador y después a dónde), respetando límites
+// de partido y de rally: nunca mezcla golpes de partidos distintos,
+// ni pega el último golpe de un rally con el primero del siguiente.
+// Un rally termina en el primer evento con result != null.
+// ═══════════════════════════════════════════
+function baseDeGolpe(tipo) { return tipo.split(' ').slice(0,-1).join(' '); }
+
+function calcularPatronesZona(nombre) {
+  const partidos = JSON.parse(localStorage.getItem('partidosBadmintonV7')||'[]');
+  const partidosDelJugador = partidos.filter(p => p.jugadorPropio===nombre || p.jugadorRival===nombre);
+  const bigramas = {}, trigramas = {}, golpesPorBigrama = {};
+  let totalRalliesConGolpes = 0;
+
+  partidosDelJugador.forEach(p => {
+    const ejecutorObjetivo = p.jugadorPropio===nombre ? 'propio' : 'rival';
+    const eventosOrdenados = [...(p.eventos||[])].sort((a,b)=>a.tiempo-b.tiempo);
+
+    // Partir en rallies: cada rally cierra en el primer evento con result != null
+    const rallies = []; let actual = [];
+    eventosOrdenados.forEach(ev => {
+      actual.push(ev);
+      if (ev.result) { rallies.push(actual); actual = []; }
+    });
+    if (actual.length) rallies.push(actual);
+
+    rallies.forEach(rally => {
+      const secuencia = rally.filter(ev => ev.ejecutor===ejecutorObjetivo && ev.zona);
+      if (secuencia.length) totalRalliesConGolpes++;
+      for (let i=0; i<secuencia.length-1; i++) {
+        const key = `${secuencia[i].zona} → ${secuencia[i+1].zona}`;
+        bigramas[key] = (bigramas[key]||0)+1;
+        const golpeKey = `${baseDeGolpe(secuencia[i].tipo)} → ${baseDeGolpe(secuencia[i+1].tipo)}`;
+        (golpesPorBigrama[key]=golpesPorBigrama[key]||{})[golpeKey]=(golpesPorBigrama[key][golpeKey]||0)+1;
+      }
+      for (let i=0; i<secuencia.length-2; i++) {
+        const key = `${secuencia[i].zona} → ${secuencia[i+1].zona} → ${secuencia[i+2].zona}`;
+        trigramas[key] = (trigramas[key]||0)+1;
+      }
+    });
+  });
+
+  const topPatrones = (mapa, min=2, limite=6) =>
+    Object.entries(mapa).filter(([,n])=>n>=min).sort((a,b)=>b[1]-a[1]).slice(0,limite);
+
+  return {
+    totalRalliesConGolpes,
+    bigramasTop: topPatrones(bigramas),
+    trigramasTop: topPatrones(trigramas),
+    golpesPorBigrama
+  };
+}
+
+function renderPatronesZona(patrones) {
+  if (!patrones.bigramasTop.length && !patrones.trigramasTop.length) {
+    return `<div class="patrones-wrap"><div class="patrones-title">🔁 Patrones de zona repetidos</div>
+      <div class="patrones-empty">Todavía no hay suficientes rallies con golpes de este jugador (mín. 2 repeticiones) para detectar un patrón. Sumá más partidos con zonas tageadas.</div></div>`;
+  }
+  const filaBigrama = ([pattern,count]) => {
+    const golpesMap = patrones.golpesPorBigrama[pattern]||{};
+    const top = Object.entries(golpesMap).sort((a,b)=>b[1]-a[1])[0];
+    return `<div class="patron-row">
+      <div class="patron-zonas">${pattern}</div>
+      <div class="patron-meta">${top?`<span class="patron-golpes">${top[0]}</span>`:''}<span class="patron-count">${count}×</span></div>
+    </div>`;
+  };
+  const filaTrigrama = ([pattern,count]) => `<div class="patron-row">
+    <div class="patron-zonas">${pattern}</div>
+    <div class="patron-meta"><span class="patron-count">${count}×</span></div>
+  </div>`;
+  return `<div class="patrones-wrap">
+    <div class="patrones-title">🔁 Patrones de zona repetidos</div>
+    <div class="patrones-sub">Sobre ${patrones.totalRalliesConGolpes} rallies con golpes registrados de este jugador</div>
+    ${patrones.bigramasTop.length ? `<div class="patrones-grupo-label">Transición de 2 golpes</div>${patrones.bigramasTop.map(filaBigrama).join('')}` : ''}
+    ${patrones.trigramasTop.length ? `<div class="patrones-grupo-label">Combo de 3 golpes</div>${patrones.trigramasTop.map(filaTrigrama).join('')}` : ''}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════
+// EFECTIVIDAD POR ZONA — no solo "cuánto ataca desde cada zona" (heatmap),
+// sino "si le funciona": winners vs errores por zona, para separar zonas
+// que le rinden puntos de zonas que le cuestan errores.
+// Idea adaptada del framework "Shot Influence" de CoachAI (ICDM-21 / ACM TIST 2022),
+// reescrita como estadística simple sobre tus partidos guardados.
+// ═══════════════════════════════════════════
+function calcularEfectividadPorZona(nombre) {
+  const partidos = JSON.parse(localStorage.getItem('partidosBadmintonV7')||'[]');
+  const stats = {};
+  partidos.forEach(p => {
+    if (p.jugadorPropio!==nombre && p.jugadorRival!==nombre) return;
+    const esP = p.jugadorPropio===nombre;
+    (p.eventos||[]).forEach(ev => {
+      if (ev.jugador!==nombre || !ev.result || !ev.zona) return;
+      const esWinner = (esP && ev.result==='winner-propio') || (!esP && ev.result==='winner-rival');
+      const esError  = (esP && ev.result==='out-propio')    || (!esP && ev.result==='out-rival');
+      if (!esWinner && !esError) return;
+      stats[ev.zona] = stats[ev.zona] || {winners:0, errores:0};
+      if (esWinner) stats[ev.zona].winners++; else stats[ev.zona].errores++;
+    });
+  });
+  return stats;
+}
+
+function renderEfectividadZona(stats) {
+  const entradas = Object.entries(stats).map(([zona,{winners,errores}]) => {
+    const total = winners+errores;
+    return {zona, winners, errores, total, rate: total?winners/total:0};
+  }).filter(e => e.total>=2); // mínimo 2 puntos decididos desde esa zona para no mostrar ruido
+
+  if (!entradas.length) {
+    return `<div class="patrones-wrap"><div class="patrones-title">🎯 Efectividad por zona</div>
+      <div class="patrones-empty">Necesitás al menos 2 puntos con winner/error marcados desde una misma zona para este análisis.</div></div>`;
+  }
+  const efectivas = [...entradas].filter(e=>e.rate>=0.5).sort((a,b)=>b.rate-a.rate).slice(0,3);
+  const riesgo    = [...entradas].filter(e=>e.rate<0.5).sort((a,b)=>a.rate-b.rate).slice(0,3);
+  const fila = (e, ok) => `<div class="patron-row">
+    <div class="patron-zonas">${e.zona}</div>
+    <div class="patron-meta">
+      <span class="patron-golpes">${e.winners}W / ${e.errores}E</span>
+      <span class="patron-count" style="color:${ok?'var(--winner)':'var(--error)'}">${Math.round(e.rate*100)}%</span>
+    </div>
+  </div>`;
+  return `<div class="patrones-wrap">
+    <div class="patrones-title">🎯 Efectividad por zona</div>
+    <div class="patrones-sub">Winners vs errores por zona (mínimo 2 puntos decididos)</div>
+    ${efectivas.length ? `<div class="patrones-grupo-label" style="color:var(--winner)">Zonas que le funcionan</div>${efectivas.map(e=>fila(e,true)).join('')}` : ''}
+    ${riesgo.length ? `<div class="patrones-grupo-label" style="color:var(--error)">Zonas de riesgo</div>${riesgo.map(e=>fila(e,false)).join('')}` : ''}
+  </div>`;
+}
+
+let chartPerfilTorta;
 function mostrarPerfilJugador(nombre,itemEl) {
   document.querySelectorAll('.player-item').forEach(el=>el.classList.remove('selected'));
   if(itemEl) itemEl.classList.add('selected');
@@ -1307,8 +1711,10 @@ function mostrarPerfilJugador(nombre,itemEl) {
     </div>
     <div class="charts-row" style="margin-top:16px;">
       <div><canvas id="chartPerfilTorta" width="280" height="220"></canvas></div>
-      <div><canvas id="chartPerfilZona"  width="280" height="220"></canvas></div>
+      <div>${renderZonaHeatmap(perfil.zonasOrdenadas)}</div>
     </div>
+    ${renderPatronesZona(calcularPatronesZona(nombre))}
+    ${renderEfectividadZona(calcularEfectividadPorZona(nombre))}
     <div style="margin-top:12px;">
       <div class="section-label">Notas del entrenador</div>
       <textarea id="notasJugador" rows="3" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius);padding:8px;font-family:var(--font-body);font-size:0.8rem;resize:vertical;">${perfil.notas}</textarea>
@@ -1316,12 +1722,9 @@ function mostrarPerfilJugador(nombre,itemEl) {
     </div>
   `;
   if(chartPerfilTorta) chartPerfilTorta.destroy();
-  if(chartPerfilZona)  chartPerfilZona.destroy();
   Chart.defaults.color='#6b7280';
   const ctx1=document.getElementById('chartPerfilTorta').getContext('2d');
   chartPerfilTorta=new Chart(ctx1,{type:'doughnut',data:{labels:perfil.basesOrdenadas.map(b=>b[0]),datasets:[{data:perfil.basesOrdenadas.map(b=>b[1]),backgroundColor:['#00e5ff','#ff3860','#ffd700','#7c3aed','#10b981','#f59e0b','#6610f2','#fd7e14','#20c997']}]},options:{responsive:true,plugins:{title:{display:true,text:'Golpes base',color:'#e8eaf0'},legend:{labels:{color:'#e8eaf0',boxWidth:10,font:{size:9}}}}}});
-  const ctx2=document.getElementById('chartPerfilZona').getContext('2d');
-  chartPerfilZona=new Chart(ctx2,{type:'bar',data:{labels:perfil.zonasOrdenadas.map(z=>z[0]),datasets:[{label:'Golpes',data:perfil.zonasOrdenadas.map(z=>z[1]),backgroundColor:'rgba(0,229,255,0.6)'}]},options:{responsive:true,indexAxis:'y',plugins:{title:{display:true,text:'Por zona',color:'#e8eaf0'},legend:{display:false}},scales:{x:{ticks:{color:'#6b7280'}},y:{ticks:{color:'#6b7280',font:{size:9}}}}}});
 }
 
 function generarPlanJuego(perfil,nombre) {
@@ -1386,44 +1789,6 @@ function mostrarTendencia(base) {
   if(chartTendencia) chartTendencia.destroy();
   const ctx=document.getElementById('chartTendencia').getContext('2d');
   chartTendencia=new Chart(ctx,{type:'pie',data:{labels:data.map(d=>d.variante),datasets:[{data:data.map(d=>d.total),backgroundColor:['#00e5ff','#ff3860','#ffd700','#7c3aed','#10b981','#f59e0b']}]},options:{responsive:true,plugins:{title:{display:true,text:`Distribución ${base}`,color:'#e8eaf0'},legend:{labels:{color:'#e8eaf0'}}}}});
-}
-
-// ═══════════════════════════════════════════
-// INFORME
-// ═══════════════════════════════════════════
-let chartInformeTorta,chartInformeEfectividad;
-function inicializarInforme() {
-  const s=document.getElementById('informeJugadorSelect'); s.innerHTML='';
-  jugadores.forEach(j=>{ const o=document.createElement('option'); o.value=j; o.textContent=j; s.appendChild(o); });
-  if(jugadores.length) s.value=jugadores[0];
-  document.getElementById('informeResult').innerHTML='';
-  if(chartInformeTorta) chartInformeTorta.destroy();
-  if(chartInformeEfectividad) chartInformeEfectividad.destroy();
-}
-
-function generarInforme() {
-  const jugador=document.getElementById('informeJugadorSelect').value;
-  if (!jugador) return alert('Seleccioná un jugador.');
-  const partidos=JSON.parse(localStorage.getItem('partidosBadmintonV7')||'[]');
-  let total=0; const cB={},ef={winners:0,errores:0};
-  partidos.forEach(p=>{ if(p.jugadorPropio===jugador||p.jugadorRival===jugador){ (p.eventos||[]).forEach(ev=>{ if(ev.jugador!==jugador) return; total++; const b=ev.tipo.split(' ').slice(0,-1).join(' '); cB[b]=(cB[b]||0)+1; if(p.jugadorPropio===jugador){ if(ev.result==='winner-propio') ef.winners++; if(ev.result==='out-propio') ef.errores++; }else{ if(ev.result==='winner-rival') ef.winners++; if(ev.result==='out-rival') ef.errores++; } }); } });
-  if (!total) { document.getElementById('informeResult').innerHTML='<p style="color:var(--text-muted)">Sin datos. Guardá al menos un partido primero.</p>'; return; }
-  const bo=Object.entries(cB).sort((a,b)=>b[1]-a[1]);
-  let html=`<p><strong>Golpes:</strong> ${total} &nbsp;|&nbsp; <strong style="color:var(--winner)">Winners:</strong> ${ef.winners} &nbsp;|&nbsp; <strong style="color:var(--error)">Errores:</strong> ${ef.errores}</p><ul class="stat-list" style="margin-top:10px;">`;
-  bo.forEach(([b,n])=>{ const pct=((n/total)*100).toFixed(1); html+=`<li><span>${b}</span><span><strong>${n}</strong> <span class="stat-pct">${pct}%</span></span></li>`; });
-  html+='</ul>';
-  if(bo.length){ const f=bo[0]; let fr=`Golpe más frecuente de <strong>${jugador}</strong>: <strong>${f[0]}</strong> (${((f[1]/total)*100).toFixed(1)}%). `; if(ef.winners+ef.errores>0){ const e=((ef.winners/(ef.winners+ef.errores))*100).toFixed(1); fr+=`Índice winner/error: <strong>${e}%</strong>.`; } html+=`<div class="tactical-note"><strong>📌 Análisis táctico —</strong> ${fr}</div>`; }
-  document.getElementById('informeResult').innerHTML=html;
-  if(chartInformeTorta) chartInformeTorta.destroy();
-  const ctx1=document.getElementById('chartInformeTorta').getContext('2d');
-  chartInformeTorta=new Chart(ctx1,{type:'doughnut',data:{labels:bo.map(b=>b[0]),datasets:[{data:bo.map(b=>b[1]),backgroundColor:['#00e5ff','#ff3860','#ffd700','#7c3aed','#10b981','#f59e0b','#6610f2','#fd7e14','#20c997']}]},options:{responsive:true,plugins:{title:{display:true,text:'Golpes base',color:'#e8eaf0'},legend:{labels:{color:'#e8eaf0'}}}}});
-  const epB={};
-  bo.forEach(([b])=>epB[b]={winners:0,errores:0});
-  partidos.forEach(p=>{ if(p.jugadorPropio===jugador||p.jugadorRival===jugador){ (p.eventos||[]).forEach(ev=>{ if(ev.jugador!==jugador) return; const b=ev.tipo.split(' ').slice(0,-1).join(' '); if(!epB[b]) epB[b]={winners:0,errores:0}; if(p.jugadorPropio===jugador){ if(ev.result==='winner-propio') epB[b].winners++; if(ev.result==='out-propio') epB[b].errores++; }else{ if(ev.result==='winner-rival') epB[b].winners++; if(ev.result==='out-rival') epB[b].errores++; } }); } });
-  const lE=Object.keys(epB);
-  if(chartInformeEfectividad) chartInformeEfectividad.destroy();
-  const ctx2=document.getElementById('chartInformeEfectividad').getContext('2d');
-  chartInformeEfectividad=new Chart(ctx2,{type:'bar',data:{labels:lE,datasets:[{label:'Winners',data:lE.map(b=>epB[b].winners),backgroundColor:'rgba(16,185,129,0.75)'},{label:'Errores',data:lE.map(b=>epB[b].errores),backgroundColor:'rgba(239,68,68,0.65)'}]},options:{responsive:true,plugins:{title:{display:true,text:'Efectividad por golpe',color:'#e8eaf0'},legend:{labels:{color:'#e8eaf0'}}},scales:{x:{ticks:{color:'#6b7280'},stacked:true},y:{ticks:{color:'#6b7280'},stacked:true}}}});
 }
 
 // ═══════════════════════════════════════════
